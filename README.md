@@ -1,5 +1,7 @@
 # REF Manager v2.0
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 A comprehensive Research Excellence Framework (REF) submission management system built with Django.
 
 ## 🎯 Features
