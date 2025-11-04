@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2>
+                <i class="fas fa-file-import"></i> Import Outputs from CSV
+            </h2>
+            
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Upload CSV File</h5>
+                    <p class="text-muted">
+                        Upload a CSV file containing research output data. The file must include
+                        at least <strong>Title</strong> and <strong>Person</strong> columns.
+                    </p>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            {{ form.csv_file.label_tag }}
+                            {{ form.csv_file }}
+                            {% if form.csv_file.errors %}
+                                <div class="text-danger">
+                                    {{ form.csv_file.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                {{ form.csv_file.help_text }}
+                            </small>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            {{ form.skip_duplicates }}
+                            {{ form.skip_duplicates.label_tag }}
+                            {% if form.skip_duplicates.errors %}
+                                <div class="text-danger">
+                                    {{ form.skip_duplicates.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            {{ form.create_missing_staff }}
+                            {{ form.create_missing_staff.label_tag }}
+                            <br>
+                            <small class="form-text text-muted">
+                                {{ form.create_missing_staff.help_text }}
+                            </small>
+                            {% if form.create_missing_staff.errors %}
+                                <div class="text-danger">
+                                    {{ form.create_missing_staff.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'output_list' %}" class="btn btn-secondary">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Import
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Expected CSV Format</h5>
+                    <p class="text-muted">Your CSV file should have the following columns:</p>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Column Name</th>
+                                    <th>Required</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>Title</code></td>
+                                    <td><span class="badge bg-danger">Required</span></td>
+                                    <td>Output title</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Person</code></td>
+                                    <td><span class="badge bg-danger">Required</span></td>
+                                    <td>Author(s), separated by //</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Current publication status</code></td>
+                                    <td><span class="badge bg-secondary">Optional</span></td>
+                                    <td>Published, Accepted/In press, etc.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Type</code></td>
+                                    <td><span class="badge bg-secondary">Optional</span></td>
+                                    <td>Article, Book, Chapter, etc.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Journal title</code></td>
+                                    <td><span class="badge bg-secondary">Optional</span></td>
+                                    <td>Name of journal</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Publisher</code></td>
+                                    <td><span class="badge bg-secondary">Optional</span></td>
+                                    <td>Publisher name</td>
+                                </tr>
+                                <tr>
+                                    <td><code>DOIs (Digital Object Identifiers)</code></td>
+                                    <td><span class="badge bg-secondary">Optional</span></td>
+                                    <td>DOI identifier</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Full date</code></td>
+                                    <td><span class="badge bg-secondary">Optional</span></td>
+                                    <td>Publication date</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Earliest published date</code></td>
+                                    <td><span class="badge bg-secondary">Optional</span></td>
+                                    <td>Alternative publication date</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Host publication volume</code></td>
+                                    <td><span class="badge bg-secondary">Optional</span></td>
+                                    <td>Volume number</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Issue number</code></td>
+                                    <td><span class="badge bg-secondary">Optional</span></td>
+                                    <td>Issue number</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Pages (from-to)</code></td>
+                                    <td><span class="badge bg-secondary">Optional</span></td>
+                                    <td>Page range</td>
+                                </tr>
+                                <tr>
+                                    <td><code>ISBN (print)</code></td>
+                                    <td><span class="badge bg-secondary">Optional</span></td>
+                                    <td>ISBN for books</td>
+                                </tr>
+                                <tr>
+                                    <td><code>REF Open Access compliance status</code></td>
+                                    <td><span class="badge bg-secondary">Optional</span></td>
+                                    <td>OA compliance status</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Pure ID</code></td>
+                                    <td><span class="badge bg-secondary">Optional</span></td>
+                                    <td>Stored in notes field</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Organisational unit</code></td>
+                                    <td><span class="badge bg-secondary">Optional</span></td>
+                                    <td>Stored in notes field</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <strong>Note:</strong> The import function will:
+                        <ul class="mb-0">
+                            <li>Automatically parse multiple authors from the Person field (separated by //)</li>
+                            <li>Use the first author as the primary staff member for the output</li>
+                            <li>Create new staff records if they don't exist (if enabled)</li>
+                            <li>Skip duplicate outputs based on title (if enabled)</li>
+                            <li>Store additional information (Pure ID, organisational units, all authors) in the notes field</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

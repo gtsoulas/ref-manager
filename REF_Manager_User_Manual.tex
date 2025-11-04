@@ -1,0 +1,980 @@
+%%% ref_manager_user_manual.tex --- 
+%% 
+%% Filename: ref_manager_user_manual.tex
+%% Description: 
+%% Author: George Tsoulas
+%% Maintainer: 
+%% Created: Tue Oct 21 23:11:01 2025 (+0100)
+%% Version: 
+%% Package-Requires: ()
+%% Last-Updated: 
+%%           By: 
+%%     Update #: 0
+%% URL: 
+%% Doc URL: 
+%% Keywords: 
+%% Compatibility: 
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 
+%%% Commentary: 
+%% 
+%% 
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 
+%%% Change Log:
+%% 
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 
+%% This program is free software: you can redistribute it and/or modify
+%% it under the terms of the GNU General Public License as published by
+%% the Free Software Foundation, either version 3 of the License, or (at
+%% your option) any later version.
+%% 
+%% This program is distributed in the hope that it will be useful, but
+%% WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+%% General Public License for more details.
+%% 
+%% You should have received a copy of the GNU General Public License
+%% along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 
+%%% Code:
+\documentclass[11pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{tcolorbox}
+
+\geometry{margin=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+% Colors
+\definecolor{primaryblue}{RGB}{0,102,204}
+\definecolor{successgreen}{RGB}{40,167,69}
+\definecolor{warningorange}{RGB}{255,193,7}
+\definecolor{codebackground}{RGB}{245,245,245}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primaryblue,
+    urlcolor=primaryblue,
+    citecolor=primaryblue
+}
+
+% Headers and footers
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{REF Manager User Manual}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Custom boxes
+\newtcolorbox{tipbox}{
+    colback=successgreen!5,
+    colframe=successgreen,
+    title=\textbf{💡 Tip}
+}
+
+\newtcolorbox{warningbox}{
+    colback=warningorange!5,
+    colframe=warningorange,
+    title=\textbf{⚠ Warning}
+}
+
+\newtcolorbox{infobox}{
+    colback=primaryblue!5,
+    colframe=primaryblue,
+    title=\textbf{ℹ Information}
+}
+
+% Title page
+\title{
+    \vspace{2cm}
+    \Huge \textbf{REF Manager}\\
+    \vspace{0.5cm}
+    \Large User Manual\\
+    \vspace{1cm}
+    \large Research Excellence Framework\\
+    Submission Management System\\
+    \vspace{2cm}
+}
+
+\author{Version 1.0}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\clearpage
+\tableofcontents
+
+\chapter{Introduction}
+
+\section{About REF Manager}
+
+REF Manager is a comprehensive web-based application designed to help universities and research institutions manage their Research Excellence Framework (REF) submissions. The system provides tools for tracking research outputs, managing staff returns, coordinating critical friend reviews, and generating submission reports.
+
+\subsection{Key Features}
+
+\begin{itemize}
+    \item \textbf{Dashboard}: Overview of submission status with key statistics
+    \item \textbf{Staff Management}: Track returnable staff, FTE, and contracts
+    \item \textbf{Output Management}: Record and categorize research outputs
+    \item \textbf{Quality Assessment}: Rate outputs using REF quality criteria (4*, 3*, 2*, 1*, U)
+    \item \textbf{Critical Friends}: Manage external reviewers and assignments
+    \item \textbf{Review Requests}: Coordinate internal and external reviews
+    \item \textbf{Reports}: Generate LaTeX-based submission reports
+    \item \textbf{Data Import}: Bulk import data from Excel spreadsheets
+\end{itemize}
+
+\subsection{System Requirements}
+
+\begin{itemize}
+    \item Modern web browser (Chrome, Firefox, Safari, Edge)
+    \item Internet connection (for web-based deployment)
+    \item User account credentials provided by system administrator
+\end{itemize}
+
+\section{Getting Started}
+
+\subsection{Accessing the System}
+
+\begin{enumerate}
+    \item Open your web browser
+    \item Navigate to the REF Manager URL (provided by your administrator)
+    \item Enter your username and password
+    \item Click the ``Login'' button
+\end{enumerate}
+
+\begin{infobox}
+If you forget your password, contact your system administrator for a password reset.
+\end{infobox}
+
+\subsection{Understanding the Interface}
+
+After logging in, you will see the main dashboard with:
+
+\begin{itemize}
+    \item \textbf{Navigation Menu}: Access all features (Dashboard, Outputs, Staff, Critical Friends, Requests, Reports, Import Data)
+    \item \textbf{Statistics Cards}: Summary of key metrics
+    \item \textbf{Quick Actions}: Common tasks and shortcuts
+\end{itemize}
+
+\chapter{Dashboard}
+
+\section{Overview}
+
+The dashboard provides a real-time overview of your REF submission preparation status.
+
+\subsection{Statistics Cards}
+
+The dashboard displays the following key metrics:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Metric} & \textbf{Description} \\
+\midrule
+Total Outputs & Number of research outputs recorded \\
+Staff Members & Number of staff in the system \\
+4*/3* Outputs & Count of high-quality outputs \\
+Critical Friends & Number of external reviewers \\
+\bottomrule
+\end{tabular}
+\caption{Dashboard Metrics}
+\end{table}
+
+\subsection{Recent Activity}
+
+The dashboard shows recent activities including:
+\begin{itemize}
+    \item Recently added outputs
+    \item Pending review requests
+    \item Staff requiring attention
+\end{itemize}
+
+\chapter{Managing Research Outputs}
+
+\section{Viewing Outputs}
+
+\begin{enumerate}
+    \item Click ``Outputs'' in the navigation menu
+    \item View the list of all research outputs
+    \item Use filters to narrow down results:
+    \begin{itemize}
+        \item Quality rating
+        \item Publication type
+        \item Status
+        \item Date range
+    \end{itemize}
+\end{enumerate}
+
+\section{Adding a New Output}
+
+\subsection{Step-by-Step Process}
+
+\begin{enumerate}
+    \item Click ``Outputs'' $\rightarrow$ ``Add Output''
+    \item Fill in the required fields:
+    
+    \textbf{Basic Information:}
+    \begin{itemize}
+        \item \textbf{Staff Member}: Select the colleague (required)
+        \item \textbf{Title}: Output title (required)
+        \item \textbf{All Authors}: Citation format (required)
+        \item \textbf{Author Position}: Position in author list (required)
+    \end{itemize}
+    
+    \textbf{Publication Details:}
+    \begin{itemize}
+        \item \textbf{Publication Type}: A/B/C/D/E/F/G/H (required)
+        \item \textbf{Publication Date}: Date of publication (required)
+        \item \textbf{Publication Venue}: Journal/conference/book (required)
+        \item \textbf{Quality Rating}: 4*/3*/2*/1*/U (required)
+    \end{itemize}
+    
+    \textbf{Additional Information:}
+    \begin{itemize}
+        \item DOI (if available)
+        \item URL (if available)
+        \item Abstract
+        \item Open Access status
+        \item Double weighting flag
+        \item Interdisciplinary flag
+    \end{itemize}
+    
+    \item Click ``Save Output''
+\end{enumerate}
+
+\subsection{Publication Types}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cl}
+\toprule
+\textbf{Code} & \textbf{Type} \\
+\midrule
+A & Journal Article \\
+B & Book \\
+C & Book Chapter \\
+D & Conference Paper \\
+E & Patent \\
+F & Software \\
+G & Performance/Exhibition \\
+H & Other \\
+\bottomrule
+\end{tabular}
+\caption{REF Publication Types}
+\end{table}
+
+\subsection{Quality Ratings}
+
+REF uses a four-star scale to assess research quality:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cl}
+\toprule
+\textbf{Rating} & \textbf{Description} \\
+\midrule
+4* & World-leading in originality, significance and rigour \\
+3* & Internationally excellent \\
+2* & Recognized internationally \\
+1* & Recognized nationally \\
+U & Unclassified / Not yet assessed \\
+\bottomrule
+\end{tabular}
+\caption{REF Quality Ratings}
+\end{table}
+
+\begin{tipbox}
+Start with all outputs rated as ``U'' (Unclassified) and update ratings after internal or external review.
+\end{tipbox}
+
+\section{Editing an Output}
+
+\begin{enumerate}
+    \item Navigate to ``Outputs''
+    \item Find the output in the list
+    \item Click the edit icon (pencil) or click the output title
+    \item Click ``Edit'' button
+    \item Make your changes
+    \item Click ``Save Output''
+\end{enumerate}
+
+\section{Deleting an Output}
+
+\begin{enumerate}
+    \item Navigate to ``Outputs''
+    \item Find the output in the list
+    \item Click the delete icon (trash can)
+    \item Confirm deletion when prompted
+\end{enumerate}
+
+\begin{warningbox}
+Deleting an output is permanent and cannot be undone. Ensure you have a backup before deleting important data.
+\end{warningbox}
+
+\chapter{Managing Staff}
+
+\section{Viewing Staff Members}
+
+\begin{enumerate}
+    \item Click ``Staff'' in the navigation menu
+    \item View the complete list of colleagues
+    \item See key information:
+    \begin{itemize}
+        \item Name and staff ID
+        \item Unit of Assessment (UoA)
+        \item FTE (Full-Time Equivalent)
+        \item Contract type
+        \item Returnable status
+    \end{itemize}
+\end{enumerate}
+
+\section{Adding a Staff Member}
+
+\begin{enumerate}
+    \item Click ``Staff'' $\rightarrow$ ``Add Staff Member''
+    \item Fill in the required fields:
+    
+    \textbf{Personal Information:}
+    \begin{itemize}
+        \item \textbf{User Account}: Select or create Django user
+        \item \textbf{Staff ID}: Unique identifier (required)
+        \item \textbf{Title}: Prof, Dr, Mr, Ms, etc.
+    \end{itemize}
+    
+    \textbf{Employment Details:}
+    \begin{itemize}
+        \item \textbf{FTE}: Full-time equivalent (0.1 to 1.0)
+        \item \textbf{Contract Type}: Permanent, Fixed-term, or Research
+        \item \textbf{Unit of Assessment}: Research area/department
+        \item \textbf{Returnable}: Whether staff member is REF-returnable
+    \end{itemize}
+    
+    \item Click ``Save''
+\end{enumerate}
+
+\subsection{Understanding FTE}
+
+Full-Time Equivalent (FTE) represents the proportion of full-time work:
+
+\begin{itemize}
+    \item 1.0 = Full-time
+    \item 0.8 = 4 days per week
+    \item 0.5 = Half-time
+    \item 0.2 = 1 day per week
+\end{itemize}
+
+\subsection{Contract Types}
+
+\begin{itemize}
+    \item \textbf{Permanent}: Ongoing employment contract
+    \item \textbf{Fixed-term}: Time-limited contract
+    \item \textbf{Research}: Research-only contract
+\end{itemize}
+
+\section{Viewing Staff Details}
+
+\begin{enumerate}
+    \item Click on a staff member's name
+    \item View comprehensive information:
+    \begin{itemize}
+        \item Contact details
+        \item Employment information
+        \item List of research outputs
+        \item Output quality distribution
+    \end{itemize}
+\end{enumerate}
+
+\chapter{Critical Friends}
+
+\section{About Critical Friends}
+
+Critical friends are external experts who provide independent review and feedback on research outputs before submission. They help ensure quality and identify areas for improvement.
+
+\section{Adding a Critical Friend}
+
+\begin{enumerate}
+    \item Click ``Critical Friends'' $\rightarrow$ ``Add Critical Friend''
+    \item Fill in required information:
+    \begin{itemize}
+        \item \textbf{Name}: Full name
+        \item \textbf{Institution}: University or organization
+        \item \textbf{Email}: Contact email
+        \item \textbf{Expertise Area}: Research specialization
+        \item \textbf{Bio}: Brief biography (optional)
+    \end{itemize}
+    \item Click ``Save''
+\end{enumerate}
+
+\section{Assigning Critical Friends}
+
+\subsection{Method 1: From Output Detail Page}
+
+\begin{enumerate}
+    \item Navigate to an output's detail page
+    \item Click ``Assign Critical Friend''
+    \item Select a critical friend from the dropdown
+    \item Add notes if needed
+    \item Click ``Assign Critical Friend''
+\end{enumerate}
+
+\subsection{Method 2: From Critical Friend Page}
+
+\begin{enumerate}
+    \item Go to ``Critical Friends''
+    \item Click on a critical friend's name
+    \item View their assigned outputs
+    \item Click ``Assign to Output'' to add more
+\end{enumerate}
+
+\begin{tipbox}
+Match critical friends' expertise areas with output topics for the most valuable feedback.
+\end{tipbox}
+
+\chapter{Review Requests}
+
+\section{Creating a Review Request}
+
+\begin{enumerate}
+    \item Click ``Requests'' $\rightarrow$ ``New Request''
+    \item Select:
+    \begin{itemize}
+        \item \textbf{Output}: The research output to review
+        \item \textbf{Requested By}: Staff member making the request
+        \item \textbf{Critical Friend}: Reviewer to assign
+        \item \textbf{Review Type}: Internal or External
+    \end{itemize}
+    \item Add notes or specific questions
+    \item Set deadline (if applicable)
+    \item Click ``Save Request''
+\end{enumerate}
+
+\section{Tracking Review Status}
+
+Review requests can have the following statuses:
+
+\begin{itemize}
+    \item \textbf{Pending}: Awaiting review
+    \item \textbf{In Progress}: Review underway
+    \item \textbf{Completed}: Review finished
+    \item \textbf{Cancelled}: Request cancelled
+\end{itemize}
+
+\section{Managing Requests}
+
+\begin{enumerate}
+    \item Go to ``Requests''
+    \item View all review requests
+    \item Filter by status, date, or reviewer
+    \item Update status as reviews progress
+\end{enumerate}
+
+\chapter{Generating Reports}
+
+\section{Available Report Types}
+
+REF Manager can generate several types of reports in LaTeX format:
+
+\begin{enumerate}
+    \item \textbf{Submission Overview}: Comprehensive summary of outputs and staff
+    \item \textbf{Quality Profile}: Analysis of output quality distribution
+    \item \textbf{Staff Progress}: Individual progress tracking
+    \item \textbf{Review Status}: Critical friend assignment and review status
+\end{enumerate}
+
+\section{Generating a Report}
+
+\subsection{Step-by-Step Process}
+
+\begin{enumerate}
+    \item Click ``Reports'' in the navigation menu
+    \item Choose a report type
+    \item Select document format:
+    \begin{itemize}
+        \item \textbf{Article}: Standard academic article format
+        \item \textbf{Report}: Multi-chapter report format
+        \item \textbf{Beamer}: Presentation slides
+    \end{itemize}
+    \item Click the corresponding button
+    \item A \texttt{.tex} file will download
+\end{enumerate}
+
+\subsection{Compiling LaTeX Reports}
+
+\textbf{Option 1: Local Compilation}
+
+If you have LaTeX installed:
+\begin{verbatim}
+pdflatex report_name.tex
+\end{verbatim}
+
+\textbf{Option 2: Online Compilation}
+
+\begin{enumerate}
+    \item Go to \url{https://www.overleaf.com}
+    \item Create a new project
+    \item Upload your \texttt{.tex} file
+    \item Click ``Recompile'' to generate PDF
+\end{enumerate}
+
+\begin{infobox}
+Overleaf is a free online LaTeX editor that requires no installation and provides real-time collaboration features.
+\end{infobox}
+
+\section{Report Customization}
+
+The generated LaTeX files can be edited to:
+\begin{itemize}
+    \item Change formatting and styling
+    \item Add institutional branding
+    \item Include additional sections
+    \item Modify tables and charts
+\end{itemize}
+
+\chapter{Data Import}
+
+\section{Overview}
+
+The data import feature allows you to bulk-import data from Excel spreadsheets, saving time when setting up the system or updating large datasets.
+
+\section{Import Process}
+
+\subsection{General Steps}
+
+\begin{enumerate}
+    \item Click ``Import Data'' in the navigation menu
+    \item Choose data type to import:
+    \begin{itemize}
+        \item Staff/Colleagues
+        \item Research Outputs
+        \item Critical Friends
+    \end{itemize}
+    \item Download the template
+    \item Fill in the template with your data
+    \item Save as Excel (\texttt{.xlsx}) or CSV
+    \item Upload the file
+    \item Review success/error messages
+\end{enumerate}
+
+\section{Importing Staff}
+
+\subsection{Template Columns}
+
+\begin{longtable}{lll}
+\toprule
+\textbf{Column} & \textbf{Required} & \textbf{Format/Values} \\
+\midrule
+\endhead
+Staff ID & Yes & Unique identifier \\
+First Name & Yes & Text \\
+Last Name & Yes & Text \\
+Email & Yes & email@domain.com \\
+Title & No & Prof, Dr, Mr, Ms, etc. \\
+FTE & Yes & 0.1 to 1.0 \\
+Contract Type & Yes & permanent/fixed-term/research \\
+Unit of Assessment & Yes & Text \\
+Is Returnable & Yes & yes/no \\
+\bottomrule
+\caption{Staff Import Template Columns}
+\end{longtable}
+
+\subsection{Example Data}
+
+\begin{verbatim}
+Staff ID,First Name,Last Name,Email,FTE,Contract Type,...
+EMP001,John,Smith,j.smith@uni.ac.uk,1.0,permanent,...
+EMP002,Jane,Doe,j.doe@uni.ac.uk,0.8,fixed-term,...
+\end{verbatim}
+
+\section{Importing Outputs}
+
+\begin{warningbox}
+Outputs must reference existing Staff IDs. Import staff first!
+\end{warningbox}
+
+\subsection{Template Columns}
+
+\begin{longtable}{lll}
+\toprule
+\textbf{Column} & \textbf{Required} & \textbf{Format/Values} \\
+\midrule
+\endhead
+Staff ID & Yes & Must match existing staff \\
+Title & Yes & Output title \\
+All Authors & Yes & Citation format \\
+Author Position & Yes & Integer (1, 2, 3, ...) \\
+Publication Type & Yes & A/B/C/D/E/F/G/H \\
+Publication Date & Yes & YYYY-MM-DD \\
+Publication Venue & Yes & Journal/conference name \\
+Quality Rating & Yes & 4*/3*/2*/1*/U \\
+DOI & No & 10.xxxx/xxxxx \\
+URL & No & https://... \\
+Abstract & No & Text \\
+Is Open Access & No & yes/no \\
+Is Double Weighted & No & yes/no \\
+Is Interdisciplinary & No & yes/no \\
+\bottomrule
+\caption{Output Import Template Columns}
+\end{longtable}
+
+\section{Importing Critical Friends}
+
+\subsection{Template Columns}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Column} & \textbf{Required} & \textbf{Format} \\
+\midrule
+Name & Yes & Full name \\
+Institution & Yes & University/organization \\
+Email & Yes & email@domain.com \\
+Expertise Area & Yes & Research area \\
+Bio & No & Text \\
+\bottomrule
+\end{tabular}
+\caption{Critical Friends Import Template}
+\end{table}
+
+\section{Troubleshooting Imports}
+
+\subsection{Common Issues}
+
+\begin{itemize}
+    \item \textbf{``Row X: Staff ID not found''}: The Staff ID in your outputs doesn't match any existing staff member
+    \item \textbf{``Invalid date format''}: Use YYYY-MM-DD format (e.g., 2024-10-21)
+    \item \textbf{``FTE out of range''}: FTE must be between 0.1 and 1.0
+    \item \textbf{``Email already exists''}: Another record uses this email address
+\end{itemize}
+
+\subsection{Best Practices}
+
+\begin{tipbox}
+\begin{itemize}
+    \item Keep column headers exactly as shown in templates
+    \item Import staff before outputs
+    \item Check for duplicate email addresses
+    \item Use consistent date formats
+    \item Start with a small test import (2-3 rows)
+\end{itemize}
+\end{tipbox}
+
+\chapter{Workflows and Best Practices}
+
+\section{Recommended Workflow}
+
+\subsection{Initial Setup}
+
+\begin{enumerate}
+    \item Import or add all staff members
+    \item Import or add critical friends
+    \item Import or add research outputs
+    \item Verify data accuracy
+\end{enumerate}
+
+\subsection{Ongoing Management}
+
+\begin{enumerate}
+    \item \textbf{Monthly}: Review staff progress
+    \item \textbf{Quarterly}: Update quality ratings after reviews
+    \item \textbf{As needed}: Add new outputs as they are published
+    \item \textbf{Before deadline}: Generate final submission reports
+\end{enumerate}
+
+\section{Quality Assurance Process}
+
+\subsection{Initial Assessment}
+
+\begin{enumerate}
+    \item Add output with rating ``U'' (Unclassified)
+    \item Assign to critical friend
+    \item Create review request
+    \item Wait for feedback
+\end{enumerate}
+
+\subsection{Review and Rating}
+
+\begin{enumerate}
+    \item Receive critical friend feedback
+    \item Conduct internal review meeting
+    \item Update quality rating (4*/3*/2*/1*)
+    \item Make revisions if needed
+    \item Mark as ``Approved'' when ready
+\end{enumerate}
+
+\section{Collaboration Tips}
+
+\begin{itemize}
+    \item \textbf{Regular meetings}: Schedule regular REF meetings to review progress
+    \item \textbf{Clear responsibilities}: Assign staff to manage different UoAs
+    \item \textbf{Communication}: Use the notes field to document decisions
+    \item \textbf{Deadlines}: Set internal deadlines well before the official submission date
+\end{itemize}
+
+\section{Data Quality}
+
+\subsection{Maintaining Accurate Records}
+
+\begin{itemize}
+    \item \textbf{Consistent naming}: Use consistent formats for author names
+    \item \textbf{Complete metadata}: Fill in all available fields
+    \item \textbf{Regular updates}: Keep FTE and contract information current
+    \item \textbf{Verification}: Cross-check with institutional HR systems
+\end{itemize}
+
+\subsection{Regular Audits}
+
+\begin{itemize}
+    \item Review staff list for accuracy
+    \item Check for duplicate outputs
+    \item Verify all returnable staff have required outputs
+    \item Ensure quality ratings are up-to-date
+\end{itemize}
+
+\chapter{Administration}
+
+\section{User Management}
+
+\subsection{User Roles}
+
+REF Manager supports different user roles:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Role} & \textbf{Permissions} \\
+\midrule
+Administrator & Full access to all features \\
+Department Admin & Manage staff and outputs in their UoA \\
+Staff & View and edit own outputs \\
+Reviewer & View and comment on assigned outputs \\
+\bottomrule
+\end{tabular}
+\caption{User Roles}
+\end{table}
+
+\subsection{Creating User Accounts}
+
+Administrators can create new users through the Django admin panel:
+
+\begin{enumerate}
+    \item Go to \texttt{/admin/}
+    \item Click ``Users'' $\rightarrow$ ``Add user''
+    \item Enter username and password
+    \item Assign to appropriate groups
+    \item Save
+\end{enumerate}
+
+\section{Backup and Recovery}
+
+\subsection{Regular Backups}
+
+\begin{warningbox}
+Regular backups are essential to prevent data loss. Contact your system administrator to ensure backups are configured.
+\end{warningbox}
+
+Administrators should:
+\begin{itemize}
+    \item Perform daily database backups
+    \item Keep backups for at least 30 days
+    \item Test restoration procedures regularly
+    \item Store backups in a secure location
+\end{itemize}
+
+\subsection{Data Export}
+
+Users can export data by:
+\begin{itemize}
+    \item Generating reports (LaTeX format)
+    \item Using the Django admin panel export features
+    \item Requesting database dumps from administrators
+\end{itemize}
+
+\chapter{Troubleshooting}
+
+\section{Common Issues}
+
+\subsection{Cannot Login}
+
+\textbf{Problem}: Username or password incorrect
+
+\textbf{Solution}:
+\begin{itemize}
+    \item Check caps lock is off
+    \item Verify correct username
+    \item Contact administrator for password reset
+\end{itemize}
+
+\subsection{Page Not Loading}
+
+\textbf{Problem}: Page displays error or doesn't load
+
+\textbf{Solution}:
+\begin{itemize}
+    \item Refresh the page (F5 or Cmd+R)
+    \item Clear browser cache
+    \item Try a different browser
+    \item Check internet connection
+    \item Contact system administrator if problem persists
+\end{itemize}
+
+\subsection{Upload Fails}
+
+\textbf{Problem}: File upload returns an error
+
+\textbf{Solution}:
+\begin{itemize}
+    \item Check file size (max 10MB typically)
+    \item Verify file format (\texttt{.xlsx}, \texttt{.xls}, or \texttt{.csv})
+    \item Ensure file is not corrupted
+    \item Try uploading a smaller file
+\end{itemize}
+
+\subsection{Import Errors}
+
+\textbf{Problem}: Data import shows errors
+
+\textbf{Solution}:
+\begin{itemize}
+    \item Check column headers match template exactly
+    \item Verify all required fields have values
+    \item Check for special characters in data
+    \item Review error messages for specific issues
+\end{itemize}
+
+\section{Getting Help}
+
+If you encounter issues not covered in this manual:
+
+\begin{enumerate}
+    \item Contact your system administrator
+    \item Check the application's error messages for clues
+    \item Document the steps that led to the problem
+    \item Note any error codes or messages
+\end{enumerate}
+
+\chapter{Appendices}
+
+\section{Appendix A: Keyboard Shortcuts}
+
+While REF Manager doesn't have many keyboard shortcuts, standard browser shortcuts work:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Shortcut} & \textbf{Action} \\
+\midrule
+Ctrl+S (Cmd+S on Mac) & Save form (in most browsers) \\
+Ctrl+F (Cmd+F on Mac) & Search page \\
+F5 (Cmd+R on Mac) & Refresh page \\
+Ctrl+Click link & Open in new tab \\
+\bottomrule
+\end{tabular}
+\caption{Useful Keyboard Shortcuts}
+\end{table}
+
+\section{Appendix B: REF Submission Guidelines}
+
+Key points from REF guidelines:
+
+\begin{itemize}
+    \item Each staff member can submit up to 5 outputs
+    \item Outputs must be published between the census dates
+    \item Double-weighted outputs count as 2 outputs
+    \item At least one output per returnable staff member required
+    \item Quality ratings should be evidence-based
+\end{itemize}
+
+\begin{infobox}
+Always consult the official REF guidance documents for complete and up-to-date submission requirements.
+\end{infobox}
+
+\section{Appendix C: Glossary}
+
+\begin{description}
+    \item[Critical Friend] External expert who provides independent review of research outputs
+    \item[FTE] Full-Time Equivalent - proportion of full-time work
+    \item[Output] Research publication or artifact submitted for REF assessment
+    \item[Quality Rating] REF assessment scale: 4* (world-leading) to 1* (nationally recognized) or U (unclassified)
+    \item[REF] Research Excellence Framework - UK's system for assessing research quality
+    \item[Returnable Staff] Staff eligible for inclusion in REF submission
+    \item[UoA] Unit of Assessment - subject area for REF submission
+\end{description}
+
+\section{Appendix D: Support Information}
+
+\textbf{Technical Support}
+
+Contact your system administrator for:
+\begin{itemize}
+    \item Login issues
+    \item Technical problems
+    \item Feature requests
+    \item Bug reports
+\end{itemize}
+
+\textbf{REF Guidance}
+
+For questions about REF policies and requirements:
+\begin{itemize}
+    \item Visit: \url{https://www.ref.ac.uk}
+    \item Contact your institutional REF coordinator
+    \item Consult official REF guidance documents
+\end{itemize}
+
+\section{Appendix E: Version History}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Version} & \textbf{Date} & \textbf{Changes} \\
+\midrule
+1.0 & October 2024 & Initial release \\
+\bottomrule
+\end{tabular}
+\caption{Version History}
+\end{table}
+
+\chapter*{Index}
+
+\begin{itemize}
+    \item Backup, see Administration
+    \item Critical Friends, see Chapter 6
+    \item Dashboard, see Chapter 2
+    \item Import Data, see Chapter 8
+    \item Outputs, see Chapter 3
+    \item Reports, see Chapter 7
+    \item Review Requests, see Chapter 7
+    \item Staff Management, see Chapter 4
+\end{itemize}
+
+\end{document}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% ref_manager_user_manual.tex ends here

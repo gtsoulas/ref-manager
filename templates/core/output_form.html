@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ form.instance.pk|yesno:"Edit,Add" }} Output - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">{{ form.instance.pk|yesno:"Edit,Add" }} Output</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'output_list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Output
+                            </button>
+                            <a href="{% url 'output_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Guidelines</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Required Fields:</h6>
+                    <ul class="small">
+                        <li>Author (staff member)</li>
+                        <li>Title</li>
+                        <li>Type of output</li>
+                        <li>Quality rating</li>
+                    </ul>
+                    
+                    <h6 class="mt-3">Quality Ratings:</h6>
+                    <ul class="small">
+                        <li><strong>4*</strong> - World-leading</li>
+                        <li><strong>3*</strong> - Internationally excellent</li>
+                        <li><strong>2*</strong> - Recognized internationally</li>
+                        <li><strong>1*</strong> - Recognized nationally</li>
+                        <li><strong>UC</strong> - Unclassified</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

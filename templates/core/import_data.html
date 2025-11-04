@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Import Data - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">Import Data from Excel</h1>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        <strong>How to use:</strong> Download a template (CSV format), fill it with your data in Excel or any spreadsheet program, then upload it back here.
+    </div>
+
+    <!-- Import Colleagues -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-users"></i> Import Staff/Colleagues
+            </h5>
+        </div>
+        <div class="card-body">
+            <h6>Required Columns:</h6>
+            <ul class="small">
+                <li><strong>Staff ID</strong>, <strong>First Name</strong>, <strong>Last Name</strong>, <strong>Email</strong></li>
+                <li><strong>FTE</strong> (0.1 to 1.0), <strong>Contract Type</strong> (permanent/fixed-term/research)</li>
+                <li><strong>Unit of Assessment</strong>, <strong>Is Returnable</strong> (yes/no)</li>
+            </ul>
+            
+            <div class="mt-3">
+                <button class="btn btn-sm btn-outline-primary" onclick="downloadColleaguesTemplate()">
+                    <i class="fas fa-download"></i> Download Template (CSV)
+                </button>
+                
+                <form method="post" action="{% url 'import_colleagues_excel' %}" enctype="multipart/form-data" class="d-inline ms-3">
+                    {% csrf_token %}
+                    <input type="file" name="excel_file" accept=".xlsx,.xls,.csv" id="colleagues-file" style="display:none" onchange="this.form.submit()">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('colleagues-file').click()">
+                        <i class="fas fa-upload"></i> Upload File
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Outputs -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-book"></i> Import Research Outputs
+            </h5>
+        </div>
+        <div class="card-body">
+            <h6>Required Columns:</h6>
+            <ul class="small">
+                <li><strong>Staff ID</strong> (must match existing colleague)</li>
+                <li><strong>Title</strong>, <strong>All Authors</strong>, <strong>Author Position</strong></li>
+                <li><strong>Publication Type</strong> (A/B/C/D/E/F/G/H), <strong>Publication Date</strong> (YYYY-MM-DD)</li>
+                <li><strong>Publication Venue</strong>, <strong>Quality Rating</strong> (4*/3*/2*/1*/U)</li>
+            </ul>
+            
+            <div class="mt-3">
+                <button class="btn btn-sm btn-outline-success" onclick="downloadOutputsTemplate()">
+                    <i class="fas fa-download"></i> Download Template (CSV)
+                </button>
+                
+                <form method="post" action="{% url 'import_outputs_excel' %}" enctype="multipart/form-data" class="d-inline ms-3">
+                    {% csrf_token %}
+                    <input type="file" name="excel_file" accept=".xlsx,.xls,.csv" id="outputs-file" style="display:none" onchange="this.form.submit()">
+                    <button type="button" class="btn btn-success btn-sm" onclick="document.getElementById('outputs-file').click()">
+                        <i class="fas fa-upload"></i> Upload File
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Critical Friends -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-user-friends"></i> Import Critical Friends
+            </h5>
+        </div>
+        <div class="card-body">
+            <h6>Required Columns:</h6>
+            <ul class="small">
+                <li><strong>Name</strong>, <strong>Institution</strong>, <strong>Email</strong>, <strong>Expertise Area</strong></li>
+            </ul>
+            
+            <div class="mt-3">
+                <button class="btn btn-sm btn-outline-warning" onclick="downloadCriticalFriendsTemplate()">
+                    <i class="fas fa-download"></i> Download Template (CSV)
+                </button>
+                
+                <form method="post" action="{% url 'import_critical_friends_excel' %}" enctype="multipart/form-data" class="d-inline ms-3">
+                    {% csrf_token %}
+                    <input type="file" name="excel_file" accept=".xlsx,.xls,.csv" id="cf-file" style="display:none" onchange="this.form.submit()">
+                    <button type="button" class="btn btn-warning btn-sm" onclick="document.getElementById('cf-file').click()">
+                        <i class="fas fa-upload"></i> Upload File
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function downloadColleaguesTemplate() {
+    const data = [
+        ['Staff ID', 'First Name', 'Last Name', 'Email', 'Title', 'FTE', 'Contract Type', 'Unit of Assessment', 'Is Returnable'],
+        ['EMP001', 'John', 'Smith', 'j.smith@university.ac.uk', 'Dr', '1.0', 'permanent', 'Computer Science', 'yes'],
+        ['EMP002', 'Jane', 'Doe', 'j.doe@university.ac.uk', 'Prof', '0.8', 'fixed-term', 'Engineering', 'yes'],
+    ];
+    downloadCSV(data, 'colleagues_template.csv');
+}
+
+function downloadOutputsTemplate() {
+    const data = [
+        ['Staff ID', 'Title', 'All Authors', 'Author Position', 'Publication Type', 'Publication Date', 'Publication Venue', 'Quality Rating', 'DOI', 'URL', 'Abstract', 'Is Open Access', 'Is Double Weighted', 'Is Interdisciplinary'],
+        ['EMP001', 'Machine Learning in Healthcare', 'Smith, J., Jones, A., Brown, B.', '1', 'A', '2024-06-15', 'Nature Machine Intelligence', '4*', '10.1038/example', 'https://example.com', 'This paper explores...', 'yes', 'no', 'yes'],
+    ];
+    downloadCSV(data, 'outputs_template.csv');
+}
+
+function downloadCriticalFriendsTemplate() {
+    const data = [
+        ['Name', 'Institution', 'Email', 'Expertise Area', 'Bio'],
+        ['Prof. Alice Johnson', 'MIT', 'alice.j@mit.edu', 'Artificial Intelligence', 'Leading expert in AI ethics'],
+        ['Dr. Bob Wilson', 'Stanford', 'bob.w@stanford.edu', 'Computer Vision', 'Research focuses on deep learning'],
+    ];
+    downloadCSV(data, 'critical_friends_template.csv');
+}
+
+function downloadCSV(data, filename) {
+    const csv = data.map(row => 
+        row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+    ).join('\n');
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+}
+</script>
+{% endblock %}

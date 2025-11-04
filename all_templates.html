@@ -1,0 +1,805 @@
+<!-- ============================================================
+FILE: templates/core/output_list.html
+============================================================ -->
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Outputs - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">Research Outputs</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'output_create' %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus"></i> Add Output
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                {{ filter_form|crispy }}
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-filter"></i> Apply Filters
+                    </button>
+                    <a href="{% url 'output_list' %}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-redo"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Outputs Table -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Type</th>
+                            <th>Quality</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for output in outputs %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'output_detail' output.pk %}">{{ output.title }}</a>
+                            </td>
+                            <td>{{ output.author.user.get_full_name }}</td>
+                            <td>{{ output.get_output_type_display }}</td>
+                            <td>
+                                <span class="badge bg-{{ output.quality_rating|yesno:'success,info,warning' }}">
+                                    {{ output.quality_rating }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ output.get_status_color }}">
+                                    {{ output.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'output_detail' output.pk %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'output_update' output.pk %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'output_delete' output.pk %}" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No outputs found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- ============================================================
+FILE: templates/core/output_detail.html
+============================================================ -->
+{% extends 'base.html' %}
+
+{% block title %}{{ output.title }} - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">Output Details</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+                <a href="{% url 'output_update' output.pk %}" class="btn btn-sm btn-warning">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'output_delete' output.pk %}" class="btn btn-sm btn-danger">
+                    <i class="fas fa-trash"></i> Delete
+                </a>
+            </div>
+            <a href="{% url 'output_list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Basic Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Title:</dt>
+                        <dd class="col-sm-9">{{ output.title }}</dd>
+
+                        <dt class="col-sm-3">Author:</dt>
+                        <dd class="col-sm-9">{{ output.author.user.get_full_name }}</dd>
+
+                        <dt class="col-sm-3">Type:</dt>
+                        <dd class="col-sm-9">{{ output.get_output_type_display }}</dd>
+
+                        <dt class="col-sm-3">Quality Rating:</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-success">{{ output.quality_rating }}</span>
+                        </dd>
+
+                        <dt class="col-sm-3">Status:</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-{{ output.get_status_color }}">{{ output.get_status_display }}</span>
+                        </dd>
+
+                        <dt class="col-sm-3">Publication Date:</dt>
+                        <dd class="col-sm-9">{{ output.publication_date|date:"d M Y" }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            {% if output.abstract %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Abstract</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ output.abstract }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Critical Friends</h5>
+                </div>
+                <div class="card-body">
+                    {% if output.criticalfriendassignment_set.all %}
+                        {% for assignment in output.criticalfriendassignment_set.all %}
+                        <div class="mb-2">
+                            <strong>{{ assignment.critical_friend.name }}</strong><br>
+                            <small class="text-muted">{{ assignment.critical_friend.institution }}</small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No critical friends assigned yet.</p>
+                    {% endif %}
+                    <a href="{% url 'assign_critical_friend' output.pk %}" class="btn btn-sm btn-primary mt-2">
+                        <i class="fas fa-user-plus"></i> Assign Critical Friend
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Reviews</h5>
+                </div>
+                <div class="card-body">
+                    {% if output.internalreview_set.all %}
+                        <p>{{ output.internalreview_set.count }} review(s)</p>
+                    {% else %}
+                        <p class="text-muted">No reviews yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- ============================================================
+FILE: templates/core/output_confirm_delete.html
+============================================================ -->
+{% extends 'base.html' %}
+
+{% block title %}Delete Output - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h5 class="card-title mb-0">Confirm Deletion</h5>
+        </div>
+        <div class="card-body">
+            <p class="lead">Are you sure you want to delete this output?</p>
+            <dl class="row">
+                <dt class="col-sm-3">Title:</dt>
+                <dd class="col-sm-9">{{ object.title }}</dd>
+
+                <dt class="col-sm-3">Author:</dt>
+                <dd class="col-sm-9">{{ object.author.user.get_full_name }}</dd>
+
+                <dt class="col-sm-3">Type:</dt>
+                <dd class="col-sm-9">{{ object.get_output_type_display }}</dd>
+            </dl>
+
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Warning:</strong> This action cannot be undone.
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Yes, Delete
+                </button>
+                <a href="{% url 'output_detail' object.pk %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- ============================================================
+FILE: templates/core/colleague_list.html
+============================================================ -->
+{% extends 'base.html' %}
+
+{% block title %}Staff - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">Staff Members</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'colleague_create' %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus"></i> Add Staff Member
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Staff ID</th>
+                            <th>Unit of Assessment</th>
+                            <th>FTE</th>
+                            <th>Contract Type</th>
+                            <th>Returnable</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for colleague in colleagues %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'colleague_detail' colleague.pk %}">
+                                    {{ colleague.title }} {{ colleague.user.get_full_name }}
+                                </a>
+                            </td>
+                            <td>{{ colleague.staff_id }}</td>
+                            <td>{{ colleague.unit_of_assessment }}</td>
+                            <td>{{ colleague.fte }}</td>
+                            <td>{{ colleague.get_contract_type_display }}</td>
+                            <td>
+                                {% if colleague.is_returnable %}
+                                    <span class="badge bg-success">Yes</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">No</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'colleague_detail' colleague.pk %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'colleague_update' colleague.pk %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">No staff members found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- ============================================================
+FILE: templates/core/colleague_form.html
+============================================================ -->
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ form.instance.pk|yesno:"Edit,Add" }} Staff Member - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">{{ form.instance.pk|yesno:"Edit,Add" }} Staff Member</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'colleague_list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                            <a href="{% url 'colleague_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- ============================================================
+FILE: templates/core/colleague_detail.html
+============================================================ -->
+{% extends 'base.html' %}
+
+{% block title %}{{ colleague.user.get_full_name }} - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">{{ colleague.title }} {{ colleague.user.get_full_name }}</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'colleague_update' colleague.pk %}" class="btn btn-sm btn-warning">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'colleague_list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Staff Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Staff ID:</dt>
+                        <dd class="col-sm-8">{{ colleague.staff_id }}</dd>
+
+                        <dt class="col-sm-4">Email:</dt>
+                        <dd class="col-sm-8">{{ colleague.user.email }}</dd>
+
+                        <dt class="col-sm-4">Unit of Assessment:</dt>
+                        <dd class="col-sm-8">{{ colleague.unit_of_assessment }}</dd>
+
+                        <dt class="col-sm-4">FTE:</dt>
+                        <dd class="col-sm-8">{{ colleague.fte }}</dd>
+
+                        <dt class="col-sm-4">Contract Type:</dt>
+                        <dd class="col-sm-8">{{ colleague.get_contract_type_display }}</dd>
+
+                        <dt class="col-sm-4">Returnable:</dt>
+                        <dd class="col-sm-8">
+                            {% if colleague.is_returnable %}
+                                <span class="badge bg-success">Yes</span>
+                            {% else %}
+                                <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Research Outputs</h5>
+                </div>
+                <div class="card-body">
+                    {% if colleague.output_set.all %}
+                    <ul class="list-group">
+                        {% for output in colleague.output_set.all %}
+                        <li class="list-group-item">
+                            <a href="{% url 'output_detail' output.pk %}">{{ output.title }}</a>
+                            <span class="badge bg-success float-end">{{ output.quality_rating }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">No outputs yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- ============================================================
+FILE: templates/core/critical_friend_list.html
+============================================================ -->
+{% extends 'base.html' %}
+
+{% block title %}Critical Friends - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">Critical Friends</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'critical_friend_create' %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus"></i> Add Critical Friend
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Institution</th>
+                            <th>Expertise</th>
+                            <th>Email</th>
+                            <th>Assignments</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cf in critical_friends %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'critical_friend_detail' cf.pk %}">{{ cf.name }}</a>
+                            </td>
+                            <td>{{ cf.institution }}</td>
+                            <td>{{ cf.expertise_area }}</td>
+                            <td>{{ cf.email }}</td>
+                            <td>{{ cf.criticalfriendassignment_set.count }}</td>
+                            <td>
+                                <a href="{% url 'critical_friend_detail' cf.pk %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'critical_friend_update' cf.pk %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No critical friends found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- ============================================================
+FILE: templates/core/critical_friend_form.html
+============================================================ -->
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ form.instance.pk|yesno:"Edit,Add" }} Critical Friend - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">{{ form.instance.pk|yesno:"Edit,Add" }} Critical Friend</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'critical_friend_list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                            <a href="{% url 'critical_friend_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- ============================================================
+FILE: templates/core/critical_friend_detail.html
+============================================================ -->
+{% extends 'base.html' %}
+
+{% block title %}{{ critical_friend.name }} - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">{{ critical_friend.name }}</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'critical_friend_update' critical_friend.pk %}" class="btn btn-sm btn-warning">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'critical_friend_list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Name:</dt>
+                        <dd class="col-sm-8">{{ critical_friend.name }}</dd>
+
+                        <dt class="col-sm-4">Institution:</dt>
+                        <dd class="col-sm-8">{{ critical_friend.institution }}</dd>
+
+                        <dt class="col-sm-4">Email:</dt>
+                        <dd class="col-sm-8">{{ critical_friend.email }}</dd>
+
+                        <dt class="col-sm-4">Expertise:</dt>
+                        <dd class="col-sm-8">{{ critical_friend.expertise_area }}</dd>
+
+                        {% if critical_friend.bio %}
+                        <dt class="col-sm-4">Bio:</dt>
+                        <dd class="col-sm-8">{{ critical_friend.bio }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Assigned Outputs</h5>
+                </div>
+                <div class="card-body">
+                    {% if critical_friend.criticalfriendassignment_set.all %}
+                    <ul class="list-group">
+                        {% for assignment in critical_friend.criticalfriendassignment_set.all %}
+                        <li class="list-group-item">
+                            <a href="{% url 'output_detail' assignment.output.pk %}">
+                                {{ assignment.output.title }}
+                            </a>
+                            <span class="badge bg-info float-end">{{ assignment.assigned_date|date:"d M Y" }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">No outputs assigned yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- ============================================================
+FILE: templates/core/assign_critical_friend.html
+============================================================ -->
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Assign Critical Friend - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">Assign Critical Friend</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'output_detail' output.pk %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Output
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Output Details</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Title:</dt>
+                        <dd class="col-sm-9">{{ output.title }}</dd>
+
+                        <dt class="col-sm-3">Author:</dt>
+                        <dd class="col-sm-9">{{ output.author.user.get_full_name }}</dd>
+
+                        <dt class="col-sm-3">Type:</dt>
+                        <dd class="col-sm-9">{{ output.get_output_type_display }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i> Assign Critical Friend
+                            </button>
+                            <a href="{% url 'output_detail' output.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- ============================================================
+FILE: templates/core/request_list.html
+============================================================ -->
+{% extends 'base.html' %}
+
+{% block title %}Requests - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">Review Requests</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'request_create' %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus"></i> New Request
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Output</th>
+                            <th>Requested By</th>
+                            <th>Critical Friend</th>
+                            <th>Status</th>
+                            <th>Requested Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in requests %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'output_detail' request.output.pk %}">
+                                    {{ request.output.title|truncatewords:10 }}
+                                </a>
+                            </td>
+                            <td>{{ request.requested_by.user.get_full_name }}</td>
+                            <td>{{ request.critical_friend.name }}</td>
+                            <td>
+                                <span class="badge bg-{{ request.get_status_color }}">
+                                    {{ request.get_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ request.requested_date|date:"d M Y" }}</td>
+                            <td>
+                                <a href="{% url 'request_update' request.pk %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No requests found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- ============================================================
+FILE: templates/core/request_form.html
+============================================================ -->
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ form.instance.pk|yesno:"Edit,Create" }} Request - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">{{ form.instance.pk|yesno:"Edit,Create" }} Review Request</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'request_list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Request
+                            </button>
+                            <a href="{% url 'request_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

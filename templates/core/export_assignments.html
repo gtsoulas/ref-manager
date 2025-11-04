@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Export Review Assignments - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-download"></i> Export Review Assignments</h2>
+            <p class="text-muted">
+                Export review assignments to send to your internal panel or critical friends. 
+                The export will include clickable links to papers.
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-filter"></i> Export Options</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" id="exportForm">
+                        <!-- Recipient Type -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Export For:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="recipient_type" 
+                                       id="allRecipients" value="all" checked>
+                                <label class="form-check-label" for="allRecipients">
+                                    <i class="fas fa-users"></i> All Reviewers (Internal + Critical Friends)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="recipient_type" 
+                                       id="internalPanel" value="internal">
+                                <label class="form-check-label" for="internalPanel">
+                                    <i class="fas fa-user-shield"></i> Internal Panel Only
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="recipient_type" 
+                                       id="criticalFriends" value="critical_friends">
+                                <label class="form-check-label" for="criticalFriends">
+                                    <i class="fas fa-user-friends"></i> Critical Friends Only (External)
+                                </label>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Filters -->
+                        <h6 class="fw-bold mb-3">Optional Filters</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="reviewer" class="form-label">Specific Reviewer:</label>
+                                <select name="reviewer" id="reviewer" class="form-select">
+                                    <option value="">All Reviewers</option>
+                                    
+                                    {% if internal_panel %}
+                                    <optgroup label="Internal Panel Members">
+                                        {% for member in internal_panel %}
+                                        <option value="internal_{{ member.id }}">
+                                            {% if member.colleague and member.colleague.user %}
+                                                {{ member.colleague.user.get_full_name }} (Internal)
+                                            {% else %}
+                                                Unknown Member (Internal)
+                                            {% endif %}
+                                        </option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    {% endif %}
+                                    
+                                    {% if critical_friends %}
+                                    <optgroup label="Critical Friends">
+                                        {% for friend in critical_friends %}
+                                        <option value="cf_{{ friend.id }}">{{ friend.name }} (External)</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    {% endif %}
+                                </select>
+                                <small class="text-muted">Note: Specific reviewer filter not yet implemented for mixed types</small>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="author" class="form-label">Output Author:</label>
+                                <select name="author" id="author" class="form-select">
+                                    <option value="">All Authors</option>
+                                    {% for staff in staff_members %}
+                                    <option value="{{ staff.id }}">
+                                        {{ staff.first_name }} {{ staff.last_name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="status" class="form-label">Assignment Status:</label>
+                                <select name="status" id="status" class="form-select">
+                                    <option value="">All Statuses</option>
+                                    <option value="assigned">Assigned</option>
+                                    <option value="accepted">Accepted</option>
+                                    <option value="in-progress">In Progress</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="declined">Declined</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Export Format Buttons -->
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-success btn-lg" onclick="exportExcel()">
+                                <i class="fas fa-file-excel"></i> Export to Excel
+                            </button>
+                            <button type="button" class="btn btn-outline-success" onclick="exportCSV()">
+                                <i class="fas fa-file-csv"></i> Export to CSV
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Summary Card -->
+            <div class="card shadow-sm mt-3 border-info">
+                <div class="card-body">
+                    <h6 class="fw-bold"><i class="fas fa-chart-bar"></i> Current Reviewers</h6>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="p-2 bg-light rounded">
+                                <h3 class="text-primary mb-0">{{ internal_panel.count }}</h3>
+                                <small>Internal Panel</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 bg-light rounded">
+                                <h3 class="text-warning mb-0">{{ critical_friends.count }}</h3>
+                                <small>Critical Friends</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help/Info Panel -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-info-circle"></i> Export Information</h6>
+                </div>
+                <div class="card-body">
+                    <h6 class="fw-bold">What's Included:</h6>
+                    <ul class="small">
+                        <li><strong>Reviewer type</strong> (Internal/External)</li>
+                        <li>Reviewer name and contact info</li>
+                        <li>Output title and author</li>
+                        <li>Current quality rating</li>
+                        <li>Review status and due date</li>
+                        <li><strong>Clickable links to papers</strong></li>
+                        <li>Any special notes or instructions</li>
+                    </ul>
+
+                    <hr>
+
+                    <h6 class="fw-bold">Excel Features:</h6>
+                    <ul class="small">
+                        <li><span class="badge" style="background-color: #E8F4F8;">Light Blue</span> = Internal Panel</li>
+                        <li><span class="badge" style="background-color: #FFF8E1;">Light Yellow</span> = Critical Friends</li>
+                        <li>Clickable links to papers</li>
+                        <li>Professional formatting</li>
+                        <li>Ready to email</li>
+                    </ul>
+
+                    <hr>
+
+                    <h6 class="fw-bold">How to Use:</h6>
+                    <ol class="small">
+                        <li>Select recipient type</li>
+                        <li>Apply optional filters if needed</li>
+                        <li>Choose export format (Excel recommended)</li>
+                        <li>Open the downloaded file</li>
+                        <li>Copy relevant rows into your email</li>
+                        <li>Or attach the file directly</li>
+                    </ol>
+
+                    <hr>
+
+                    <div class="alert alert-light mb-0">
+                        <small>
+                            <i class="fas fa-lightbulb text-warning"></i>
+                            <strong>Tip:</strong> The export automatically pulls from both your 
+                            Internal Panel Members and Critical Friends systems. No manual setup needed!
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function exportExcel() {
+    const form = document.getElementById('exportForm');
+    const formData = new FormData(form);
+    const params = new URLSearchParams(formData);
+    window.location.href = '{% url "export_assignments_excel" %}?' + params.toString();
+}
+
+function exportCSV() {
+    const form = document.getElementById('exportForm');
+    const formData = new FormData(form);
+    const params = new URLSearchParams(formData);
+    window.location.href = '{% url "export_assignments_csv" %}?' + params.toString();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ critical_friend.name }} - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">{{ critical_friend.name }}</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'critical_friend_update' critical_friend.pk %}" class="btn btn-sm btn-warning">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'critical_friend_list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Name:</dt>
+                        <dd class="col-sm-8">{{ critical_friend.name }}</dd>
+
+                        <dt class="col-sm-4">Institution:</dt>
+                        <dd class="col-sm-8">{{ critical_friend.institution }}</dd>
+
+                        <dt class="col-sm-4">Email:</dt>
+                        <dd class="col-sm-8">{{ critical_friend.email }}</dd>
+
+                        <dt class="col-sm-4">Expertise:</dt>
+                        <dd class="col-sm-8">{{ critical_friend.expertise_area }}</dd>
+
+                        {% if critical_friend.bio %}
+                        <dt class="col-sm-4">Bio:</dt>
+                        <dd class="col-sm-8">{{ critical_friend.bio }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Assigned Outputs</h5>
+                </div>
+                <div class="card-body">
+                    {% if critical_friend.criticalfriendassignment_set.all %}
+                    <ul class="list-group">
+                        {% for assignment in critical_friend.criticalfriendassignment_set.all %}
+                        <li class="list-group-item">
+                            <a href="{% url 'output_detail' assignment.output.pk %}">
+                                {{ assignment.output.title }}
+                            </a>
+                            <span class="badge bg-info float-end">{{ assignment.assigned_date|date:"d M Y" }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">No outputs assigned yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

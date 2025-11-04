@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>
+        <i class="fas fa-users"></i> Find Duplicate Colleagues
+    </h2>
+    
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        This tool helps you find colleagues who may be duplicates based on similar names.
+        Review the list below and merge duplicates as needed.
+    </div>
+    
+    {% if duplicates %}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Potential Duplicates Found: {{ duplicates|length }}</h5>
+                
+                {% for group in duplicates %}
+                    <div class="card mb-3">
+                        <div class="card-header bg-warning">
+                            <strong>{{ group.count }} colleagues with last name "{{ group.last_name|title }}"</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Select</th>
+                                            <th>Name</th>
+                                            <th>Staff ID</th>
+                                            <th>Email</th>
+                                            <th>Title</th>
+                                            <th>Category</th>
+                                            <th>Outputs</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <form method="get" action="{% url 'merge_colleagues' %}">
+                                            {% for colleague in group.colleagues %}
+                                                <tr>
+                                                    <td>
+                                                        <input type="checkbox" name="ids" value="{{ colleague.id }}" class="form-check-input">
+                                                    </td>
+                                                    <td>
+                                                        {% if colleague.user %}
+                                                            {{ colleague.user.get_full_name }}
+                                                        {% else %}
+                                                            {{ colleague.staff_id }}
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ colleague.staff_id }}</td>
+                                                    <td>
+                                                        {% if colleague.user %}
+                                                            {{ colleague.user.email }}
+                                                        {% else %}
+                                                            -
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ colleague.title }}</td>
+                                                    <td>
+                                                        <span class="badge bg-secondary">
+                                                            {{ colleague.get_colleague_category_display|default:"N/A" }}
+                                                        </span>
+                                                    </td>
+                                                    <td>{{ colleague.outputs.count }}</td>
+                                                    <td>
+                                                        <span class="badge {% if colleague.employment_status == 'current' %}bg-success{% else %}bg-secondary{% endif %}">
+                                                            {{ colleague.get_employment_status_display }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            <tr>
+                                                <td colspan="8">
+                                                    <button type="submit" class="btn btn-warning btn-sm">
+                                                        <i class="fas fa-compress-arrows-alt"></i> Merge Selected
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </form>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            No obvious duplicates found! Your colleague records look clean.
+        </div>
+    {% endif %}
+    
+    <div class="mt-3">
+        <a href="{% url 'colleague_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Colleagues
+        </a>
+    </div>
+</div>
+{% endblock %}

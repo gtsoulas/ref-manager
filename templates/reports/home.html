@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">REF Reports - LaTeX Generator</h1>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        <strong>How it works:</strong> Click any format button to download the LaTeX source (.tex file). 
+        Choose <strong>Article</strong> for standard reports, <strong>Report</strong> for multi-chapter documents, 
+        or <strong>Beamer</strong> for presentation slides.
+    </div>
+
+    <div class="row">
+        <!-- Submission Overview -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-bar"></i> Submission Overview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Comprehensive overview of all research outputs, staff returns, and submission readiness.
+                    </p>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'reports:submission_overview' %}?format=article" class="btn btn-primary btn-sm">
+                            <i class="fas fa-file-alt"></i> Article
+                        </a>
+                        <a href="{% url 'reports:submission_overview' %}?format=report" class="btn btn-primary btn-sm">
+                            <i class="fas fa-file"></i> Report
+                        </a>
+                        <a href="{% url 'reports:submission_overview' %}?format=beamer" class="btn btn-primary btn-sm">
+                            <i class="fas fa-desktop"></i> Beamer
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quality Profile -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-star"></i> Quality Profile
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Analysis of output quality ratings and distribution across star ratings (4*, 3*, 2*, 1*).
+                    </p>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'reports:quality_profile' %}?format=article" class="btn btn-success btn-sm">
+                            <i class="fas fa-file-alt"></i> Article
+                        </a>
+                        <a href="{% url 'reports:quality_profile' %}?format=report" class="btn btn-success btn-sm">
+                            <i class="fas fa-file"></i> Report
+                        </a>
+                        <a href="{% url 'reports:quality_profile' %}?format=beamer" class="btn btn-success btn-sm">
+                            <i class="fas fa-desktop"></i> Beamer
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Progress -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-users"></i> Staff Progress
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Track individual staff member progress, output counts, and completion status.
+                    </p>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'reports:staff_progress' %}?format=article" class="btn btn-info btn-sm">
+                            <i class="fas fa-file-alt"></i> Article
+                        </a>
+                        <a href="{% url 'reports:staff_progress' %}?format=report" class="btn btn-info btn-sm">
+                            <i class="fas fa-file"></i> Report
+                        </a>
+                        <a href="{% url 'reports:staff_progress' %}?format=beamer" class="btn btn-info btn-sm">
+                            <i class="fas fa-desktop"></i> Beamer
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Status -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clipboard-check"></i> Review Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Status of critical friend assignments and internal review progress.
+                    </p>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'reports:review_status' %}?format=article" class="btn btn-warning btn-sm">
+                            <i class="fas fa-file-alt"></i> Article
+                        </a>
+                        <a href="{% url 'reports:review_status' %}?format=report" class="btn btn-warning btn-sm">
+                            <i class="fas fa-file"></i> Report
+                        </a>
+                        <a href="{% url 'reports:review_status' %}?format=beamer" class="btn btn-warning btn-sm">
+                            <i class="fas fa-desktop"></i> Beamer
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-light">
+        <div class="card-body">
+            <h5><i class="fas fa-question-circle"></i> How to Use Beamer Presentations</h5>
+
+        <!-- Comprehensive Report Card -->
+        <div class="col-md-12 mb-4">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-pdf"></i> Comprehensive Report (ALL SECTIONS)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <strong>Complete combined report</strong> including submission overview, quality profile, 
+                        staff progress, and review status all in one document.
+                    </p>
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Recommended for final submission:</strong> This generates a comprehensive 
+                        multi-chapter document with all sections.
+                    </div>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'reports:comprehensive' %}?format=article" class="btn btn-primary">
+                            <i class="fas fa-file-alt"></i> Article
+                        </a>
+                        <a href="{% url 'reports:comprehensive' %}?format=report" class="btn btn-primary">
+                            <i class="fas fa-file"></i> Report (Recommended)
+                        </a>
+                        <a href="{% url 'reports:comprehensive' %}?format=beamer" class="btn btn-primary">
+                            <i class="fas fa-desktop"></i> Beamer
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <p><strong>Beamer</strong> creates presentation slides perfect for meetings and presentations.</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Compile Locally:</h6>
+                    <pre><code>xelatex report_name.tex</code></pre>
+                </div>
+                <div class="col-md-6">
+                    <h6>Compile on Overleaf:</h6>
+                    <ol class="small">
+                        <li>Go to <a href="https://www.overleaf.com" target="_blank">Overleaf.com</a></li>
+                        <li>Upload your .tex file</li>
+                        <li>Click "Recompile"</li>
+                        <li>Download PDF slides</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

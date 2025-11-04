@@ -1,0 +1,652 @@
+%%% ref_manager_faq.tex --- 
+%% 
+%% Filename: ref_manager_faq.tex
+%% Description: 
+%% Author: George Tsoulas
+%% Maintainer: 
+%% Created: Tue Oct 21 23:23:49 2025 (+0100)
+%% Version: 
+%% Package-Requires: ()
+%% Last-Updated: 
+%%           By: 
+%%     Update #: 0
+%% URL: 
+%% Doc URL: 
+%% Keywords: 
+%% Compatibility: 
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 
+%%% Commentary: 
+%% 
+%% 
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 
+%%% Change Log:
+%% 
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 
+%% This program is free software: you can redistribute it and/or modify
+%% it under the terms of the GNU General Public License as published by
+%% the Free Software Foundation, either version 3 of the License, or (at
+%% your option) any later version.
+%% 
+%% This program is distributed in the hope that it will be useful, but
+%% WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+%% General Public License for more details.
+%% 
+%% You should have received a copy of the GNU General Public License
+%% along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 
+%%% Code:
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{fontawesome}
+\usepackage{amssymb}
+
+
+\geometry{margin=2cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+% Colors
+\definecolor{headerblue}{RGB}{0,102,204}
+\definecolor{questionblue}{RGB}{51,122,183}
+\definecolor{answergreen}{RGB}{40,167,69}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=headerblue,
+    urlcolor=headerblue
+}
+
+% Section styling
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{headerblue}}
+  {}{0em}{}[\titlerule]
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{questionblue}}
+  {Q:}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+
+% Custom environment for answers
+\newenvironment{answer}
+  {\color{black}\textbf{A:} }
+  {}
+
+% Custom boxes
+\newtcolorbox{tipbox}{
+    colback=answergreen!5,
+    colframe=answergreen,
+    title=\textbf{\faLightbulbO\ Quick Tip}
+}
+
+\newtcolorbox{warningbox}{
+    colback=red!5,
+    colframe=red,
+    title=\textbf{\faExclamationTriangle\ Important}
+}
+
+\title{
+    \vspace{-2cm}
+    \Huge \textbf{REF Manager}\\
+    \vspace{0.3cm}
+    \Large Frequently Asked Questions (FAQ)\\
+}
+\author{}
+\date{\textit{Version 1.0 | \today}}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\vspace{-1cm}
+
+\section{General Questions}
+
+\subsection{What is REF Manager?}
+
+\begin{answer}
+REF Manager is a web-based application designed to help universities manage their Research Excellence Framework (REF) submissions. It tracks research outputs, staff information, quality assessments, and generates submission reports.
+\end{answer}
+
+\subsection{Who can use REF Manager?}
+
+\begin{answer}
+The system has different access levels:
+\begin{itemize}
+    \item \textbf{Administrators}: Full access to all features
+    \item \textbf{Department Admins}: Manage data for their Unit of Assessment
+    \item \textbf{Staff}: View and edit their own research outputs
+    \item \textbf{Reviewers}: View and comment on assigned outputs
+\end{itemize}
+Contact your system administrator to request an account with appropriate permissions.
+\end{answer}
+
+\subsection{What browsers are supported?}
+
+\begin{answer}
+REF Manager works with all modern web browsers including:
+\begin{itemize}
+    \item Google Chrome (recommended)
+    \item Mozilla Firefox
+    \item Microsoft Edge
+    \item Safari (macOS)
+\end{itemize}
+We recommend keeping your browser up-to-date for the best experience.
+\end{answer}
+
+\subsection{Is my data secure?}
+
+\begin{answer}
+Yes. REF Manager uses industry-standard security practices including:
+\begin{itemize}
+    \item Encrypted password storage
+    \item Session-based authentication
+    \item User permission controls
+    \item Regular database backups
+\end{itemize}
+Contact your system administrator for specific details about your institution's deployment.
+\end{answer}
+
+\section{Login \& Access}
+
+\subsection{I forgot my password. How do I reset it?}
+
+\begin{answer}
+Contact your system administrator to request a password reset. For security reasons, password resets must be handled by administrators.
+\end{answer}
+
+\subsection{Why can't I access certain features?}
+
+\begin{answer}
+Access to features depends on your user role. If you need access to additional features (like adding staff or importing data), contact your administrator to request appropriate permissions.
+\end{answer}
+
+\subsection{Can I access REF Manager from home?}
+
+\begin{answer}
+This depends on your institution's deployment. If the system is accessible via the internet, you can access it from anywhere. Check with your system administrator for the correct URL and any VPN requirements.
+\end{answer}
+
+\section{Managing Research Outputs}
+
+\subsection{What counts as a research output?}
+
+\begin{answer}
+For REF purposes, outputs include:
+\begin{itemize}
+    \item Journal articles
+    \item Books and book chapters
+    \item Conference papers
+    \item Patents
+    \item Software
+    \item Performances and exhibitions
+    \item Other research products
+\end{itemize}
+Consult official REF guidance for specific eligibility criteria.
+\end{answer}
+
+\subsection{How many outputs can each staff member have?}
+
+\begin{answer}
+There is no limit in the system, but REF typically allows up to 5 outputs per staff member (with some exceptions for double-weighted outputs). Check current REF guidelines for specific requirements.
+\end{answer}
+
+\subsection{Can I add outputs that aren't published yet?}
+
+\begin{answer}
+Yes, you can add outputs with future publication dates or mark them as ``draft'' status. Update the information when the output is officially published.
+\end{answer}
+
+\subsection{What should I do if I made a mistake in an output entry?}
+
+\begin{answer}
+Simply navigate to the output, click the edit button (pencil icon), make your corrections, and save. All changes are recorded in the system.
+\end{answer}
+
+\subsection{Can I delete an output?}
+
+\begin{answer}
+Yes, if you have appropriate permissions. Click the delete button (trash icon) next to the output and confirm. 
+\end{answer}
+
+\begin{warningbox}
+Deletion is permanent and cannot be undone. Ensure you have a backup before deleting important data.
+\end{warningbox}
+
+\subsection{How do I handle co-authored outputs?}
+
+\begin{answer}
+When adding an output:
+\begin{itemize}
+    \item Select the primary staff member in the ``Colleague'' field
+    \item List all authors in the ``All Authors'' field in citation format
+    \item Specify the staff member's position in the author list
+\end{itemize}
+If multiple authors from your institution are REF-returnable, you may need to add the output separately for each author.
+\end{answer}
+
+\section{Quality Ratings}
+
+\subsection{What do the quality ratings mean?}
+
+\begin{answer}
+\begin{itemize}
+    \item \textbf{4*} (World-leading): Quality that is world-leading in originality, significance, and rigour
+    \item \textbf{3*} (Internationally excellent): Quality that is internationally excellent in originality, significance, and rigour
+    \item \textbf{2*} (Recognized internationally): Quality that is recognized internationally
+    \item \textbf{1*} (Recognized nationally): Quality that is recognized nationally
+    \item \textbf{U} (Unclassified): Not yet assessed or doesn't meet the standard
+\end{itemize}
+\end{answer}
+
+\subsection{Who decides the quality rating?}
+
+\begin{answer}
+Quality ratings should be assigned through a rigorous internal review process, ideally involving:
+\begin{itemize}
+    \item Internal peer review
+    \item Critical friend assessment
+    \item REF coordinator review
+    \item Departmental consensus
+\end{itemize}
+The system allows you to record the rating, but the decision should follow your institution's quality assurance procedures.
+\end{answer}
+
+\subsection{Can I change a quality rating later?}
+
+\begin{answer}
+Yes. Quality ratings can be updated at any time as new evidence or reviews become available. Simply edit the output and change the rating.
+\end{answer}
+
+\subsection{Should all outputs start as ``U'' (Unclassified)?}
+
+\begin{answer}
+This is a recommended practice. Start with ``U'' for new outputs and update to a specific rating only after proper review and assessment.
+\end{answer}
+
+\section{Staff Management}
+
+\subsection{What is FTE and why does it matter?}
+
+\begin{answer}
+FTE (Full-Time Equivalent) represents the proportion of full-time work. For example:
+\begin{itemize}
+    \item 1.0 = Full-time (5 days/week)
+    \item 0.8 = 4 days per week
+    \item 0.5 = Half-time
+\end{itemize}
+FTE affects REF calculations and determines how many outputs a staff member needs to submit.
+\end{answer}
+
+\subsection{What does ``Returnable'' mean?}
+
+\begin{answer}
+``Returnable'' indicates whether a staff member is eligible for inclusion in the REF submission. Not all staff are returnable (e.g., some may be on research-only contracts or below certain FTE thresholds). Consult your institution's REF policies for specific criteria.
+\end{answer}
+
+\subsection{How do I update staff information if someone leaves or joins?}
+
+\begin{answer}
+Navigate to the Staff section, find the person, and click Edit. Update their details including:
+\begin{itemize}
+    \item Contract type
+    \item FTE
+    \item Returnable status
+    \item Unit of Assessment
+\end{itemize}
+For staff who have left, you may want to update their returnable status rather than deleting them, to preserve their output history.
+\end{answer}
+
+\section{Critical Friends}
+
+\subsection{What is a critical friend?}
+
+\begin{answer}
+A critical friend is an external expert who provides independent, constructive feedback on research outputs. They help identify strengths, weaknesses, and areas for improvement before final submission.
+\end{answer}
+
+\subsection{How many critical friends should we have?}
+
+\begin{answer}
+This varies by institution and discipline. A typical approach is to have 3-5 critical friends per Unit of Assessment, covering different research specializations within that field.
+\end{answer}
+
+\subsection{Can a critical friend review multiple outputs?}
+
+\begin{answer}
+Yes, absolutely. You can assign the same critical friend to multiple outputs, particularly if they have relevant expertise for those works.
+\end{answer}
+
+\subsection{How do I contact a critical friend through the system?}
+
+\begin{answer}
+Currently, REF Manager stores critical friend contact information but doesn't have built-in email functionality. You'll need to contact critical friends directly using the email address stored in their profile.
+\end{answer}
+
+\begin{tipbox}
+Export critical friend contact information from the system to create mailing lists for outreach and follow-ups.
+\end{tipbox}
+
+\section{Data Import}
+
+\subsection{What file formats can I import?}
+
+\begin{answer}
+You can import data from:
+\begin{itemize}
+    \item Excel files (.xlsx, .xls)
+    \item CSV files (.csv)
+\end{itemize}
+\end{answer}
+
+\subsection{Do I need to import staff before outputs?}
+
+\begin{answer}
+Yes! Outputs reference staff members by Staff ID, so the staff must exist in the system before you can import their outputs.
+\end{answer}
+
+\subsection{What happens if there are errors during import?}
+
+\begin{answer}
+The system will:
+\begin{itemize}
+    \item Show detailed error messages for each row with problems
+    \item Import all valid rows successfully
+    \item Skip rows with errors
+    \item Display a summary of successes, warnings, and errors
+\end{itemize}
+Review the error messages, fix the issues in your file, and import again.
+\end{answer}
+
+\subsection{Can I import data to update existing records?}
+
+\begin{answer}
+Yes, for staff and critical friends. If you import a record with an existing Staff ID (for staff) or email (for critical friends), the system will update that record with the new information.
+\end{answer}
+
+\begin{warningbox}
+For outputs, the system currently creates new records on each import. Avoid importing the same outputs multiple times.
+\end{warningbox}
+
+\subsection{The column headers look complicated. Do they have to be exact?}
+
+\begin{answer}
+Yes! Column headers must match the template exactly (including capitalization and spaces). The easiest approach is to:
+\begin{enumerate}
+    \item Download the template
+    \item Fill in your data without changing the headers
+    \item Save and upload
+\end{enumerate}
+\end{answer}
+
+\subsection{My import keeps failing with date errors. What format should I use?}
+
+\begin{answer}
+Always use the format: \textbf{YYYY-MM-DD}
+
+Examples:
+\begin{itemize}
+    \item 2024-10-21 \checkmark\ (Correct)
+    \item 21/10/2024 \texttimes\ (Wrong)
+    \item 10/21/2024 \texttimes\ (Wrong)
+    \item 2024-Oct-21 \texttimes\ (Wrong)
+\end{itemize}
+\end{answer}
+
+\section{Reports}
+
+\subsection{What format are the reports in?}
+
+\begin{answer}
+Reports are generated as LaTeX source files (.tex). You need to compile these to create PDFs.
+\end{answer}
+
+\subsection{I don't have LaTeX installed. How do I get a PDF?}
+
+\begin{answer}
+Use Overleaf (free online LaTeX editor):
+\begin{enumerate}
+    \item Go to \url{https://www.overleaf.com}
+    \item Create a free account
+    \item Create a new blank project
+    \item Upload your .tex file
+    \item Click ``Recompile''
+    \item Download the PDF
+\end{enumerate}
+\end{answer}
+
+\subsection{Can I customize the reports?}
+
+\begin{answer}
+Yes! The .tex files are editable. You can:
+\begin{itemize}
+    \item Add your institution's logo
+    \item Change colors and formatting
+    \item Add additional sections
+    \item Modify tables and charts
+    \item Include narrative text
+\end{itemize}
+Basic LaTeX knowledge is helpful for customization.
+\end{answer}
+
+\subsection{What's the difference between Article, Report, and Beamer formats?}
+
+\begin{answer}
+\begin{itemize}
+    \item \textbf{Article}: Standard academic paper format, good for shorter reports
+    \item \textbf{Report}: Multi-chapter book format, ideal for comprehensive submissions
+    \item \textbf{Beamer}: Presentation slides, useful for meetings and presentations
+\end{itemize}
+\end{answer}
+
+\subsection{The report doesn't include all my data. Why?}
+
+\begin{answer}
+Some reports are designed to be summaries rather than complete data dumps. For example:
+\begin{itemize}
+    \item Staff progress report may limit to 20 staff members
+    \item Submission overview may summarize rather than list every output
+\end{itemize}
+You can edit the LaTeX file to include more detail, or generate multiple specialized reports.
+\end{answer}
+
+\section{Technical Issues}
+
+\subsection{The page is loading very slowly. What should I do?}
+
+\begin{answer}
+Try these steps:
+\begin{enumerate}
+    \item Refresh the page (F5 or Cmd+R)
+    \item Clear your browser cache
+    \item Close unnecessary browser tabs
+    \item Check your internet connection
+    \item Try a different browser
+    \item Contact your system administrator if the problem persists
+\end{enumerate}
+\end{answer}
+
+\subsection{I clicked ``Save'' but nothing happened. Did my changes save?}
+
+\begin{answer}
+Check for:
+\begin{itemize}
+    \item Error messages at the top of the form
+    \item Red highlighting around fields with problems
+    \item Required fields marked with an asterisk (*)
+\end{itemize}
+If you see a success message or are redirected to the list view, your changes saved successfully.
+\end{answer}
+
+\subsection{I accidentally deleted something important. Can I get it back?}
+
+\begin{answer}
+Deletions are permanent in the interface. However, your system administrator may be able to restore data from backups. Contact them immediately if you've deleted something critical.
+\end{answer}
+
+\begin{tipbox}
+Prevent accidental deletions: Always confirm you're deleting the correct item before clicking ``Yes'' on the confirmation dialog.
+\end{tipbox}
+
+\subsection{Can I use REF Manager on my tablet or phone?}
+
+\begin{answer}
+The interface is optimized for desktop browsers. While it may work on tablets and phones, some features may be difficult to use on smaller screens. We recommend using a desktop or laptop computer for the best experience.
+\end{answer}
+
+\section{Best Practices}
+
+\subsection{How often should I update the data?}
+
+\begin{answer}
+Recommended schedule:
+\begin{itemize}
+    \item \textbf{Weekly}: Add new outputs as they're published
+    \item \textbf{Monthly}: Review staff information and update FTEs
+    \item \textbf{Quarterly}: Update quality ratings after reviews
+    \item \textbf{As needed}: Assign critical friends and create review requests
+\end{itemize}
+\end{answer}
+
+\subsection{Should I keep old or rejected outputs in the system?}
+
+\begin{answer}
+This is an institutional decision. Some benefits of keeping all outputs:
+\begin{itemize}
+    \item Complete publication history
+    \item Track improvement over time
+    \item Alternative options if circumstances change
+\end{itemize}
+You can filter by status or quality rating to focus on submission-ready outputs.
+\end{answer}
+
+\subsection{How can I ensure data quality?}
+
+\begin{answer}
+Follow these practices:
+\begin{itemize}
+    \item Use consistent naming formats
+    \item Fill in all available fields
+    \item Verify data with original sources
+    \item Conduct regular audits
+    \item Cross-check with institutional systems
+    \item Have multiple people review critical data
+\end{itemize}
+\end{answer}
+
+\section{Getting Help}
+
+\subsection{Where can I find more detailed instructions?}
+
+\begin{answer}
+Refer to these resources:
+\begin{itemize}
+    \item \textbf{User Manual}: Comprehensive 150+ page guide
+    \item \textbf{Quick Reference Card}: One-page summary of common tasks
+    \item \textbf{Installation Guide}: Technical setup information
+    \item \textbf{This FAQ}: Common questions and answers
+\end{itemize}
+\end{answer}
+
+\subsection{Who do I contact for technical support?}
+
+\begin{answer}
+Contact your system administrator for:
+\begin{itemize}
+    \item Login problems
+    \item Permission requests
+    \item Technical errors
+    \item Feature requests
+    \item Bug reports
+    \item Data recovery
+\end{itemize}
+\end{answer}
+
+\subsection{Where can I learn about REF requirements and policies?}
+
+\begin{answer}
+For official REF guidance:
+\begin{itemize}
+    \item Visit \url{https://www.ref.ac.uk}
+    \item Contact your institutional REF coordinator
+    \item Consult your department's REF lead
+    \item Review your institution's REF policies
+\end{itemize}
+REF Manager helps manage the process but doesn't replace official guidance.
+\end{answer}
+
+\subsection{Can I request new features?}
+
+\begin{answer}
+Yes! Contact your system administrator with feature requests. They can:
+\begin{itemize}
+    \item Implement the feature if possible
+    \item Forward the request to developers
+    \item Suggest alternative approaches
+    \item Provide workarounds
+\end{itemize}
+\end{answer}
+
+\section{Data Security \& Privacy}
+
+\subsection{Who can see my data?}
+
+\begin{answer}
+Access depends on user roles:
+\begin{itemize}
+    \item \textbf{Your data}: You can always see your own outputs
+    \item \textbf{Department data}: Department admins can see all data in their UoA
+    \item \textbf{All data}: System administrators have full access
+\end{itemize}
+Your institution may have additional policies about data sharing.
+\end{answer}
+
+\subsection{Is the data backed up?}
+
+\begin{answer}
+Yes, your system administrator should have automated backups configured. Contact them to confirm backup frequency and retention policy for your installation.
+\end{answer}
+
+\subsection{Can I export my data?}
+
+\begin{answer}
+Yes, through several methods:
+\begin{itemize}
+    \item Generate reports (partial data in LaTeX format)
+    \item Use the admin interface export function
+    \item Request a database export from your administrator
+\end{itemize}
+\end{answer}
+
+\vfill
+
+\begin{center}
+\rule{0.9\textwidth}{0.4pt}\\[4pt]
+\textbf{Still have questions?}\\[2pt]
+Contact your system administrator or consult the complete User Manual\\[8pt]
+\textit{REF Manager FAQ | Version 1.0 | \today}
+\end{center}
+
+\end{document}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% ref_manager_faq.tex ends here

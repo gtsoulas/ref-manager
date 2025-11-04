@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ colleague.user.get_full_name }} - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">
+            {{ colleague.title }} {{ colleague.user.get_full_name }}
+            {% if colleague.employment_status == 'former' %}
+                <span class="badge bg-secondary">Former Staff</span>
+            {% else %}
+                <span class="badge bg-success">Current Staff</span>
+            {% endif %}
+        </h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+                <a href="{% url 'colleague_update' colleague.pk %}" class="btn btn-sm btn-warning">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                {% if colleague.employment_status == 'current' and perms.core.change_colleague %}
+                    <a href="{% url 'colleague_mark_former' colleague.pk %}" class="btn btn-sm btn-outline-warning">
+                        <i class="fas fa-archive"></i> Mark as Former
+                    </a>
+                {% endif %}
+            </div>
+            <a href="{% url 'colleague_list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    {% if colleague.employment_status == 'former' %}
+    <div class="alert alert-info" role="alert">
+        <i class="fas fa-info-circle"></i>
+        <strong>Former Staff Member</strong>
+        {% if colleague.employment_end_date %}
+            - Employment ended on {{ colleague.employment_end_date|date:"F j, Y" }}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Staff Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Staff ID:</dt>
+                        <dd class="col-sm-8">{{ colleague.staff_id }}</dd>
+
+                        <dt class="col-sm-4">Email:</dt>
+                        <dd class="col-sm-8">{{ colleague.user.email }}</dd>
+
+                        <dt class="col-sm-4">Employment Status:</dt>
+                        <dd class="col-sm-8">
+                            {% if colleague.employment_status == 'current' %}
+                                <span class="badge bg-success">Current Staff</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Former Staff</span>
+                            {% endif %}
+                        </dd>
+
+                        {% if colleague.employment_status == 'former' and colleague.employment_end_date %}
+                        <dt class="col-sm-4">Employment End Date:</dt>
+                        <dd class="col-sm-8">{{ colleague.employment_end_date|date:"F j, Y" }}</dd>
+                        {% endif %}
+
+                        <dt class="col-sm-4">Unit of Assessment:</dt>
+                        <dd class="col-sm-8">{{ colleague.unit_of_assessment }}</dd>
+
+                        <dt class="col-sm-4">FTE:</dt>
+                        <dd class="col-sm-8">{{ colleague.fte }}</dd>
+
+                        <dt class="col-sm-4">Contract Type:</dt>
+                        <dd class="col-sm-8">{{ colleague.get_contract_type_display }}</dd>
+
+                        <dt class="col-sm-4">Returnable:</dt>
+                        <dd class="col-sm-8">
+                            {% if colleague.is_returnable %}
+                                <span class="badge bg-success">Yes</span>
+                            {% else %}
+                                <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </dd>
+
+                        {% if colleague.office %}
+                        <dt class="col-sm-4">Office:</dt>
+                        <dd class="col-sm-8">{{ colleague.office }}</dd>
+                        {% endif %}
+
+                        {% if colleague.phone %}
+                        <dt class="col-sm-4">Phone:</dt>
+                        <dd class="col-sm-8">{{ colleague.phone }}</dd>
+                        {% endif %}
+
+                        {% if colleague.submission_group %}
+                        <dt class="col-sm-4">Submission Group:</dt>
+                        <dd class="col-sm-8">{{ colleague.submission_group }}</dd>
+                        {% endif %}
+                    </dl>
+
+                    {% if colleague.notes %}
+                    <div class="mt-3">
+                        <h6>Notes:</h6>
+                        <p class="text-muted">{{ colleague.notes|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Research Outputs</h5>
+                    {% if is_own_profile or perms.core.add_output %}
+                    <a href="{% url 'output_create' %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Add Output
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if outputs %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Quality</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for output in outputs %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'output_detail' output.pk %}">{{ output.title|truncatewords:10 }}</a>
+                                    </td>
+                                    <td>{{ output.get_publication_type_display }}</td>
+                                    <td>{{ output.publication_date|date:"Y" }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if output.status == 'approved' %}bg-success
+                                            {% elif output.status == 'draft' %}bg-secondary
+                                            {% else %}bg-warning text-dark
+                                            {% endif %}">
+                                            {{ output.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if output.quality_rating %}
+                                            <span class="badge bg-info">{{ output.quality_rating }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No outputs yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Summary</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-7">Required Outputs:</dt>
+                        <dd class="col-sm-5 text-end">{{ colleague.required_outputs }}</dd>
+
+                        <dt class="col-sm-7">Submitted Outputs:</dt>
+                        <dd class="col-sm-5 text-end">{{ colleague.submitted_outputs_count }}</dd>
+
+                        <dt class="col-sm-7">Completion:</dt>
+                        <dd class="col-sm-5 text-end">
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar 
+                                    {% if colleague.completion_percentage >= 100 %}bg-success
+                                    {% elif colleague.completion_percentage >= 50 %}bg-warning
+                                    {% else %}bg-danger
+                                    {% endif %}" 
+                                    role="progressbar" 
+                                    style="width: {{ colleague.completion_percentage }}%"
+                                    aria-valuenow="{{ colleague.completion_percentage }}" 
+                                    aria-valuemin="0" 
+                                    aria-valuemax="100">
+                                    {{ colleague.completion_percentage }}%
+                                </div>
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            {% if colleague.employment_status == 'current' %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if is_own_profile or perms.core.add_output %}
+                        <a href="{% url 'output_create' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-plus"></i> Add New Output
+                        </a>
+                        {% endif %}
+                        {% if perms.core.change_colleague %}
+                        <a href="{% url 'colleague_update' colleague.pk %}" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

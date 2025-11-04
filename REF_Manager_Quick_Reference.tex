@@ -1,0 +1,428 @@
+%%% REF_Manager_Quick_Reference.tex --- 
+%% 
+%% Filename: REF_Manager_Quick_Reference.tex
+%% Description: 
+%% Author: George Tsoulas
+%% Maintainer: 
+%% Created: Tue Oct 21 23:24:18 2025 (+0100)
+%% Version: 
+%% Package-Requires: ()
+%% Last-Updated: 
+%%           By: 
+%%     Update #: 0
+%% URL: 
+%% Doc URL: 
+%% Keywords: 
+%% Compatibility: 
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 
+%%% Commentary: 
+%% 
+%% 
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 
+%%% Change Log:
+%% 
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 
+%% This program is free software: you can redistribute it and/or modify
+%% it under the terms of the GNU General Public License as published by
+%% the Free Software Foundation, either version 3 of the License, or (at
+%% your option) any later version.
+%% 
+%% This program is distributed in the hope that it will be useful, but
+%% WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+%% General Public License for more details.
+%% 
+%% You should have received a copy of the GNU General Public License
+%% along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 
+%%% Code:
+
+\documentclass[10pt,landscape,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[landscape,margin=1cm]{geometry}
+\usepackage{multicol}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{booktabs}
+
+% Colors
+\definecolor{headerblue}{RGB}{0,102,204}
+\definecolor{lightgray}{RGB}{240,240,240}
+
+% Custom section style
+\usepackage{titlesec}
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{headerblue}}
+  {}{0em}{}[\titlerule]
+\titlespacing*{\section}{0pt}{8pt}{4pt}
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}
+  {}{0em}{}
+\titlespacing*{\subsection}{0pt}{6pt}{2pt}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+\setlist{nosep,leftmargin=*}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{center}
+{\Huge\bfseries\color{headerblue} REF Manager}\\[2mm]
+{\Large Quick Reference Card}\\[1mm]
+{\small Version 1.0 | \today}
+\end{center}
+
+\begin{multicols}{3}
+
+\section{Getting Started}
+
+\subsection{Login}
+\begin{enumerate}[leftmargin=*]
+    \item Navigate to application URL
+    \item Enter username \& password
+    \item Click ``Login''
+\end{enumerate}
+
+\subsection{Dashboard Navigation}
+\begin{itemize}
+    \item \textbf{Dashboard}: Overview \& statistics
+    \item \textbf{Outputs}: Manage research outputs
+    \item \textbf{Staff}: Manage colleagues
+    \item \textbf{Critical Friends}: External reviewers
+    \item \textbf{Requests}: Review requests
+    \item \textbf{Reports}: Generate LaTeX reports
+    \item \textbf{Import Data}: Bulk import from Excel
+\end{itemize}
+
+\section{Managing Outputs}
+
+\subsection{Add New Output}
+\begin{enumerate}[leftmargin=*]
+    \item Click \textbf{Outputs} $\rightarrow$ \textbf{Add Output}
+    \item Select \textbf{Staff Member}
+    \item Enter \textbf{Title} \& \textbf{All Authors}
+    \item Set \textbf{Publication Type} (A-H)
+    \item Enter \textbf{Publication Date} (YYYY-MM-DD)
+    \item Enter \textbf{Publication Venue}
+    \item Set \textbf{Quality Rating} (4*/3*/2*/1*/U)
+    \item Add DOI, URL, Abstract (optional)
+    \item Click \textbf{Save Output}
+\end{enumerate}
+
+\subsection{Quality Ratings}
+\begin{tabular}{cl}
+\textbf{4*} & World-leading \\
+\textbf{3*} & Internationally excellent \\
+\textbf{2*} & Recognized internationally \\
+\textbf{1*} & Recognized nationally \\
+\textbf{U} & Unclassified \\
+\end{tabular}
+
+\subsection{Publication Types}
+\begin{tabular}{cl}
+\textbf{A} & Journal Article \\
+\textbf{B} & Book \\
+\textbf{C} & Book Chapter \\
+\textbf{D} & Conference Paper \\
+\textbf{E} & Patent \\
+\textbf{F} & Software \\
+\textbf{G} & Performance/Exhibition \\
+\textbf{H} & Other \\
+\end{tabular}
+
+\subsection{Edit/Delete Output}
+\begin{itemize}
+    \item \textbf{Edit}: Click pencil icon or output title
+    \item \textbf{Delete}: Click trash icon, confirm
+\end{itemize}
+
+\section{Managing Staff}
+
+\subsection{Add Staff Member}
+\begin{enumerate}[leftmargin=*]
+    \item Click \textbf{Staff} $\rightarrow$ \textbf{Add Staff Member}
+    \item Select or create \textbf{User Account}
+    \item Enter \textbf{Staff ID} (unique)
+    \item Enter \textbf{Title} (Dr, Prof, etc.)
+    \item Set \textbf{FTE} (0.1-1.0)
+    \item Select \textbf{Contract Type}
+    \item Enter \textbf{Unit of Assessment}
+    \item Set \textbf{Returnable} status
+    \item Click \textbf{Save}
+\end{enumerate}
+
+\subsection{Contract Types}
+\begin{itemize}
+    \item \textbf{Permanent}: Ongoing contract
+    \item \textbf{Fixed-term}: Time-limited
+    \item \textbf{Research}: Research-only
+\end{itemize}
+
+\subsection{FTE Examples}
+\begin{tabular}{ll}
+1.0 & Full-time \\
+0.8 & 4 days/week \\
+0.5 & Half-time \\
+0.2 & 1 day/week \\
+\end{tabular}
+
+\section{Critical Friends}
+
+\subsection{Add Critical Friend}
+\begin{enumerate}[leftmargin=*]
+    \item Click \textbf{Critical Friends} $\rightarrow$ \textbf{Add}
+    \item Enter \textbf{Name}
+    \item Enter \textbf{Institution}
+    \item Enter \textbf{Email}
+    \item Enter \textbf{Expertise Area}
+    \item Add \textbf{Bio} (optional)
+    \item Click \textbf{Save}
+\end{enumerate}
+
+\subsection{Assign to Output}
+\begin{enumerate}[leftmargin=*]
+    \item Open output detail page
+    \item Click \textbf{Assign Critical Friend}
+    \item Select critical friend
+    \item Add notes (optional)
+    \item Click \textbf{Assign}
+\end{enumerate}
+
+\section{Generating Reports}
+
+\subsection{Report Types}
+\begin{itemize}
+    \item \textbf{Submission Overview}: Full summary
+    \item \textbf{Quality Profile}: Quality distribution
+    \item \textbf{Staff Progress}: Individual progress
+    \item \textbf{Review Status}: Review tracking
+\end{itemize}
+
+\subsection{Generate Report}
+\begin{enumerate}[leftmargin=*]
+    \item Click \textbf{Reports}
+    \item Select report type
+    \item Choose format:
+    \begin{itemize}
+        \item \textbf{Article}: Standard format
+        \item \textbf{Report}: Multi-chapter
+        \item \textbf{Beamer}: Presentation
+    \end{itemize}
+    \item Click button to download .tex file
+    \item Compile with \texttt{pdflatex} or upload to Overleaf
+\end{enumerate}
+
+\section{Data Import}
+
+\subsection{Import Process}
+\begin{enumerate}[leftmargin=*]
+    \item Click \textbf{Import Data}
+    \item Choose data type:
+    \begin{itemize}
+        \item Staff/Colleagues
+        \item Research Outputs
+        \item Critical Friends
+    \end{itemize}
+    \item Click \textbf{Download Template}
+    \item Fill template in Excel
+    \item Save as .xlsx or .csv
+    \item Click \textbf{Upload File}
+    \item Review success/error messages
+\end{enumerate}
+
+\subsection{Import Tips}
+\begin{itemize}
+    \item Keep column headers exactly as shown
+    \item Import staff \textbf{before} outputs
+    \item Use YYYY-MM-DD date format
+    \item FTE must be 0.1-1.0
+    \item Test with 2-3 rows first
+\end{itemize}
+
+\subsection{Required Columns}
+
+\textbf{Staff Import:}
+\begin{itemize}
+    \item Staff ID, First Name, Last Name
+    \item Email, FTE, Contract Type
+    \item Unit of Assessment, Is Returnable
+\end{itemize}
+
+\textbf{Output Import:}
+\begin{itemize}
+    \item Staff ID (must exist!)
+    \item Title, All Authors, Author Position
+    \item Publication Type, Date, Venue
+    \item Quality Rating
+\end{itemize}
+
+\textbf{Critical Friends Import:}
+\begin{itemize}
+    \item Name, Institution
+    \item Email, Expertise Area
+\end{itemize}
+
+\section{Common Tasks}
+
+\subsection{Check Staff Progress}
+\begin{enumerate}[leftmargin=*]
+    \item Go to \textbf{Staff}
+    \item Click staff member name
+    \item View output list \& quality distribution
+\end{enumerate}
+
+\subsection{Update Quality Rating}
+\begin{enumerate}[leftmargin=*]
+    \item Go to \textbf{Outputs}
+    \item Click output title or edit icon
+    \item Change \textbf{Quality Rating}
+    \item Click \textbf{Save}
+\end{enumerate}
+
+\subsection{Filter Outputs}
+\begin{enumerate}[leftmargin=*]
+    \item Go to \textbf{Outputs}
+    \item Use filter form at top
+    \item Select quality, type, status, date
+    \item Click \textbf{Apply Filters}
+\end{enumerate}
+
+\subsection{Create Review Request}
+\begin{enumerate}[leftmargin=*]
+    \item Go to \textbf{Requests} $\rightarrow$ \textbf{New Request}
+    \item Select \textbf{Output}
+    \item Select \textbf{Critical Friend}
+    \item Add notes \& deadline
+    \item Click \textbf{Save}
+\end{enumerate}
+
+\section{Keyboard Shortcuts}
+
+\begin{tabular}{ll}
+\textbf{Ctrl+S} & Save form (most browsers) \\
+\textbf{Ctrl+F} & Search page \\
+\textbf{F5} & Refresh page \\
+\textbf{Ctrl+Click} & Open link in new tab \\
+\end{tabular}
+
+\section{Troubleshooting}
+
+\subsection{Can't Login}
+\begin{itemize}
+    \item Check caps lock is off
+    \item Verify username spelling
+    \item Contact admin for password reset
+\end{itemize}
+
+\subsection{Page Not Loading}
+\begin{itemize}
+    \item Refresh page (F5)
+    \item Clear browser cache
+    \item Try different browser
+    \item Check internet connection
+\end{itemize}
+
+\subsection{Import Errors}
+\begin{itemize}
+    \item Check column headers match template
+    \item Verify required fields have values
+    \item Check date format (YYYY-MM-DD)
+    \item For outputs: ensure Staff ID exists
+\end{itemize}
+
+\subsection{Upload Fails}
+\begin{itemize}
+    \item Check file size (max 10MB)
+    \item Use .xlsx, .xls, or .csv format
+    \item Ensure file is not corrupted
+\end{itemize}
+
+\section{Best Practices}
+
+\subsection{Workflow Recommendations}
+\begin{enumerate}[leftmargin=*]
+    \item Start with \textbf{U} (Unclassified) rating
+    \item Assign to critical friend
+    \item Wait for feedback
+    \item Update rating after review
+    \item Mark as \textbf{Approved} when ready
+\end{enumerate}
+
+\subsection{Data Quality Tips}
+\begin{itemize}
+    \item Use consistent author name formats
+    \item Fill in all available fields
+    \item Keep FTE information current
+    \item Verify returnable staff have outputs
+    \item Regular data audits
+\end{itemize}
+
+\subsection{Collaboration}
+\begin{itemize}
+    \item Schedule regular REF meetings
+    \item Assign staff to manage UoAs
+    \item Use notes field for decisions
+    \item Set internal deadlines early
+\end{itemize}
+
+\section{Important Notes}
+
+\subsection{Remember}
+\begin{itemize}
+    \item \textbf{Activate virtual environment} before running server
+    \item \textbf{Backup regularly} - contact admin
+    \item \textbf{Import staff first}, then outputs
+    \item \textbf{Date format}: YYYY-MM-DD only
+    \item \textbf{Delete is permanent} - no undo!
+\end{itemize}
+
+\subsection{Need Help?}
+\begin{itemize}
+    \item Check error messages
+    \item Consult User Manual
+    \item Contact system administrator
+    \item Document steps that caused issue
+\end{itemize}
+
+\section{Quick URLs}
+
+\textbf{Application URLs:}
+\begin{itemize}
+    \item Main app: \texttt{http://localhost:8000/}
+    \item Admin: \texttt{http://localhost:8000/admin/}
+    \item Import: \texttt{http://localhost:8000/import/}
+    \item Reports: \texttt{http://localhost:8000/reports/}
+\end{itemize}
+
+\textbf{External Resources:}
+\begin{itemize}
+    \item Overleaf: \texttt{https://www.overleaf.com}
+    \item REF Website: \texttt{https://www.ref.ac.uk}
+\end{itemize}
+
+\end{multicols}
+
+\vfill
+\begin{center}
+\rule{0.8\textwidth}{0.4pt}\\
+\textbf{REF Manager} | Quick Reference Card | Version 1.0 | For support, contact your system administrator
+\end{center}
+
+\end{document}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% REF_Manager_Quick_Reference.tex ends here

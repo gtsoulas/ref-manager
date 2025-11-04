@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ request.subject }} - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="fas fa-inbox"></i> Request Details</h2>
+            <p class="text-muted">
+                Created by {{ request.created_by.get_full_name|default:request.created_by.username }} 
+                on {{ request.created_at|date:"F j, Y" }}
+            </p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'request_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Request Details Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Request Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Subject:</strong></div>
+                        <div class="col-md-9">{{ request.subject }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>From:</strong></div>
+                        <div class="col-md-9">{{ request.from_entity }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Priority:</strong></div>
+                        <div class="col-md-9">
+                            <span class="badge bg-{% if request.priority == 'urgent' %}danger{% elif request.priority == 'high' %}warning{% elif request.priority == 'medium' %}info{% else %}secondary{% endif %}">
+                                {{ request.get_priority_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Status:</strong></div>
+                        <div class="col-md-9">
+                            <span class="badge bg-{% if request.status == 'completed' %}success{% elif request.status == 'in_progress' %}primary{% else %}secondary{% endif %}">
+                                {{ request.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Assigned To:</strong></div>
+                        <div class="col-md-9">
+                            {% if request.assigned_to %}
+                                {{ request.assigned_to.get_full_name|default:request.assigned_to.username }}
+                            {% else %}
+                                <em class="text-muted">Unassigned</em>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Description:</strong></div>
+                        <div class="col-md-9">
+                            <p>{{ request.description|linebreaks }}</p>
+                        </div>
+                    </div>
+                    {% if request.response %}
+                    <hr>
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Response:</strong></div>
+                        <div class="col-md-9">
+                            <p>{{ request.response|linebreaks }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Dates Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-calendar"></i> Dates</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Deadline:</strong><br>
+                        {{ request.deadline|date:"F j, Y" }}
+                        {% if request.is_overdue %}
+                            <span class="badge bg-danger d-block mt-1">
+                                <i class="fas fa-exclamation-triangle"></i> Overdue
+                            </span>
+                        {% endif %}
+                    </div>
+                    {% if request.completed_at %}
+                    <div class="mb-3">
+                        <strong>Completed:</strong><br>
+                        {{ request.completed_at|date:"F j, Y g:i A" }}
+                    </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <strong>Last Updated:</strong><br>
+                        {{ request.updated_at|date:"F j, Y g:i A" }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-cog"></i> Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'request_update' request.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit Request
+                        </a>
+                        {% if request.status != 'completed' %}
+                        <a href="{% url 'request_complete' request.pk %}" class="btn btn-success">
+                            <i class="fas fa-check"></i> Mark as Complete
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'request_delete' request.pk %}" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Delete Request
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

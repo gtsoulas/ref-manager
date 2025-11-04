@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - REF Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{% url 'output_create' %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus"></i> Add Output
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-0">Total Colleagues</p>
+                        <h3 class="mb-0">{{ total_colleagues }}</h3>
+                    </div>
+                    <div class="text-primary">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-0">Total Outputs</p>
+                        <h3 class="mb-0">{{ total_outputs }}</h3>
+                    </div>
+                    <div class="text-success">
+                        <i class="fas fa-file-alt fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-0">In Review</p>
+                        <h3 class="mb-0">{{ outputs_in_review }}</h3>
+                    </div>
+                    <div class="text-warning">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-0">Pending Requests</p>
+                        <h3 class="mb-0">{{ pending_requests }}</h3>
+                    </div>
+                    <div class="text-danger">
+                        <i class="fas fa-exclamation-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Quality Profile -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quality Profile</h5>
+            </div>
+            <div class="card-body">
+                {% for rating, percentage in quality_profile.items %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>{{ rating }} 
+                            {% if rating == '4*' %}World-leading{% endif %}
+                            {% if rating == '3*' %}Internationally excellent{% endif %}
+                            {% if rating == '2*' %}Recognized internationally{% endif %}
+                        </span>
+                        <span class="fw-bold">{{ percentage }}%</span>
+                    </div>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar badge-quality-{{ rating|slice:':1' }}" 
+                             role="progressbar" style="width: {{ percentage }}%">
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Activities</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for output in recent_outputs %}
+                    <li class="list-group-item px-0">
+                        <small class="text-muted">{{ output.updated_at|date:"d M Y" }}</small><br>
+                        <strong>{{ output.title|truncatewords:10 }}</strong><br>
+                        <small>by {{ output.colleague.user.get_full_name }}</small>
+                        <span class="badge bg-secondary">{{ output.status }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item px-0">No recent activities</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Critical Friends Summary -->
+{% if user.is_staff %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Critical Friends</h5>
+                <a href="{% url 'critical_friend_list' %}" class="btn btn-sm btn-outline-primary">
+                    View All
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>Total Critical Friends</h6>
+                        <h3>{{ critical_friends_count }}</h3>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Active Assignments</h6>
+                        <h3>{{ active_cf_assignments }}</h3>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Overdue Reviews</h6>
+                        <h3 class="{% if overdue_assignments > 0 %}text-danger{% endif %}">
+                            {{ overdue_assignments }}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ADD THIS INTERNAL PANEL CARD HERE -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Internal Evaluation Panel</h5>
+                <a href="{% url 'internal_panel_list' %}" class="btn btn-sm btn-outline-primary">
+                    View All
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>Active Panel Members</h6>
+                        <h3 class="text-info">{{ internal_panel_count }}</h3>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Active Assignments</h6>
+                        <h3 class="text-primary">{{ active_panel_assignments }}</h3>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Overdue Reviews</h6>
+                        <h3 class="{% if overdue_panel_assignments > 0 %}text-danger{% else %}text-success{% endif %}">
+                            {{ overdue_panel_assignments }}
+                        </h3>
+                    </div>
+                </div>
+                <hr class="my-3">
+                <div class="row">
+                    <div class="col-12">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> 
+                            Internal panel members review outputs before external submission
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+
+
