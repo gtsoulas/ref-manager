@@ -129,6 +129,10 @@ class Output(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
         ('revision', 'Needs Revision'),
+        ('aside', 'Set aside for now'),
+        ('planning', 'In Planning'),
+        ('ready', 'Ready to Submit'),
+        ('reserve', 'Reserve')
     ]
     
     PUBLICATION_TYPES = [
