@@ -276,6 +276,7 @@ def output_detail(request, pk):
     })
 
 
+
 @login_required
 def output_create(request):
     if request.method == 'POST':
@@ -330,8 +331,7 @@ def output_delete(request, pk):
         output.delete()
         messages.success(request, 'Output deleted successfully')
         return redirect('output_list')
-    
-    return render(request, 'core/output_confirm_delete.html', {'output': output})
+    return render(request, 'core/output_confirm_delete.html', {'object': output})
 
 
 @login_required
