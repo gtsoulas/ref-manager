@@ -1,0 +1,78 @@
+import csv
+import io
+from django.db.models import Q, Count
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth import login, logout, authenticate, get_user_model
+from django.contrib import messages
+from django.db import transaction
+from django.utils import timezone
+from django.utils.dateparse import parse_date as django_parse_date, parse_datetime
+
+from .models import (
+    Colleague, Output, CriticalFriend, CriticalFriendAssignment,
+    Request, InternalReview, InternalPanelMember, InternalPanelAssignment, Task
+)
+from .forms import (
+    ColleagueForm, OutputForm, CriticalFriendForm, AssignmentForm,
+    RequestForm, InternalReviewForm, OutputFilterForm, TaskForm,
+    ReviewResponseForm,  # Moved from submit_review
+    BulkUploadForm,  # Moved from bulk_upload_outputs
+    InternalPanelMemberForm,  # Moved from internal_panel_create
+    InternalPanelAssignmentForm  # Moved from assign_internal_panel
+)
+
+User = get_user_model()
+
+
+def is_admin(user):
+    return user.is_staff or user.groups.filter(name='Department Admin').exists()
+
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'Invalid username or password')
+    
+    return render(request, 'core/login.html')
+
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'You have been logged out successfully')
+    return redirect('login')
+
+
+@login_required
+def dashboard(request):
+    total_colleagues = Colleague.objects.filter(is_returnable=True).count()
+    independent_count = Colleague.objects.filter(colleague_category='independent').count()
+    non_independent_count = Colleague.objects.filter(colleague_category='non_independent').count()
+    postdoc_count = Colleague.objects.filter(colleague_category='postdoc').count()
+    academic_count = Colleague.objects.filter(colleague_category='academic').count()
+    research_assistant_count = Colleague.objects.filter(colleague_category='research_assistant').count()
+    support_count = Colleague.objects.filter(colleague_category='support').count()
+    current_staff = Colleague.objects.filter(employment_status='current').count()
+    former_staff = Colleague.objects.filter(employment_status='former').count()
+    
+    total_outputs = Output.objects.count()
+    approved_outputs = Output.objects.filter(status='approved').count()
+    outputs_in_review = Output.objects.filter(
+        status__in=['internal-review', 'external-review']
+    ).count()
+    pending_requests = Request.objects.filter(status='pending').count()
+    
+    quality_distribution = Output.objects.filter(
+        status='approved',
+        quality_rating__isnull=False
+    ).values('quality_rating').annotate(count=Count('id'))
+    
+    quality_profile = {'4*': 0, '3*': 0, '2*': 0, '1*': 0, 'U': 0}
+    total_rated = sum(q['count']

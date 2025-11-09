@@ -80,4 +80,16 @@ path('outputs/import/', views.import_outputs, name='import_outputs'),
     path('export/assignments/csv/', views_export.export_assignments_csv, name='export_assignments_csv'),
 
 
+    # Output comparison and duplicate management
+    path('outputs/compare/', views.compare_outputs, name='compare_outputs'),
+    path('outputs/compare/review/', views.review_comparison, name='review_comparison'),
+    path('outputs/compare/process/', views.process_comparison_decisions, name='process_comparison_decisions'),
+    path('outputs/compare/quick-import/', views.quick_import_new, name='quick_import_new'),
+
+    # Output comparison and duplicate management
+    path('outputs/compare/', views.compare_outputs, name='compare_outputs'),
+    path('outputs/compare/review/', views.review_comparison, name='review_comparison'),
+    path('outputs/compare/process/', views.process_comparison_decisions, name='process_comparison_decisions'),
+    path('outputs/compare/quick-import/', views.quick_import_new, name='quick_import_new'),
+
 ]

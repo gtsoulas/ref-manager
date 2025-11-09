@@ -1,0 +1,567 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Review Comparison Results - REF Manager{% endblock %}
+
+{% block extra_css %}
+<style>
+.result-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: all 0.3s;
+}
+
+.result-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.result-card.new {
+    border-left: 4px solid #28a745;
+}
+
+.result-card.duplicate {
+    border-left: 4px solid #ffc107;
+}
+
+.result-card.exact {
+    border-left: 4px solid #6c757d;
+}
+
+.match-card {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 12px;
+    margin: 10px 0;
+}
+
+.confidence-bar {
+    height: 8px;
+    border-radius: 4px;
+    background-color: #e9ecef;
+    overflow: hidden;
+}
+
+.confidence-fill {
+    height: 100%;
+    transition: width 0.3s;
+}
+
+.confidence-high { background-color: #28a745; }
+.confidence-medium { background-color: #ffc107; }
+.confidence-low { background-color: #dc3545; }
+
+.field-diff {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    padding: 8px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.tab-content {
+    border: 1px solid #dee2e6;
+    border-top: none;
+    padding: 20px;
+    background-color: white;
+}
+
+.badge-count {
+    font-size: 0.9em;
+    padding: 4px 8px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.edit-field {
+    width: 100%;
+    margin-top: 5px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header with stats -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>
+                <i class="fas fa-clipboard-check"></i> Review Comparison Results
+            </h2>
+            <p class="text-muted">Review and decide what to do with each output</p>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h3 class="card-title">{{ stats.new_count }}</h3>
+                    <p class="card-text">New Outputs</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h3 class="card-title">{{ stats.duplicate_count }}</h3>
+                    <p class="card-text">Potential Duplicates</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-secondary">
+                <div class="card-body">
+                    <h3 class="card-title">{{ stats.exact_count }}</h3>
+                    <p class="card-text">Exact Matches</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h3 class="card-title">{{ stats.total }}</h3>
+                    <p class="card-text">Total in File</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-success" onclick="importAllNew()" 
+                        {% if stats.new_count == 0 %}disabled{% endif %}>
+                    <i class="fas fa-download"></i> Import All New ({{ stats.new_count }})
+                </button>
+                <button type="button" class="btn btn-primary" onclick="processSelected()">
+                    <i class="fas fa-check"></i> Process Selected Decisions
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="expandAll()">
+                    <i class="fas fa-expand"></i> Expand All
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="collapseAll()">
+                    <i class="fas fa-compress"></i> Collapse All
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs for different categories -->
+    <ul class="nav nav-tabs" id="resultTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="new-tab" data-bs-toggle="tab" 
+                    data-bs-target="#new-content" type="button">
+                <i class="fas fa-plus-circle text-success"></i> 
+                New Outputs 
+                <span class="badge bg-success badge-count">{{ stats.new_count }}</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="duplicates-tab" data-bs-toggle="tab" 
+                    data-bs-target="#duplicates-content" type="button">
+                <i class="fas fa-clone text-warning"></i> 
+                Potential Duplicates 
+                <span class="badge bg-warning badge-count">{{ stats.duplicate_count }}</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="exact-tab" data-bs-toggle="tab" 
+                    data-bs-target="#exact-content" type="button">
+                <i class="fas fa-check-circle text-secondary"></i> 
+                Exact Matches 
+                <span class="badge bg-secondary badge-count">{{ stats.exact_count }}</span>
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="resultTabsContent">
+        <!-- New Outputs Tab -->
+        <div class="tab-pane fade show active" id="new-content">
+            {% if new_outputs %}
+                <div class="alert alert-success">
+                    <i class="fas fa-info-circle"></i>
+                    These outputs don't exist in your database and can be imported.
+                </div>
+
+                {% for output in new_outputs %}
+                <div class="result-card new" data-index="{{ forloop.counter0 }}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <h5>{{ output.spreadsheet_row.title }}</h5>
+                            <p class="mb-1">
+                                <strong>Authors:</strong> {{ output.spreadsheet_row.all_authors|truncatewords:10 }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Venue:</strong> {{ output.spreadsheet_row.publication_venue }}
+                                {% if output.spreadsheet_row.publication_date %}
+                                | <strong>Date:</strong> {{ output.spreadsheet_row.publication_date }}
+                                {% endif %}
+                            </p>
+                            {% if output.spreadsheet_row.doi %}
+                            <p class="mb-0">
+                                <strong>DOI:</strong> {{ output.spreadsheet_row.doi }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="ms-3">
+                            <span class="badge bg-success">NEW</span>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-sm btn-success" 
+                                onclick="markForImport('new', {{ forloop.counter0 }})">
+                            <i class="fas fa-check"></i> Import This
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" 
+                                onclick="toggleEdit('new', {{ forloop.counter0 }})">
+                            <i class="fas fa-edit"></i> Edit Before Import
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" 
+                                onclick="markSkip('new', {{ forloop.counter0 }})">
+                            <i class="fas fa-times"></i> Skip
+                        </button>
+                    </div>
+
+                    <!-- Edit form (hidden initially) -->
+                    <div class="edit-form mt-3" id="edit-new-{{ forloop.counter0 }}" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-12 mb-2">
+                                <label class="form-label">Title</label>
+                                <input type="text" class="form-control edit-field" 
+                                       value="{{ output.spreadsheet_row.title }}"
+                                       data-field="title">
+                            </div>
+                            <div class="col-md-12 mb-2">
+                                <label class="form-label">Authors</label>
+                                <input type="text" class="form-control edit-field" 
+                                       value="{{ output.spreadsheet_row.all_authors }}"
+                                       data-field="all_authors">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Venue</label>
+                                <input type="text" class="form-control edit-field" 
+                                       value="{{ output.spreadsheet_row.publication_venue }}"
+                                       data-field="publication_venue">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Date</label>
+                                <input type="date" class="form-control edit-field" 
+                                       value="{{ output.spreadsheet_row.publication_date }}"
+                                       data-field="publication_date">
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-primary" 
+                                onclick="saveEdit('new', {{ forloop.counter0 }})">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+
+                    <div class="decision-status mt-2" id="status-new-{{ forloop.counter0 }}" style="display: none;"></div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info">
+                    No new outputs found. All outputs in your file already exist in the database.
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Duplicates Tab -->
+        <div class="tab-pane fade" id="duplicates-content">
+            {% if duplicates %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    These outputs may already exist. Review the matches and decide whether to merge or import as new.
+                </div>
+
+                {% for item in duplicates %}
+                <div class="result-card duplicate" data-index="{{ forloop.counter0 }}">
+                    <div class="row">
+                        <!-- Spreadsheet Data -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary">
+                                <i class="fas fa-file-excel"></i> From Spreadsheet
+                            </h6>
+                            <h5>{{ item.spreadsheet_row.title }}</h5>
+                            <p class="mb-1">
+                                <strong>Authors:</strong> {{ item.spreadsheet_row.all_authors|truncatewords:8 }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Venue:</strong> {{ item.spreadsheet_row.publication_venue }}
+                            </p>
+                            <p class="mb-0">
+                                <strong>Date:</strong> {{ item.spreadsheet_row.publication_date }}
+                            </p>
+                        </div>
+
+                        <!-- Best Match from Database -->
+                        <div class="col-md-6">
+                            <h6 class="text-success">
+                                <i class="fas fa-database"></i> Potential Match in Database
+                            </h6>
+                            {% if item.best_match %}
+                            <div class="match-card">
+                                <h6>{{ item.best_match.title }}</h6>
+                                <p class="mb-1 small">
+                                    <strong>Authors:</strong> {{ item.best_match.authors|truncatewords:8 }}
+                                </p>
+                                <p class="mb-1 small">
+                                    <strong>Colleague:</strong> {{ item.best_match.colleague }}
+                                </p>
+                                
+                                <!-- Confidence -->
+                                <div class="mt-2 mb-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="small">Match Confidence:</span>
+                                        <strong>{{ item.best_match.confidence|floatformat:0 }}%</strong>
+                                    </div>
+                                    <div class="confidence-bar">
+                                        {% if item.best_match.confidence >= 70 %}
+                                        <div class="confidence-fill confidence-high" 
+                                             style="width: {{ item.best_match.confidence }}%"></div>
+                                        {% elif item.best_match.confidence >= 40 %}
+                                        <div class="confidence-fill confidence-medium" 
+                                             style="width: {{ item.best_match.confidence }}%"></div>
+                                        {% else %}
+                                        <div class="confidence-fill confidence-low" 
+                                             style="width: {{ item.best_match.confidence }}%"></div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Match Reasons -->
+                                <div class="mt-2">
+                                    {% for reason in item.best_match.match_reasons %}
+                                    <span class="badge bg-info me-1">{{ reason }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Show all matches button -->
+                            {% if item.potential_matches|length > 1 %}
+                            <button class="btn btn-sm btn-outline-secondary mt-2" 
+                                    onclick="toggleAllMatches({{ forloop.counter0 }})">
+                                <i class="fas fa-eye"></i> Show {{ item.potential_matches|length|add:"-1" }} more match(es)
+                            </button>
+                            <div id="all-matches-{{ forloop.counter0 }}" style="display: none;" class="mt-2">
+                                {% for match in item.potential_matches %}
+                                {% if not forloop.first %}
+                                <div class="match-card mt-2">
+                                    <h6 class="small">{{ match.title }}</h6>
+                                    <p class="mb-0 small">{{ match.confidence|floatformat:0 }}% match</p>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-sm btn-warning" 
+                                onclick="markMerge('duplicate', {{ forloop.counter0 }}, {{ item.best_match.id }})">
+                            <i class="fas fa-compress-arrows-alt"></i> Merge into Existing
+                        </button>
+                        <button class="btn btn-sm btn-success" 
+                                onclick="markImportAsNew('duplicate', {{ forloop.counter0 }})">
+                            <i class="fas fa-plus"></i> Import as Separate Entry
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" 
+                                onclick="markSkip('duplicate', {{ forloop.counter0 }})">
+                            <i class="fas fa-times"></i> Skip
+                        </button>
+                    </div>
+
+                    <div class="decision-status mt-2" id="status-duplicate-{{ forloop.counter0 }}" style="display: none;"></div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info">
+                    No potential duplicates found. All outputs are either completely new or exact matches.
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Exact Matches Tab -->
+        <div class="tab-pane fade" id="exact-content">
+            {% if exact_matches %}
+                <div class="alert alert-secondary">
+                    <i class="fas fa-check-circle"></i>
+                    These outputs already exist in your database (matched by DOI). They will be skipped automatically.
+                </div>
+
+                {% for item in exact_matches %}
+                <div class="result-card exact">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">From Spreadsheet</h6>
+                            <h5>{{ item.spreadsheet_row.title }}</h5>
+                            <p class="mb-0">
+                                <strong>DOI:</strong> {{ item.spreadsheet_row.doi }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-success">In Database</h6>
+                            <h5>{{ item.database_match.title }}</h5>
+                            <p class="mb-1">
+                                <strong>Colleague:</strong> {{ item.database_match.colleague }}
+                            </p>
+                            <span class="badge bg-success">100% Match ({{ item.match_type|upper }})</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info">
+                    No exact matches found.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Store decisions
+let decisions = {
+    new: {},
+    duplicates: {}
+};
+
+function markForImport(category, index) {
+    decisions[category][index] = {action: 'import'};
+    showStatus(category, index, 'Will be imported', 'success');
+}
+
+function markImportAsNew(category, index) {
+    decisions[category][index] = {action: 'import_as_new'};
+    showStatus(category, index, 'Will import as new output', 'success');
+}
+
+function markMerge(category, index, dbId) {
+    decisions[category][index] = {
+        action: 'merge',
+        merge_into_id: dbId
+    };
+    showStatus(category, index, 'Will merge into existing output', 'warning');
+}
+
+function markSkip(category, index) {
+    decisions[category][index] = {action: 'skip'};
+    showStatus(category, index, 'Will skip', 'secondary');
+}
+
+function showStatus(category, index, message, type) {
+    const statusEl = document.getElementById(`status-${category}-${index}`);
+    statusEl.innerHTML = `<div class="alert alert-${type} py-2 mb-0">
+        <i class="fas fa-check"></i> ${message}
+    </div>`;
+    statusEl.style.display = 'block';
+}
+
+function toggleEdit(category, index) {
+    const editForm = document.getElementById(`edit-${category}-${index}`);
+    editForm.style.display = editForm.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveEdit(category, index) {
+    const editForm = document.getElementById(`edit-${category}-${index}`);
+    const inputs = editForm.querySelectorAll('.edit-field');
+    
+    const edits = {};
+    inputs.forEach(input => {
+        edits[input.dataset.field] = input.value;
+    });
+    
+    if (!decisions[category][index]) {
+        decisions[category][index] = {};
+    }
+    decisions[category][index].edits = edits;
+    
+    showStatus(category, index, 'Changes saved - ready to import', 'info');
+    editForm.style.display = 'none';
+}
+
+function toggleAllMatches(index) {
+    const matchesDiv = document.getElementById(`all-matches-${index}`);
+    matchesDiv.style.display = matchesDiv.style.display === 'none' ? 'block' : 'none';
+}
+
+function expandAll() {
+    document.querySelectorAll('.result-card').forEach(card => {
+        card.style.display = 'block';
+    });
+}
+
+function collapseAll() {
+    document.querySelectorAll('.edit-form').forEach(form => {
+        form.style.display = 'none';
+    });
+}
+
+function processSelected() {
+    if (Object.keys(decisions.new).length === 0 && Object.keys(decisions.duplicates).length === 0) {
+        alert('No decisions made yet. Please select actions for the outputs you want to process.');
+        return;
+    }
+    
+    if (!confirm('Process all selected decisions? This will import/merge the selected outputs.')) {
+        return;
+    }
+    
+    // Send to server
+    fetch('{% url "process_comparison_decisions" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: `decisions=${encodeURIComponent(JSON.stringify(decisions))}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Success! ${data.imported} imported, ${data.merged} merged, ${data.skipped} skipped`);
+            window.location.href = '{% url "output_list" %}';
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+    })
+    .catch(error => {
+        alert(`Error: ${error}`);
+    });
+}
+
+function importAllNew() {
+    if (!confirm('Import all {{ stats.new_count }} new outputs?')) {
+        return;
+    }
+    
+    fetch('{% url "quick_import_new" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.href = '{% url "output_list" %}';
+        } else {
+            alert('Error importing outputs');
+        }
+    });
+}
+</script>
+{% endblock %}

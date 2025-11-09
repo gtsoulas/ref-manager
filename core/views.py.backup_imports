@@ -21,11 +21,6 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.views.decorators.http import require_POST
-from django.http import JsonResponse, HttpResponse
-from django.urls import reverse
-import json
-from .output_comparison import OutputComparator, parse_csv_to_dict
 from django.db import transaction
 from django.utils.dateparse import parse_date as django_parse_date, parse_datetime
 from core.models import Colleague, Output
