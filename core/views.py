@@ -391,36 +391,42 @@ def critical_friend_update(request, pk):
 
 @login_required
 @user_passes_test(is_admin)
-def assign_critical_friend(request, output_id):
+def assign_critical_friend(request, output_id):  # ← Use output_id to match URL
     output = get_object_or_404(Output, pk=output_id)
     
-    if request.method == 'POST':
-        critical_friend_id = request.POST.get('critical_friend')
-        due_date = request.POST.get('due_date')
-        notes = request.POST.get('notes', '')
-        
-        critical_friend = get_object_or_404(CriticalFriend, pk=critical_friend_id)
-        
-        # Create assignment
-        assignment = CriticalFriendAssignment.objects.create(
-            output=output,
-            critical_friend=critical_friend,
-            due_date=due_date if due_date else None,
-            notes=notes,
-            status='assigned'
+    # Check if any critical friends are available
+    available_friends = CriticalFriend.objects.filter(
+        availability__in=['available', 'limited']
+    )
+    
+    if not available_friends.exists():
+        messages.error(
+            request,
+            'No critical friends are currently available. Please add critical friends or update their availability status.'
         )
-        
-        messages.success(request, f'Successfully assigned to {critical_friend.name}')
         return redirect('output_detail', pk=output_id)
     
-    # GET request - show form
-    critical_friends = CriticalFriend.objects.filter(availability='available')
+    if request.method == 'POST':
+        form = AssignmentForm(request.POST)
+        if form.is_valid():
+            assignment = form.save(commit=False)
+            assignment.output = output
+            assignment.assigned_by = request.user
+            assignment.save()
+            
+            messages.success(
+                request,
+                f'Assigned {assignment.critical_friend.name} to review this output'
+            )
+            return redirect('output_detail', pk=output_id)
+    else:
+        form = AssignmentForm()
     
-    context = {
+    return render(request, 'core/assign_critical_friend.html', {
+        'form': form,
         'output': output,
-        'critical_friends': critical_friends,
-    }
-    
+    })
+
     return render(request, 'core/assign_critical_friend.html', context)
 
 
