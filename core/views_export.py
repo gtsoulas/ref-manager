@@ -61,10 +61,19 @@ def export_assignments_excel(request):
     Includes BOTH internal panel and critical friend assignments
     """
     # Get filter parameters
-    reviewer_id = request.GET.get('reviewer')
+    reviewer_param = request.GET.get('reviewer')
     author_id = request.GET.get('author')
     status = request.GET.get('status')
     recipient_type = request.GET.get('recipient_type', 'all')
+    
+    # Parse reviewer parameter to determine type
+    is_internal_reviewer = reviewer_param and reviewer_param.startswith('internal_')
+    is_critical_friend = reviewer_param and not is_internal_reviewer and reviewer_param
+    
+    if is_internal_reviewer:
+        internal_panel_id = int(reviewer_param.split('_')[1])
+    elif is_critical_friend:
+        critical_friend_id = reviewer_param
     
     # Create workbook
     wb = openpyxl.Workbook()
@@ -115,8 +124,8 @@ def export_assignments_excel(request):
         ).all()
         
         # Apply filters
-        if reviewer_id:
-            internal_assignments = internal_assignments.filter(panel_member_id=reviewer_id)
+        if is_internal_reviewer:
+            internal_assignments = internal_assignments.filter(panel_member_id=internal_panel_id)
         if author_id:
             internal_assignments = internal_assignments.filter(output__colleague_id=author_id)
         if status:
@@ -189,8 +198,8 @@ def export_assignments_excel(request):
         ).all()
         
         # Apply filters
-        if reviewer_id:
-            cf_assignments = cf_assignments.filter(critical_friend_id=reviewer_id)
+        if is_critical_friend:
+            cf_assignments = cf_assignments.filter(critical_friend_id=critical_friend_id)
         if author_id:
             cf_assignments = cf_assignments.filter(output__colleague_id=author_id)
         if status:
@@ -294,10 +303,19 @@ def export_assignments_csv(request):
     Includes BOTH internal panel and critical friend assignments
     """
     # Get filter parameters
-    reviewer_id = request.GET.get('reviewer')
+    reviewer_param = request.GET.get('reviewer')
     author_id = request.GET.get('author')
     status = request.GET.get('status')
     recipient_type = request.GET.get('recipient_type', 'all')
+    
+    # Parse reviewer parameter to determine type
+    is_internal_reviewer = reviewer_param and reviewer_param.startswith('internal_')
+    is_critical_friend = reviewer_param and not is_internal_reviewer and reviewer_param
+    
+    if is_internal_reviewer:
+        internal_panel_id = int(reviewer_param.split('_')[1])
+    elif is_critical_friend:
+        critical_friend_id = reviewer_param
     
     # Create CSV response
     response = HttpResponse(content_type='text/csv')
@@ -326,8 +344,8 @@ def export_assignments_csv(request):
             'output', 'panel_member__colleague__user', 'output__colleague__user'
         ).all()
         
-        if reviewer_id:
-            internal_assignments = internal_assignments.filter(panel_member_id=reviewer_id)
+        if is_internal_reviewer:
+            internal_assignments = internal_assignments.filter(panel_member_id=internal_panel_id)
         if author_id:
             internal_assignments = internal_assignments.filter(output__colleague_id=author_id)
         if status:
@@ -372,8 +390,8 @@ def export_assignments_csv(request):
             'output', 'critical_friend', 'output__colleague__user'
         ).all()
         
-        if reviewer_id:
-            cf_assignments = cf_assignments.filter(critical_friend_id=reviewer_id)
+        if is_critical_friend:
+            cf_assignments = cf_assignments.filter(critical_friend_id=critical_friend_id)
         if author_id:
             cf_assignments = cf_assignments.filter(output__colleague_id=author_id)
         if status:
