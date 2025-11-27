@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Update Assignment - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">Update Internal Panel Assignment</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'output_detail' assignment.output.pk %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Output
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Assignment Details</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Output:</dt>
+                        <dd class="col-sm-9">{{ assignment.output.title }}</dd>
+
+                        <dt class="col-sm-3">Panel Member:</dt>
+                        <dd class="col-sm-9">{{ assignment.panel_member }}</dd>
+
+                        <dt class="col-sm-3">Assigned:</dt>
+                        <dd class="col-sm-9">{{ assignment.assigned_date|date:"d M Y" }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Assignment
+                            </button>
+                            <a href="{% url 'output_detail' assignment.output.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

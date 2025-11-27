@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>
+        <i class="fas fa-compress-arrows-alt"></i> Merge Colleagues
+    </h2>
+    
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>Warning:</strong> Merging colleagues is permanent and cannot be undone!
+        All outputs and reviews from the merged colleagues will be transferred to the primary colleague.
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Select Primary Colleague (to keep)</h5>
+            </div>
+            <div class="card-body">
+                <p>Choose which colleague record you want to keep. All data from other selected colleagues will be merged into this one.</p>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Primary?</th>
+                                <th>Name</th>
+                                <th>Staff ID</th>
+                                <th>Email</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Outputs</th>
+                                <th>Employment Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for colleague in colleagues %}
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" 
+                                                   name="primary_id" 
+                                                   value="{{ colleague.id }}" 
+                                                   id="primary_{{ colleague.id }}"
+                                                   {% if forloop.first %}checked{% endif %}
+                                                   required>
+                                            <label class="form-check-label" for="primary_{{ colleague.id }}">
+                                                Keep
+                                            </label>
+                                        </div>
+                                        <input type="hidden" name="colleague_ids" value="{{ colleague.id }}">
+                                    </td>
+                                    <td>
+                                        <strong>
+                                            {% if colleague.user %}
+                                                {{ colleague.user.get_full_name }}
+                                            {% else %}
+                                                {{ colleague.staff_id }}
+                                            {% endif %}
+                                        </strong>
+                                    </td>
+                                    <td>{{ colleague.staff_id }}</td>
+                                    <td>
+                                        {% if colleague.user %}
+                                            {{ colleague.user.email }}
+                                        {% else %}
+                                            <em class="text-muted">No email</em>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ colleague.title }}</td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ colleague.get_colleague_category_display|default:"Employee" }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">
+                                            {{ colleague.output_count }} output(s)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if colleague.employment_status == 'current' %}bg-success{% else %}bg-secondary{% endif %}">
+                                            {{ colleague.get_employment_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-3">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Confirmation</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>What will happen:</strong></p>
+                <ul>
+                    <li>All outputs from non-primary colleagues will be transferred to the primary colleague</li>
+                    <li>All reviews and panel memberships will be transferred</li>
+                    <li>The non-primary colleague records will be <strong>permanently deleted</strong></li>
+                    <li>The associated User accounts will also be deleted</li>
+                </ul>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="confirm" required>
+                    <label class="form-check-label" for="confirm">
+                        <strong>I understand this action cannot be undone</strong>
+                    </label>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{% url 'find_duplicate_colleagues' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-compress-arrows-alt"></i> Merge Colleagues
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// Highlight the selected primary row
+document.querySelectorAll('input[name="primary_id"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+        // Remove highlight from all rows
+        document.querySelectorAll('tbody tr').forEach(function(row) {
+            row.classList.remove('table-success');
+        });
+        // Add highlight to selected row
+        if (this.checked) {
+            this.closest('tr').classList.add('table-success');
+        }
+    });
+});
+
+// Trigger on page load for the default checked radio
+document.querySelector('input[name="primary_id"]:checked').closest('tr').classList.add('table-success');
+</script>
+{% endblock %}

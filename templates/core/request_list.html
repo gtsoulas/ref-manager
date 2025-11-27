@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Requests - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="fas fa-inbox"></i> Requests</h2>
+            <p class="text-muted">Manage incoming requests and queries</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'request_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Request
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5>Total Requests</h5>
+                    <h2>{{ stats.total }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5>Pending</h5>
+                    <h2>{{ stats.pending }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5>Completed</h5>
+                    <h2>{{ stats.completed }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5>Overdue</h5>
+                    <h2>{{ stats.overdue }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-control">
+                        <option value="">All Statuses</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Priority</label>
+                    <select name="priority" class="form-control">
+                        <option value="">All Priorities</option>
+                        {% for value, label in priority_choices %}
+                        <option value="{{ value }}" {% if priority_filter == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">&nbsp;</label>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Requests List -->
+    <div class="card">
+        <div class="card-body">
+            {% if requests %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>From</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Deadline</th>
+                                <th>Assigned To</th>
+                                <th style="width: 200px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in requests %}
+                            <tr {% if req.is_overdue %}class="table-danger"{% endif %}>
+                                <td>
+                                    <a href="{% url 'request_detail' req.pk %}">
+                                        <strong>{{ req.subject }}</strong>
+                                    </a>
+                                    {% if req.is_overdue %}
+                                        <span class="badge bg-danger ms-2">
+                                            <i class="fas fa-exclamation-triangle"></i> Overdue
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ req.from_entity }}</td>
+                                <td>
+                                    <span class="badge bg-{% if req.priority == 'urgent' %}danger{% elif req.priority == 'high' %}warning{% elif req.priority == 'medium' %}info{% else %}secondary{% endif %}">
+                                        {{ req.get_priority_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if req.status == 'completed' %}success{% elif req.status == 'in_progress' %}primary{% else %}secondary{% endif %}">
+                                        {{ req.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ req.deadline|date:"Y-m-d" }}</td>
+                                <td>
+                                    {% if req.assigned_to %}
+                                        {{ req.assigned_to.get_full_name|default:req.assigned_to.username }}
+                                    {% else %}
+                                        <em class="text-muted">Unassigned</em>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{% url 'request_detail' req.pk %}" 
+                                           class="btn btn-info" 
+                                           title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'request_update' req.pk %}" 
+                                           class="btn btn-warning" 
+                                           title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% if req.status != 'completed' %}
+                                        <a href="{% url 'request_complete' req.pk %}" 
+                                           class="btn btn-success" 
+                                           title="Mark Complete">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                        {% endif %}
+                                        <a href="{% url 'request_delete' req.pk %}" 
+                                           class="btn btn-danger" 
+                                           title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No requests found.</p>
+                    <a href="{% url 'request_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create Your First Request
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

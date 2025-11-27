@@ -1,0 +1,71 @@
+{% comment %}
+Role Summary Include Template
+templates/ref_manager/includes/role_summary.html
+
+Displays a summary of user's roles and key permissions.
+
+Usage:
+    {% load ref_permissions %}
+    {% role_summary %}
+    {% role_summary user.ref_profile %}
+{% endcomment %}
+
+<div class="card role-summary mb-3">
+    <div class="card-header bg-light">
+        <strong>
+            <i class="bi bi-person-badge"></i> Your Access Level
+        </strong>
+    </div>
+    <div class="card-body">
+        {% if profile %}
+            <p class="mb-2">
+                <strong>Roles:</strong>
+                {% for role in roles %}
+                    <span class="badge 
+                        {% if role.code == 'ADMIN' %}bg-danger
+                        {% elif role.code == 'OBSERVER' %}bg-info
+                        {% elif role.code == 'INTERNAL_PANEL' %}bg-warning text-dark
+                        {% else %}bg-secondary{% endif %}">
+                        {{ role.name }}
+                    </span>
+                {% empty %}
+                    <span class="text-muted">No roles assigned</span>
+                {% endfor %}
+            </p>
+            
+            <hr class="my-2">
+            
+            <ul class="list-unstyled mb-0 small">
+                <li class="{% if can_view_all %}text-success{% else %}text-muted{% endif %}">
+                    {% if can_view_all %}✅{% else %}❌{% endif %} 
+                    View all outputs
+                </li>
+                <li class="{% if can_create %}text-success{% else %}text-muted{% endif %}">
+                    {% if can_create %}✅{% else %}❌{% endif %} 
+                    Create outputs
+                </li>
+                <li class="{% if can_edit_any %}text-success{% else %}text-muted{% endif %}">
+                    {% if can_edit_any %}✅{% else %}❌{% endif %} 
+                    Edit any output
+                </li>
+                <li class="{% if can_rate %}text-success{% else %}text-muted{% endif %}">
+                    {% if can_rate %}✅{% else %}❌{% endif %} 
+                    Rate assigned outputs
+                </li>
+                <li class="{% if can_export %}text-success{% else %}text-muted{% endif %}">
+                    {% if can_export %}✅{% else %}❌{% endif %} 
+                    Export data
+                </li>
+                <li class="{% if can_manage %}text-success{% else %}text-muted{% endif %}">
+                    {% if can_manage %}✅{% else %}❌{% endif %} 
+                    Manage users
+                </li>
+            </ul>
+        {% else %}
+            <p class="text-muted mb-0">
+                <i class="bi bi-exclamation-triangle"></i>
+                No profile found. Please contact an administrator.
+            </p>
+        {% endif %}
+    </div>
+</div>

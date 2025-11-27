@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}REF Submission Manager{% endblock %}</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+      .version-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.version-icon {
+    width: 44px;
+    height: 44px;
+    /* Or whatever size looks good */
+}
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+        }
+        body { background-color: #f8f9fa; }
+        .navbar { background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .sidebar { min-height: 100vh; background-color: white; box-shadow: 2px 0 4px rgba(0,0,0,0.1); }
+        .sidebar .nav-link { color: var(--secondary-color); padding: 12px 20px; border-radius: 8px; margin: 4px 0; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: var(--primary-color); color: white; }
+        .card { box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: none; border-radius: 8px; }
+        .stat-card { border-left: 4px solid var(--primary-color); }
+        .badge-quality-4 { background-color: #10b981; }
+        .badge-quality-3 { background-color: #3b82f6; }
+        .badge-quality-2 { background-color: #eab308; }
+        .badge-quality-1 { background-color: #f97316; }
+        .badge-quality-U { background-color: #6b7280; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="{% url 'dashboard' %}">
+            {% load static %}
+
+<!-- In your footer or wherever the version number is displayed -->
+<div class="version-info">
+    <img src="{% static 'images/icon.png' %}" alt="REF-manager" class="version-icon">
+    <span>REF-manager v{{ 2.3 }}</span>
+</div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle"></i> {{ user.get_full_name }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#">Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            {% if user.is_authenticated %}
+            <nav class="col-md-2 d-md-block sidebar collapse" id="sidebarMenu">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'output' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'output_list' %}">
+                                <i class="fas fa-file-alt"></i> Outputs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'colleague' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'colleague_list' %}">
+                                <i class="fas fa-users"></i> Staff
+                            </a>
+                        </li>
+                        {% if user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'critical_friend' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'critical_friend_list' %}">
+                                <i class="fas fa-user-friends"></i> Critical Friends
+                            </a>
+                            <a class="nav-link" href="{% url 'internal_panel_list' %}">Internal Panel</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'request' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'request_list' %}">
+                                <i class="fas fa-tasks"></i> Requests
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'reports:home' %}">
+                                <i class="fas fa-chart-bar"></i> Reports
+                            </a>
+                        </li>
+                        <li class="nav-item">
+    <a class="nav-link" href="{% url 'task_list' %}">
+        <i class="fas fa-tasks"></i> Tasks
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'export_assignments' %}">
+        <i class="fas fa-download"></i> Export Assignments
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/reports/risk-dashboard/">
+        <i class="fas fa-chart-line"></i> Risk Dashboard
+    </a>
+</li>
+
+{% endif %}
+                    </ul>
+                </div>
+            </nav>
+            {% endif %}
+
+            <main class="col-md-10 ms-sm-auto px-md-4">
+                {% if messages %}
+                    <div class="mt-3">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="py-4">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

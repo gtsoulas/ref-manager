@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Critical Friends - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">Critical Friends</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'critical_friend_create' %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus"></i> Add Critical Friend
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Institution</th>
+                            <th>Expertise</th>
+                            <th>Email</th>
+                            <th>Assignments</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cf in critical_friends %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'critical_friend_detail' cf.pk %}">{{ cf.name }}</a>
+                            </td>
+                            <td>{{ cf.institution }}</td>
+                            <td>{{ cf.expertise_area }}</td>
+                            <td>{{ cf.email }}</td>
+                            <td>{{ cf.criticalfriendassignment_set.count }}</td>
+                            <td>
+                                <a href="{% url 'critical_friend_detail' cf.pk %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'critical_friend_update' cf.pk %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No critical friends found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

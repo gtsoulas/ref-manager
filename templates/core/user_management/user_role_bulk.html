@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Bulk Role Assignment - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'user-list' %}">User Management</a></li>
+            <li class="breadcrumb-item active">Bulk Assign</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">
+        <i class="bi bi-people"></i> Bulk Role Assignment
+    </h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <strong>Assign Roles to Multiple Users</strong>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Action Selection -->
+                        <div class="mb-4">
+                            <label class="form-label"><strong>1. Choose Action</strong></label>
+                            <div class="btn-group d-flex" role="group">
+                                {% for value, label in form.action.field.choices %}
+                                <input type="radio" class="btn-check" name="action" 
+                                       id="action_{{ value }}" value="{{ value }}"
+                                       {% if form.action.value == value or forloop.first and not form.action.value %}checked{% endif %}>
+                                <label class="btn btn-outline-primary" for="action_{{ value }}">
+                                    {% if value == 'add' %}
+                                    <i class="bi bi-plus-circle"></i>
+                                    {% elif value == 'remove' %}
+                                    <i class="bi bi-dash-circle"></i>
+                                    {% else %}
+                                    <i class="bi bi-arrow-repeat"></i>
+                                    {% endif %}
+                                    {{ label }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Role Selection -->
+                        <div class="mb-4">
+                            <label class="form-label"><strong>2. Select Role</strong></label>
+                            <div class="row">
+                                {% for role in roles %}
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" 
+                                               name="role" value="{{ role.pk }}"
+                                               id="role_{{ role.code }}"
+                                               {% if forloop.first %}checked{% endif %}>
+                                        <label class="form-check-label" for="role_{{ role.code }}">
+                                            <span class="badge 
+                                                {% if role.code == 'ADMIN' %}bg-danger
+                                                {% elif role.code == 'OBSERVER' %}bg-info
+                                                {% elif role.code == 'INTERNAL_PANEL' %}bg-warning text-dark
+                                                {% else %}bg-secondary{% endif %}">
+                                                {{ role.name }}
+                                            </span>
+                                            <small class="text-muted d-block">{{ role.description|truncatewords:10 }}</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- User Selection -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <strong>3. Select Users</strong>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2" 
+                                        onclick="toggleAllUsers(true)">Select All</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                        onclick="toggleAllUsers(false)">Deselect All</button>
+                            </label>
+                            
+                            <div class="border rounded p-3" style="max-height: 400px; overflow-y: auto;">
+                                <div class="row">
+                                    {% for user in form.users.field.queryset %}
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input user-checkbox" type="checkbox" 
+                                                   name="users" value="{{ user.pk }}"
+                                                   id="user_{{ user.pk }}">
+                                            <label class="form-check-label" for="user_{{ user.pk }}">
+                                                {{ user.username }}
+                                                {% if user.first_name or user.last_name %}
+                                                <small class="text-muted">({{ user.first_name }} {{ user.last_name }})</small>
+                                                {% endif %}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <small class="text-muted">
+                                <span id="selected-count">0</span> user(s) selected
+                            </small>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-lg"></i> Apply to Selected Users
+                            </button>
+                            <a href="{% url 'user-list' %}" class="btn btn-secondary btn-lg">
+                                <i class="bi bi-x"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <strong><i class="bi bi-info-circle"></i> How It Works</strong>
+                </div>
+                <div class="card-body">
+                    <h6>Add Role</h6>
+                    <p class="small">Adds the selected role to users who don't already have it. Existing roles are preserved.</p>
+                    
+                    <h6>Remove Role</h6>
+                    <p class="small">Removes the selected role from users who have it. Other roles are preserved.</p>
+                    
+                    <h6>Set as Only Role</h6>
+                    <p class="small text-danger">
+                        <strong>Caution:</strong> Removes all existing roles and sets only the selected role.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <strong>Quick Tips</strong>
+                </div>
+                <div class="card-body small">
+                    <ul class="mb-0">
+                        <li>Use <strong>Add</strong> to give Observer access to multiple reviewers at once</li>
+                        <li>Use <strong>Remove</strong> to revoke Panel membership after a review cycle</li>
+                        <li>Use <strong>Set as Only</strong> to reset users to just Colleague role</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleAllUsers(checked) {
+    document.querySelectorAll('.user-checkbox').forEach(cb => {
+        cb.checked = checked;
+    });
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const count = document.querySelectorAll('.user-checkbox:checked').length;
+    document.getElementById('selected-count').textContent = count;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.user-checkbox').forEach(cb => {
+        cb.addEventListener('change', updateSelectedCount);
+    });
+    updateSelectedCount();
+});
+</script>
+{% endblock %}

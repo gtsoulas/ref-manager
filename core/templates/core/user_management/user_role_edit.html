@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Roles: {{ user_obj.username }} - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'user-list' %}">User Management</a></li>
+            <li class="breadcrumb-item active">{{ user_obj.username }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-gear"></i> 
+                        Edit Roles for {{ user_obj.username }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label class="form-label"><strong>Select Roles</strong></label>
+                            <p class="text-muted small">
+                                Users can have multiple roles. Permissions are combined (most permissive wins).
+                            </p>
+                            
+                            <div class="row">
+                                {% for role in roles %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100 {% if role in form.roles.value %}border-primary{% endif %}">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       name="roles" value="{{ role.pk }}"
+                                                       id="role_{{ role.code }}"
+                                                       {% if role in profile.roles.all %}checked{% endif %}>
+                                                <label class="form-check-label" for="role_{{ role.code }}">
+                                                    <span class="badge 
+                                                        {% if role.code == 'ADMIN' %}bg-danger
+                                                        {% elif role.code == 'OBSERVER' %}bg-info
+                                                        {% elif role.code == 'INTERNAL_PANEL' %}bg-warning text-dark
+                                                        {% else %}bg-secondary{% endif %}">
+                                                        {{ role.name }}
+                                                    </span>
+                                                </label>
+                                            </div>
+                                            <p class="small text-muted mt-2 mb-0">
+                                                {{ role.description }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i> Save Changes
+                            </button>
+                            <a href="{% url 'user-list' %}" class="btn btn-secondary">
+                                <i class="bi bi-x"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- User Info Card -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <strong>User Information</strong>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Username:</th>
+                            <td>{{ user_obj.username }}</td>
+                        </tr>
+                        <tr>
+                            <th>Name:</th>
+                            <td>{{ user_obj.first_name }} {{ user_obj.last_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td>{{ user_obj.email|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Superuser:</th>
+                            <td>
+                                {% if user_obj.is_superuser %}
+                                <span class="badge bg-dark">Yes</span>
+                                {% else %}
+                                <span class="text-muted">No</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Staff:</th>
+                            <td>
+                                {% if user_obj.is_staff %}
+                                <span class="badge bg-secondary">Yes</span>
+                                {% else %}
+                                <span class="text-muted">No</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Active:</th>
+                            <td>
+                                {% if user_obj.is_active %}
+                                <span class="badge bg-success">Yes</span>
+                                {% else %}
+                                <span class="badge bg-danger">No</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Linked Colleague Card -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <strong>Linked Colleague</strong>
+                </div>
+                <div class="card-body">
+                    {% if profile.linked_colleague %}
+                    <p class="mb-1">
+                        <strong>{{ profile.linked_colleague.name }}</strong>
+                    </p>
+                    <p class="small text-muted mb-0">
+                        This user's outputs are linked to this colleague record.
+                    </p>
+                    {% else %}
+                    <p class="text-muted mb-0">
+                        Not linked to any colleague record.
+                        <br><small>Link via Django Admin to enable output ownership.</small>
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Current Permissions Preview -->
+            <div class="card">
+                <div class="card-header">
+                    <strong>Current Permissions</strong>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled small mb-0">
+                        <li class="{% if profile.can_view_all_outputs %}text-success{% else %}text-muted{% endif %}">
+                            {% if profile.can_view_all_outputs %}✅{% else %}❌{% endif %} 
+                            View all outputs
+                        </li>
+                        <li class="{% if profile.can_create_outputs %}text-success{% else %}text-muted{% endif %}">
+                            {% if profile.can_create_outputs %}✅{% else %}❌{% endif %} 
+                            Create outputs
+                        </li>
+                        <li class="{% if profile.can_edit_any_output %}text-success{% else %}text-muted{% endif %}">
+                            {% if profile.can_edit_any_output %}✅{% else %}❌{% endif %} 
+                            Edit any output
+                        </li>
+                        <li class="{% if profile.can_rate_assigned %}text-success{% else %}text-muted{% endif %}">
+                            {% if profile.can_rate_assigned %}✅{% else %}❌{% endif %} 
+                            Rate assigned outputs
+                        </li>
+                        <li class="{% if profile.can_export_data %}text-success{% else %}text-muted{% endif %}">
+                            {% if profile.can_export_data %}✅{% else %}❌{% endif %} 
+                            Export data
+                        </li>
+                        <li class="{% if profile.can_manage_users %}text-success{% else %}text-muted{% endif %}">
+                            {% if profile.can_manage_users %}✅{% else %}❌{% endif %} 
+                            Manage users
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

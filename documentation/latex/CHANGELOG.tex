@@ -1,0 +1,174 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+
+\geometry{margin=2.5cm}
+
+\definecolor{refblue}{RGB}{0,82,147}
+\definecolor{addedgreen}{RGB}{40,167,69}
+\definecolor{changedblue}{RGB}{0,123,255}
+\definecolor{fixedorange}{RGB}{253,126,20}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=refblue,
+    urlcolor=refblue,
+    pdftitle={REF-Manager Changelog},
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textit{REF-Manager Changelog}}
+\fancyhead[R]{\textit{Version History}}
+\fancyfoot[C]{\thepage}
+
+\title{
+    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.5cm]
+    {\LARGE Changelog}\\[0.3cm]
+    {\large Version History}
+}
+\author{University of York}
+\date{November 2024}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Version 3.0.0 --- November 2024}
+
+\textbf{Major Release --- Complete Feature Overhaul}
+
+This release introduces comprehensive role-based access control, risk assessment framework, portfolio optimisation, and multi-dimensional quality ratings.
+
+\subsection{\textcolor{addedgreen}{Added}}
+
+\subsubsection{Role-Based Access Control}
+\begin{itemize}
+    \item Four user roles: Administrator, Observer, Internal Panel, Colleague
+    \item Multi-role support with combined permissions
+    \item 13+ granular permissions per role
+    \item Rating finalisation system
+    \item Django admin integration
+    \item Template tags for permission-based rendering
+    \item Management commands: \texttt{setup\_roles}, \texttt{assign\_roles}
+\end{itemize}
+
+\subsubsection{Risk Assessment Framework}
+\begin{itemize}
+    \item Content risk scoring (0-1 scale)
+    \item Timeline risk based on publication status
+    \item Open Access compliance tracking
+    \item Panel alignment assessment
+    \item Venue prestige scoring
+    \item Configurable risk weights
+    \item Risk dashboard with visualisations
+\end{itemize}
+
+\subsubsection{Portfolio Optimisation}
+\begin{itemize}
+    \item REFSubmission model for scenario planning
+    \item Portfolio quality score (GPA-style)
+    \item Portfolio risk score
+    \item Representativeness metrics
+    \item Equality and gender balance scores
+    \item ECR representation tracking
+\end{itemize}
+
+\subsubsection{Multi-Dimensional Quality Ratings}
+\begin{itemize}
+    \item Separate Internal Panel rating field
+    \item Separate Critical Friend rating field
+    \item Self-Assessment rating for authors
+    \item Automatic average calculation
+    \item Specialist/Non-Specialist classification
+\end{itemize}
+
+\subsubsection{Task Management System}
+\begin{itemize}
+    \item Task creation with workflow
+    \item Categories and priorities
+    \item Due date management
+    \item Overdue alerts
+\end{itemize}
+
+\subsection{\textcolor{changedblue}{Changed}}
+
+\begin{itemize}
+    \item Dashboard updated for decimal average ratings
+    \item Colleague model: added employment status tracking
+    \item Output model: comprehensive risk fields added
+    \item Expanded output status options
+    \item Improved filtering throughout
+\end{itemize}
+
+\section{Version 2.1.0 --- November 2024}
+
+\subsection{\textcolor{addedgreen}{Added}}
+\begin{itemize}
+    \item Self-evaluation ratings for outputs
+    \item Specialist/Non-Specialist reviewer classification
+    \item Enhanced dashboard statistics
+\end{itemize}
+
+\subsection{\textcolor{fixedorange}{Fixed}}
+\begin{itemize}
+    \item Colleague category filter issues
+    \item Template rendering bugs
+\end{itemize}
+
+\section{Version 2.0.0 --- November 2024}
+
+\subsection{\textcolor{addedgreen}{Added}}
+\begin{itemize}
+    \item Internal Panel management
+    \item Critical Friend assignment system
+    \item Employment status tracking
+    \item Colleague category system
+    \item BibTeX import
+    \item CSV import with duplicate detection
+\end{itemize}
+
+\section{Version 1.0.0 --- October 2024}
+
+\subsection{Initial Release}
+\begin{itemize}
+    \item Colleague management
+    \item Research output tracking
+    \item Critical Friend management
+    \item Dashboard with statistics
+    \item Excel export
+    \item LaTeX report generation
+    \item User authentication
+\end{itemize}
+
+\section{Upgrade Guide}
+
+\subsection{Upgrading to 3.0.0}
+
+\begin{enumerate}
+    \item Backup your database
+    \item Update code from repository
+    \item Install new dependencies: \texttt{pip install -r requirements.txt}
+    \item Run migrations: \texttt{python manage.py migrate}
+    \item Set up roles: \texttt{python manage.py setup\_roles --create-profiles --superusers-admin}
+    \item Verify user roles and permissions
+\end{enumerate}
+
+\subsection{Breaking Changes in 3.0}
+
+\begin{itemize}
+    \item UserProfile model required for all users
+    \item Role system replaces simple is\_staff checks
+    \item New quality rating fields (internal, external, self)
+    \item Risk fields on Output model
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load task_filters %}
+{% load static %}
+% load humanize %}
+
+{% block title %}{{ task.title }} - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="fas fa-tasks"></i> {{ task.title }}</h2>
+            <p class="text-muted">
+                Created by {{ task.created_by.get_full_name|default:task.created_by.username }} 
+                on {{ task.created_at|date:"F j, Y" }}
+            </p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'task_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+            <a href="{% url 'task_update' task.pk %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            {% if task.status != 'completed' %}
+            <form method="post" action="{% url 'task_complete' task.pk %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check"></i> Mark Complete
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Task Details Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Task Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Category:</strong></div>
+                        <div class="col-md-9">
+                            <span class="badge bg-secondary">{{ task.get_category_display }}</span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Priority:</strong></div>
+                        <div class="col-md-9">
+                            <span class="badge bg-{{ task.get_priority_class }}">
+                                {{ task.get_priority_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Status:</strong></div>
+                        <div class="col-md-9">
+                            <span class="badge bg-{{ task.get_status_class }}">
+                                {{ task.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Assigned To:</strong></div>
+                        <div class="col-md-9">
+                            {% if task.assigned_to %}
+                                {{ task.assigned_to.get_full_name|default:task.assigned_to.username }}
+                            {% else %}
+                                <em class="text-muted">Unassigned</em>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Description:</strong></div>
+                        <div class="col-md-9">
+                            {% if task.description %}
+                                <p>{{ task.description|linebreaks }}</p>
+                            {% else %}
+                                <em class="text-muted">No description provided</em>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if task.notes %}
+                    <hr>
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Notes:</strong></div>
+                        <div class="col-md-9">
+                            <p>{{ task.notes|linebreaks }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Dates Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-calendar"></i> Dates</h5>
+                </div>
+                <div class="card-body">
+                    {% if task.start_date %}
+                    <div class="mb-3">
+                        <strong>Start Date:</strong><br>
+                        {{ task.start_date|date:"F j, Y" }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if task.due_date %}
+                    <div class="mb-3">
+                        <strong>Due Date:</strong><br>
+                        {{ task.due_date|date:"F j, Y" }}
+                        {% if task.is_overdue %}
+                            <span class="badge bg-danger">
+                                <i class="fas fa-exclamation-triangle"></i> Overdue by {{ task.days_until_due|abs_value }} days
+                            </span>
+                        {% elif task.days_until_due != None %}
+                            <br><small class="text-muted">
+                                {% if task.days_until_due == 0 %}
+                                    Due today
+                                {% else %}
+                                    Due in {{ task.days_until_due }} days
+                                {% endif %}
+                            </small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if task.completed_date %}
+                    <div class="mb-3">
+                        <strong>Completed:</strong><br>
+                        {{ task.completed_date|date:"F j, Y g:i A" }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <strong>Last Updated:</strong><br>
+                        {{ task.updated_at|date:"F j, Y g:i A" }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-cog"></i> Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'task_update' task.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit Task
+                        </a>
+                        {% if task.status != 'completed' %}
+                        <form method="post" action="{% url 'task_complete' task.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check"></i> Mark as Complete
+                            </button>
+                        </form>
+                        {% endif %}
+                        <a href="{% url 'task_delete' task.pk %}" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Delete Task
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

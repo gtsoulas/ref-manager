@@ -1,0 +1,161 @@
+<!-- Rating Table for Output Detail -->
+<!-- Insert this section in your output_detail.html template -->
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-star"></i> Quality Assessments
+                </h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-hover mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width: 30%">Assessment Type</th>
+                            <th style="width: 20%">Rating</th>
+                            <th style="width: 25%">Reviewer Type</th>
+                            <th style="width: 25%">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Internal Panel Assessment -->
+                        <tr>
+                            <td>
+                                <strong><i class="fas fa-users"></i> Internal Panel</strong>
+                                <br><small class="text-muted">Departmental review</small>
+                            </td>
+                            <td>
+                                {% if output.quality_rating_internal %}
+                                    <span class="badge badge-lg badge-primary" style="font-size: 1.1em;">
+                                        {{ output.get_quality_rating_internal_display }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-secondary">Not assessed</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% with internal_review=output.internal_reviews.first %}
+                                    {% if internal_review and internal_review.reviewer_type %}
+                                        <span class="badge badge-info">
+                                            <i class="fas fa-user-graduate"></i>
+                                            {{ internal_review.get_reviewer_type_display }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td>
+                                {% if output.internal_reviews.exists %}
+                                    <span class="badge badge-success">
+                                        <i class="fas fa-check-circle"></i> Completed
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-warning">
+                                        <i class="fas fa-clock"></i> Pending
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        
+                        <!-- Critical Friend Assessment -->
+                        <tr>
+                            <td>
+                                <strong><i class="fas fa-user-tie"></i> Critical Friend</strong>
+                                <br><small class="text-muted">External review</small>
+                            </td>
+                            <td>
+                                {% if output.quality_rating_external %}
+                                    <span class="badge badge-lg badge-success" style="font-size: 1.1em;">
+                                        {{ output.get_quality_rating_external_display }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-secondary">Not assessed</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% with cf_assignment=output.assignments.first %}
+                                    {% if cf_assignment and cf_assignment.reviewer_type %}
+                                        <span class="badge badge-info">
+                                            <i class="fas fa-user-graduate"></i>
+                                            {{ cf_assignment.get_reviewer_type_display }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td>
+                                {% if output.assignments.filter(status='completed').exists %}
+                                    <span class="badge badge-success">
+                                        <i class="fas fa-check-circle"></i> Completed
+                                    </span>
+                                {% elif output.assignments.filter(status='assigned').exists %}
+                                    <span class="badge badge-info">
+                                        <i class="fas fa-paper-plane"></i> Assigned
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-warning">
+                                        <i class="fas fa-clock"></i> Pending
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        
+                        <!-- Self-Assessment -->
+                        <tr>
+                            <td>
+                                <strong><i class="fas fa-user"></i> Self-Assessment</strong>
+                                <br><small class="text-muted">Author's evaluation</small>
+                            </td>
+                            <td>
+                                {% if output.quality_rating_self %}
+                                    <span class="badge badge-lg badge-warning" style="font-size: 1.1em;">
+                                        {{ output.get_quality_rating_self_display }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-secondary">Not assessed</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge badge-light">
+                                    <i class="fas fa-user"></i> Author
+                                </span>
+                            </td>
+                            <td>
+                                {% if output.quality_rating_self %}
+                                    <span class="badge badge-success">
+                                        <i class="fas fa-check-circle"></i> Completed
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-warning">
+                                        <i class="fas fa-clock"></i> Pending
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        
+                        <!-- Average Rating -->
+                        <tr class="table-active">
+                            <td colspan="2">
+                                <strong><i class="fas fa-calculator"></i> Average Rating</strong>
+                                <br><small class="text-muted">Calculated from internal and external</small>
+                            </td>
+                            <td colspan="2" class="text-center">
+                                {% if output.quality_rating_average %}
+                                    <span class="badge badge-lg badge-dark" style="font-size: 1.3em;">
+                                        {{ output.get_quality_rating_average_display }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-secondary">Not calculated</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+
+{% block title %}Risk Dashboard - REF Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">Risk Assessment Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-0">Total Outputs</p>
+                        <h3 class="mb-0">{{ total_outputs }}</h3>
+                    </div>
+                    <div class="text-primary">
+                        <i class="fas fa-file-alt fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card stat-card border-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-0">Low Risk</p>
+                        <h3 class="mb-0 text-success">{{ risk_distribution.low }}</h3>
+                    </div>
+                    <div class="text-success">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card stat-card border-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-0">Medium Risk</p>
+                        <h3 class="mb-0 text-warning">{{ risk_distribution.medium_low|add:risk_distribution.medium_high }}</h3>
+                    </div>
+                    <div class="text-warning">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card stat-card border-danger">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-0">High Risk</p>
+                        <h3 class="mb-0 text-danger">{{ risk_distribution.high }}</h3>
+                    </div>
+                    <div class="text-danger">
+                        <i class="fas fa-exclamation-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Risk Distribution Chart -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Risk Level Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><i class="fas fa-circle text-success"></i> Low Risk</span>
+                        <span class="fw-bold">{{ risk_distribution.low }} ({{ risk_percentages.low }}%)</span>
+                    </div>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-success" 
+                             role="progressbar" style="width: {{ risk_percentages.low }}%">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><i class="fas fa-circle text-info"></i> Medium-Low Risk</span>
+                        <span class="fw-bold">{{ risk_distribution.medium_low }} ({{ risk_percentages.medium_low }}%)</span>
+                    </div>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-info" 
+                             role="progressbar" style="width: {{ risk_percentages.medium_low }}%">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><i class="fas fa-circle text-warning"></i> Medium-High Risk</span>
+                        <span class="fw-bold">{{ risk_distribution.medium_high }} ({{ risk_percentages.medium_high }}%)</span>
+                    </div>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-warning" 
+                             role="progressbar" style="width: {{ risk_percentages.medium_high }}%">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><i class="fas fa-circle text-danger"></i> High Risk</span>
+                        <span class="fw-bold">{{ risk_distribution.high }} ({{ risk_percentages.high }}%)</span>
+                    </div>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-danger" 
+                             role="progressbar" style="width: {{ risk_percentages.high }}%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Risk Score Ranges</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>0.00 - 0.25 (Very Low)</span>
+                        <span class="fw-bold">{{ risk_ranges.very_low }}</span>
+                    </div>
+                    <div class="progress" style="height: 15px;">
+                        <div class="progress-bar bg-success" 
+                             role="progressbar" 
+                             style="width: {% widthratio risk_ranges.very_low total_outputs 100 %}%">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>0.25 - 0.50 (Low)</span>
+                        <span class="fw-bold">{{ risk_ranges.low }}</span>
+                    </div>
+                    <div class="progress" style="height: 15px;">
+                        <div class="progress-bar bg-info" 
+                             role="progressbar" 
+                             style="width: {% widthratio risk_ranges.low total_outputs 100 %}%">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>0.50 - 0.75 (Medium)</span>
+                        <span class="fw-bold">{{ risk_ranges.medium }}</span>
+                    </div>
+                    <div class="progress" style="height: 15px;">
+                        <div class="progress-bar bg-warning" 
+                             role="progressbar" 
+                             style="width: {% widthratio risk_ranges.medium total_outputs 100 %}%">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>0.75 - 1.00 (High)</span>
+                        <span class="fw-bold">{{ risk_ranges.high }}</span>
+                    </div>
+                    <div class="progress" style="height: 15px;">
+                        <div class="progress-bar bg-danger" 
+                             role="progressbar" 
+                             style="width: {% widthratio risk_ranges.high total_outputs 100 %}%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- High Risk Outputs -->
+{% if high_risk_outputs %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-exclamation-circle"></i> High Risk Outputs Requiring Attention</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Quality</th>
+                                <th>Risk Score</th>
+                                <th>Content Risk</th>
+                                <th>Timeline Risk</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for output in high_risk_outputs %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'output_detail' output.id %}">
+                                        {{ output.title|truncatewords:8 }}
+                                    </a>
+                                </td>
+                                <td>{{ output.colleague.user.get_full_name }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        {{ output.quality_rating_average|default:"N/A" }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-danger">
+                                        {{ output.overall_risk_score|floatformat:2 }}
+                                    </span>
+                                </td>
+                                <td>{{ output.content_risk_score|floatformat:2 }}</td>
+                                <td>{{ output.timeline_risk_score|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- OA Compliance Risks -->
+{% if oa_risk_count > 0 %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0"><i class="fas fa-unlock-alt"></i> Open Access Compliance Issues ({{ oa_risk_count }})</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for output in oa_risk_outputs %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">
+                                    <a href="{% url 'output_detail' output.id %}">{{ output.title|truncatewords:10 }}</a>
+                                </h6>
+                                <small class="text-muted">{{ output.colleague.user.get_full_name }}</small>
+                            </div>
+                            <span class="badge bg-warning">OA Risk</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

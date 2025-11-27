@@ -1,0 +1,595 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ submission.name }} - Risk Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .metric-card {
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .risk-gauge-container {
+        width: 250px;
+        height: 150px;
+        margin: 0 auto;
+        position: relative;
+    }
+    
+    .portfolio-score {
+        font-size: 3rem;
+        font-weight: bold;
+        text-align: center;
+        margin: 2rem 0;
+    }
+    
+    .score-breakdown {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+    
+    .score-item {
+        padding: 1rem;
+        border-radius: 0.25rem;
+        background: #f8f9fa;
+        border-left: 4px solid;
+    }
+    
+    .recommendation-card {
+        border-left: 4px solid;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 0.25rem;
+    }
+    
+    .recommendation-card.critical { 
+        border-left-color: #dc3545; 
+        background-color: #f8d7da;
+    }
+    .recommendation-card.high { 
+        border-left-color: #fd7e14; 
+        background-color: #ffe5d9;
+    }
+    .recommendation-card.medium { 
+        border-left-color: #ffc107; 
+        background-color: #fff3cd;
+    }
+    .recommendation-card.low { 
+        border-left-color: #17a2b8; 
+        background-color: #d1ecf1;
+    }
+    
+    .output-list-item {
+        padding: 0.75rem;
+        border-bottom: 1px solid #dee2e6;
+        transition: background-color 0.2s;
+    }
+    
+    .output-list-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .risk-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.25rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+    
+    .risk-low { background-color: #28a745; color: white; }
+    .risk-medium-low { background-color: #ffc107; color: #212529; }
+    .risk-medium-high { background-color: #fd7e14; color: white; }
+    .risk-high { background-color: #dc3545; color: white; }
+    
+    .readiness-indicator {
+        width: 100%;
+        height: 30px;
+        background: #e9ecef;
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .readiness-bar {
+        height: 100%;
+        transition: width 0.5s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="fas fa-folder-open"></i> {{ submission.name }}</h1>
+            <p class="text-muted mb-0">
+                {{ submission.uoa }} | REF {{ submission.submission_year }}
+                {% if submission.is_final %}
+                <span class="badge badge-success ms-2">FINAL</span>
+                {% endif %}
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'submission-list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+            <a href="{% url 'submission-update' submission.pk %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <button class="btn btn-success" onclick="exportToExcel()">
+                <i class="fas fa-file-excel"></i> Export to Excel
+            </button>
+        </div>
+    </div>
+    
+    <!-- Overall Portfolio Score -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="text-muted mb-3">Overall Portfolio Score</h5>
+                    <div class="portfolio-score" style="color: {% if portfolio_score >= 3 %}#28a745{% elif portfolio_score >= 2 %}#ffc107{% else %}#dc3545{% endif %}">
+                        {{ portfolio_score|floatformat:2 }} / 4.00
+                    </div>
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar {% if portfolio_score >= 3 %}bg-success{% elif portfolio_score >= 2 %}bg-warning{% else %}bg-danger{% endif %}" 
+                             role="progressbar" 
+                             style="width: {{ portfolio_score_percentage }}%"
+                             aria-valuenow="{{ portfolio_score_percentage }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ portfolio_score_percentage }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Metric Breakdown -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Metric Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    <div class="score-breakdown">
+                        <div class="score-item" style="border-left-color: #007bff;">
+                            <h6 class="text-muted mb-1">Quality</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h4 mb-0">{{ metrics.quality.score|floatformat:2 }}</span>
+                                <small class="text-muted">Weight: {{ metrics.quality.weight|floatformat:2 }}</small>
+                            </div>
+                            <small class="text-muted">Contribution: {{ metrics.quality.weighted|floatformat:2 }}</small>
+                        </div>
+                        
+                        <div class="score-item" style="border-left-color: #28a745;">
+                            <h6 class="text-muted mb-1">Risk Management</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h4 mb-0">{{ metrics.risk.score|floatformat:2 }}</span>
+                                <small class="text-muted">Weight: {{ metrics.risk.weight|floatformat:2 }}</small>
+                            </div>
+                            <small class="text-muted">Contribution: {{ metrics.risk.weighted|floatformat:2 }}</small>
+                        </div>
+                        
+                        <div class="score-item" style="border-left-color: #6610f2;">
+                            <h6 class="text-muted mb-1">Representativeness</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h4 mb-0">{{ metrics.representativeness.score|floatformat:2 }}</span>
+                                <small class="text-muted">Weight: {{ metrics.representativeness.weight|floatformat:2 }}</small>
+                            </div>
+                            <small class="text-muted">Contribution: {{ metrics.representativeness.weighted|floatformat:2 }}</small>
+                        </div>
+                        
+                        <div class="score-item" style="border-left-color: #fd7e14;">
+                            <h6 class="text-muted mb-1">Staff Inclusion</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h4 mb-0">{{ metrics.equality.score|floatformat:0 }}%</span>
+                                <small class="text-muted">Weight: {{ metrics.equality.weight|floatformat:2 }}</small>
+                            </div>
+                            <small class="text-muted">Contribution: {{ metrics.equality.weighted|floatformat:2 }}</small>
+                        </div>
+                        
+                        <div class="score-item" style="border-left-color: #e83e8c;">
+                            <h6 class="text-muted mb-1">Gender Balance</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h4 mb-0">{{ metrics.gender_balance.score|floatformat:2 }}</span>
+                                <small class="text-muted">Weight: {{ metrics.gender_balance.weight|floatformat:2 }}</small>
+                            </div>
+                            <small class="text-muted">Contribution: {{ metrics.gender_balance.weighted|floatformat:2 }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Risk and Quality Distribution -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Risk Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="riskDistributionChart"></canvas>
+                    
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><span class="risk-badge risk-low">Low</span></span>
+                            <span>{{ risk_distribution.low }} ({{ risk_percentages.low }}%)</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><span class="risk-badge risk-medium-low">Medium-Low</span></span>
+                            <span>{{ risk_distribution.medium_low }} ({{ risk_percentages.medium_low }}%)</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><span class="risk-badge risk-medium-high">Medium-High</span></span>
+                            <span>{{ risk_distribution.medium_high }} ({{ risk_percentages.medium_high }}%)</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span><span class="risk-badge risk-high">High</span></span>
+                            <span>{{ risk_distribution.high }} ({{ risk_percentages.high }}%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-star"></i> Quality Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="qualityDistributionChart"></canvas>
+                    
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>4* Outputs</span>
+                            <span class="font-weight-bold">{{ quality_distribution.four_star }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>3* Outputs</span>
+                            <span class="font-weight-bold">{{ quality_distribution.three_star }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>2* Outputs</span>
+                            <span class="font-weight-bold">{{ quality_distribution.two_star }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>1* / Unclassified</span>
+                            <span class="font-weight-bold">{{ quality_distribution.one_star }}  / {{ quality_distribution.unclassified }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Submission Readiness -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-clipboard-check"></i> Submission Readiness</h5>
+                </div>
+                <div class="card-body">
+                    <div class="readiness-indicator mb-3">
+                        <div class="readiness-bar {% if readiness.readiness_percentage >= 80 %}bg-success{% elif readiness.readiness_percentage >= 60 %}bg-warning{% else %}bg-danger{% endif %}"
+                             style="width: {{ readiness.readiness_percentage }}%">
+                            {{ readiness.readiness_percentage|floatformat:1 }}%
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>Ready Outputs:</strong> {{ readiness.ready_outputs }} / {{ readiness.total_outputs }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>Status:</strong> 
+                                {% if readiness.ready %}
+                                <span class="badge badge-success">READY</span>
+                                {% else %}
+                                <span class="badge badge-warning">NOT READY</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>OA Issues:</strong> 
+                                {% if has_oa_issues %}
+                                <span class="badge badge-danger">{{ oa_issues.count }}</span>
+                                {% else %}
+                                <span class="badge badge-success">None</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {% if readiness.issues %}
+                    <div class="alert alert-warning mt-3 mb-0">
+                        <strong>Issues to address:</strong>
+                        <ul class="mb-0 mt-2">
+                            {% for issue in readiness.issues %}
+                            <li>{{ issue }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Strategic Recommendations -->
+    {% if recommendations %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb"></i> Strategic Recommendations</h5>
+                </div>
+                <div class="card-body">
+                    {% for rec in recommendations %}
+                    <div class="recommendation-card {{ rec.priority }}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-2">
+                                    {% if rec.priority == 'critical' %}
+                                    <i class="fas fa-exclamation-circle text-danger"></i>
+                                    {% elif rec.priority == 'high' %}
+                                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                                    {% elif rec.priority == 'medium' %}
+                                    <i class="fas fa-info-circle text-info"></i>
+                                    {% else %}
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    {% endif %}
+                                    {{ rec.title }}
+                                </h6>
+                                <p class="mb-0">{{ rec.message }}</p>
+                            </div>
+                            <span class="badge badge-{{ rec.type }}">{{ rec.priority|upper }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Quality vs Risk Scatter -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-scatter"></i> Quality vs Risk Matrix</h5>
+                    <small class="text-muted">Each point is an output. Target: top-left quadrant (high quality, low risk)</small>
+                </div>
+                <div class="card-body">
+                    <div style="position: relative; height: 400px;">
+                        <canvas id="qualityRiskScatter"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- High Risk Outputs -->
+    {% if high_risk_outputs %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        High Risk Outputs ({{ high_risk_outputs.count }})
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for output in high_risk_outputs %}
+                        <div class="list-group-item output-list-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">
+                                        <a href="{% url 'output-detail' output.id %}">{{ output.title }}</a>
+                                    </h6>
+                                    <small class="text-muted">
+                                        {{ output.colleague }} | {{ output.publication_status }}
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="risk-badge risk-high">
+                                        {{ output.overall_risk_score|floatformat:2 }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% if output.content_risk_rationale %}
+                            <div class="mt-2">
+                                <small><strong>Risk rationale:</strong> {{ output.content_risk_rationale }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- OA Compliance Issues -->
+    {% if has_oa_issues %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-unlock"></i> 
+                        Open Access Compliance Issues ({{ oa_issues.count }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger mb-3">
+                        <strong>Critical:</strong> These outputs MUST resolve OA compliance before submission.
+                    </div>
+                    <div class="list-group">
+                        {% for output in oa_issues %}
+                        <div class="list-group-item">
+                            <h6><a href="{% url 'output-detail' output.id %}">{{ output.title }}</a></h6>
+                            <p class="mb-0"><small>{{ output.oa_compliance_notes|default:"No details provided" }}</small></p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    // Risk Distribution Doughnut Chart
+    const riskCtx = document.getElementById('riskDistributionChart').getContext('2d');
+    new Chart(riskCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Low', 'Medium-Low', 'Medium-High', 'High'],
+            datasets: [{
+                data: [
+                    {{ risk_distribution.low }},
+                    {{ risk_distribution.medium_low }},
+                    {{ risk_distribution.medium_high }},
+                    {{ risk_distribution.high }}
+                ],
+                backgroundColor: ['#28a745', '#ffc107', '#fd7e14', '#dc3545']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // Quality Distribution Bar Chart
+    const qualityCtx = document.getElementById('qualityDistributionChart').getContext('2d');
+    new Chart(qualityCtx, {
+        type: 'bar',
+        data: {
+            labels: ['4*', '3*', '2*', '1*', 'Unclass.'],
+            datasets: [{
+                label: 'Outputs',
+                data: [
+                    {{ quality_distribution.four_star }},
+                    {{ quality_distribution.three_star }},
+                    {{ quality_distribution.two_star }},
+                    {{ quality_distribution.one_star }},
+                    {{ quality_distribution.unclassified }}
+                ],
+                backgroundColor: ['#28a745', '#20c997', '#ffc107', '#fd7e14', '#6c757d']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+    
+    // Quality vs Risk Scatter Plot
+    const qualityRiskData = {{ quality_risk_data|safe }};
+    const scatterCtx = document.getElementById('qualityRiskScatter').getContext('2d');
+    new Chart(scatterCtx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Outputs',
+                data: qualityRiskData.map(item => ({
+                    x: item.risk,
+                    y: item.quality
+                })),
+                backgroundColor: qualityRiskData.map(item => item.color),
+                pointRadius: 10,
+                pointHoverRadius: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Risk Score'
+                    },
+                    min: 0,
+                    max: 1
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Quality Rating'
+                    },
+                    min: 0,
+                    max: 4,
+                    ticks: {
+                        stepSize: 1,
+                        callback: value => value + '*'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: context => {
+                            const item = qualityRiskData[context.dataIndex];
+                            return [
+                                item.title,
+                                `Quality: ${item.quality}*`,
+                                `Risk: ${item.risk.toFixed(2)}`,
+                                `Staff: ${item.colleague}`
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    function exportToExcel() {
+        // Placeholder for Excel export functionality
+        alert('Excel export functionality will generate a comprehensive report including all metrics, outputs, and risk analysis.');
+    }
+</script>
+{% endblock %}

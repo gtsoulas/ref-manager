@@ -1,0 +1,210 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{tcolorbox}
+
+\geometry{margin=2.5cm}
+
+\definecolor{refblue}{RGB}{0,82,147}
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{codeframe}{RGB}{200,200,200}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=refblue,
+    urlcolor=refblue,
+    pdftitle={REF-Manager Quick Start Guide},
+}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{codebg},
+    frame=single,
+    rulecolor=\color{codeframe},
+    breaklines=true,
+    columns=fullflexible
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textit{REF-Manager Quick Start Guide}}
+\fancyhead[R]{\textit{Version 3.0}}
+\fancyfoot[C]{\thepage}
+
+\title{
+    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.5cm]
+    {\LARGE Quick Start Guide}\\[0.3cm]
+    {\large Get Running in 15 Minutes}
+}
+\author{University of York}
+\date{November 2024}
+
+\begin{document}
+
+\maketitle
+
+\begin{tcolorbox}[colback=refblue!10, colframe=refblue, title=Overview]
+This guide will get you from zero to a working REF-Manager installation in about 15 minutes.
+\end{tcolorbox}
+
+\section{Prerequisites}
+
+Before starting, ensure you have:
+\begin{itemize}
+    \item Python 3.10 or higher
+    \item pip (Python package manager)
+    \item Git (optional)
+    \item Text editor
+    \item Terminal access
+\end{itemize}
+
+Verify Python:
+\begin{lstlisting}
+python3 --version
+\end{lstlisting}
+
+\section{Step 1: Get the Code}
+
+Clone from GitHub:
+\begin{lstlisting}
+git clone https://github.com/gtsoulas/ref-manager.git
+cd ref-manager
+\end{lstlisting}
+
+\section{Step 2: Set Up Environment}
+
+Create and activate virtual environment:
+\begin{lstlisting}
+# Linux/macOS
+python3 -m venv venv
+source venv/bin/activate
+
+# Windows
+python -m venv venv
+venv\Scripts\activate
+\end{lstlisting}
+
+Install dependencies:
+\begin{lstlisting}
+pip install -r requirements.txt
+\end{lstlisting}
+
+\section{Step 3: Configure}
+
+Copy example configuration:
+\begin{lstlisting}
+cp env.example .env
+\end{lstlisting}
+
+Generate secret key:
+\begin{lstlisting}
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+\end{lstlisting}
+
+Edit \texttt{.env} and add your secret key.
+
+\section{Step 4: Initialise Database}
+
+Run migrations:
+\begin{lstlisting}
+python manage.py migrate
+\end{lstlisting}
+
+Create admin user:
+\begin{lstlisting}
+python manage.py createsuperuser
+\end{lstlisting}
+
+Set up roles:
+\begin{lstlisting}
+python manage.py setup_roles --create-profiles --superusers-admin
+\end{lstlisting}
+
+\section{Step 5: Launch}
+
+Start the server:
+\begin{lstlisting}
+python manage.py runserver
+\end{lstlisting}
+
+Open \url{http://localhost:8000} in your browser.
+
+\section{First Steps}
+
+\subsection{Add a Colleague}
+\begin{enumerate}
+    \item Navigate to \textbf{Colleagues $\rightarrow$ Add Colleague}
+    \item Enter staff details
+    \item Save
+\end{enumerate}
+
+\subsection{Add an Output}
+\begin{enumerate}
+    \item Navigate to \textbf{Outputs $\rightarrow$ Add Output}
+    \item Select colleague and enter publication details
+    \item Save
+\end{enumerate}
+
+\subsection{Assign for Review}
+\begin{enumerate}
+    \item Open an output
+    \item Click \textbf{Assign Internal Panel} or \textbf{Assign Critical Friend}
+    \item Select reviewer and save
+\end{enumerate}
+
+\section{Essential Commands}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Task} & \textbf{Command} \\
+\midrule
+Start server & \texttt{python manage.py runserver} \\
+Create admin & \texttt{python manage.py createsuperuser} \\
+Run migrations & \texttt{python manage.py migrate} \\
+List users/roles & \texttt{python manage.py assign\_roles --list} \\
+Assign role & \texttt{python manage.py assign\_roles user --add ADMIN} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Quick Fixes}
+
+\textbf{Port in use:}
+\begin{lstlisting}
+python manage.py runserver 8080
+\end{lstlisting}
+
+\textbf{Module not found:}
+\begin{lstlisting}
+source venv/bin/activate
+\end{lstlisting}
+
+\textbf{Roles missing:}
+\begin{lstlisting}
+python manage.py setup_roles
+\end{lstlisting}
+
+\section{Next Steps}
+
+\begin{itemize}
+    \item Read the \textbf{User Guide} for detailed features
+    \item Check \textbf{Troubleshooting} for common issues
+    \item See \textbf{Technical Documentation} for advanced configuration
+\end{itemize}
+
+\vfill
+\begin{center}
+\rule{0.5\textwidth}{0.4pt}\\[0.3cm]
+{\small REF-Manager v3.0.0}\\
+{\small Contact: george.tsoulas@york.ac.uk}
+\end{center}
+
+\end{document}

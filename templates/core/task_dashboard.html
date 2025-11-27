@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load task_filters %}
+{% load static %}
+% load humanize %} 
+
+
+{% block title %}Task Dashboard - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="fas fa-chart-line"></i> Task Dashboard</h2>
+            <p class="text-muted">Overview of all tasks and activities</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'task_list' %}" class="btn btn-secondary me-2">
+                <i class="fas fa-list"></i> All Tasks
+            </a>
+            <a href="{% url 'task_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Task
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- My Tasks -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-user"></i> My Tasks</h5>
+                </div>
+                <div class="card-body">
+                    {% if my_tasks %}
+                        <div class="list-group">
+                            {% for task in my_tasks %}
+                            <a href="{% url 'task_detail' task.pk %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ task.title }}</strong>
+                                        <span class="badge bg-{{ task.get_priority_class }} ms-2">
+                                            {{ task.get_priority_display }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">
+                                        {% if task.due_date %}{{ task.due_date|date:"M d" }}{% endif %}
+                                    </small>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">No tasks assigned to you</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Overdue Tasks -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5><i class="fas fa-exclamation-triangle"></i> Overdue Tasks</h5>
+                </div>
+                <div class="card-body">
+                    {% if overdue_tasks %}
+                        <div class="list-group">
+                            {% for task in overdue_tasks %}
+                            <a href="{% url 'task_detail' task.pk %}" class="list-group-item list-group-item-action list-group-item-danger">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ task.title }}</strong>
+                                        <br>
+                                        <small>
+                                            {% if task.assigned_to %}
+                                                {{ task.assigned_to.get_full_name|default:task.assigned_to.username }}
+                                            {% else %}
+                                                Unassigned
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-danger">
+                                        {{ task.days_until_due|abs_value }} days overdue
+                                    </span>
+                                </div>
+                            </a>
+                            {% endfor %}ββ
+                        </div>
+                    {% else %}
+                        <p class="text-success text-center py-3">
+                            <i class="fas fa-check-circle"></i> No overdue tasks!
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Tasks -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5><i class="fas fa-clock"></i> Upcoming (Next 7 Days)</h5>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_tasks %}
+                        <div class="list-group">
+                            {% for task in upcoming_tasks %}
+                            <a href="{% url 'task_detail' task.pk %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ task.title }}</strong>
+                                        <span class="badge bg-{{ task.get_priority_class }} ms-2">
+                                            {{ task.get_priority_display }}
+                                        </span>
+                                        <br>
+                                        <small>
+                                            {% if task.assigned_to %}
+                                                {{ task.assigned_to.get_full_name|default:task.assigned_to.username }}
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <small>{{ task.due_date|date:"M d" }}</small><br>
+                                        <small class="text-muted">
+                                            {% if task.days_until_due == 0 %}
+                                                Today
+                                            {% else %}
+                                                {{ task.days_until_due }} days
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">No upcoming tasks in the next 7 days</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-history"></i> Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_tasks %}
+                        <div class="list-group">
+                            {% for task in recent_tasks %}
+                            <a href="{% url 'task_detail' task.pk %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ task.title }}</strong>
+                                        <span class="badge bg-{{ task.get_status_class }} ms-2">
+                                            {{ task.get_status_display }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">{{ task.updated_at|timesince }} ago</small>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">No recent activity</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Row -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie"></i> Tasks by Category</h5>
+                </div>
+                <div class="card-body">
+                    {% if category_stats %}
+                        <table class="table">
+                            <tbody>
+                                {% for stat in category_stats %}
+                                <tr>
+                                    <td>{{ stat.category|capfirst }}</td>
+                                    <td class="text-end">
+                                        <span class="badge bg-primary">{{ stat.total }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-muted text-center">No tasks yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-exclamation-circle"></i> Tasks by Priority</h5>
+                </div>
+                <div class="card-body">
+                    {% if priority_stats %}
+                        <table class="table">
+                            <tbody>
+                                {% for stat in priority_stats %}
+                                <tr>
+                                    <td>{{ stat.priority|capfirst }}</td>
+                                    <td class="text-end">
+                                        <span class="badge bg-primary">{{ stat.total }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-muted text-center">No tasks yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

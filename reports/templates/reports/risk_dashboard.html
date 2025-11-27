@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Risk Analysis Dashboard - REF Manager{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<style>
+    .stat-card {
+        border-left: 4px solid #007bff;
+    }
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="fas fa-chart-line"></i> Risk Analysis Dashboard</h1>
+            <p class="text-muted">Comprehensive risk assessment across all REF outputs</p>
+        </div>
+    </div>
+    
+    <!-- Summary Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Total Outputs</h6>
+                    <h2 class="mb-0">{{ total_outputs }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Average Risk</h6>
+                    <h2 class="mb-0 {% if avg_risk < 0.5 %}text-success{% elif avg_risk < 0.75 %}text-warning{% else %}text-danger{% endif %}">
+                        {{ avg_risk|floatformat:2 }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Average Quality</h6>
+                    <h2 class="mb-0">{{ avg_quality|floatformat:2 }}*</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">REF Ready</h6>
+                    <h2 class="mb-0">{{ ref_ready_percentage|floatformat:0 }}%</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <!-- Risk Distribution Pie Chart -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-pie-chart"></i> Risk Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="riskDistributionChart"></canvas>
+                    </div>
+                    <div class="mt-3">
+                        <small>
+                            <span class="badge bg-success">Low:</span> {{ risk_distribution.low }} |
+                            <span class="badge bg-info">Medium-Low:</span> {{ risk_distribution.medium_low }} |
+                            <span class="badge bg-warning">Medium-High:</span> {{ risk_distribution.medium_high }} |
+                            <span class="badge bg-danger">High:</span> {{ risk_distribution.high }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quality Distribution Bar Chart -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bar-chart"></i> Quality Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="qualityDistributionChart"></canvas>
+                    </div>
+                    <div class="mt-3">
+                        <small>
+                            4*: {{ quality_distribution.four_star }} |
+                            3*: {{ quality_distribution.three_star }} |
+                            2*: {{ quality_distribution.two_star }} |
+                            1*: {{ quality_distribution.one_star }} |
+                            Unclassified: {{ quality_distribution.unclassified }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- OA Compliance -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-unlock"></i> Open Access Compliance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h3 class="text-success">{{ oa_compliant }}</h3>
+                            <p class="text-muted">OA Compliant</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h3 class="text-danger">{{ oa_non_compliant }}</h3>
+                            <p class="text-muted">Non-Compliant</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h3>{{ oa_compliance_rate|floatformat:0 }}%</h3>
+                            <p class="text-muted">Compliance Rate</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- High Risk Outputs -->
+    {% if high_risk_outputs %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> High Risk Outputs Requiring Attention</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Risk Score</th>
+                                    <th>Quality</th>
+                                    <th>Status</th>
+                                    <th>OA Compliant</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for output in high_risk_outputs %}
+                                <tr>
+                                    <td>{{ output.title|truncatewords:10 }}</td>
+                                    <td>
+                                        <span class="badge bg-danger">{{ output.overall_risk_score|floatformat:2 }}</span>
+                                    </td>
+                                    <td>{{ output.quality_rating }}</td>
+                                    <td>{{ output.status }}</td>
+                                    <td>
+                                        {% if output.oa_compliance_risk %}
+                                            <i class="fas fa-times text-danger"></i>
+                                        {% else %}
+                                            <i class="fas fa-check text-success"></i>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+</div>
+
+<script>
+// Risk Distribution Pie Chart
+const riskCtx = document.getElementById('riskDistributionChart').getContext('2d');
+new Chart(riskCtx, {
+    type: 'pie',
+    data: {
+        labels: ['Low Risk', 'Medium-Low', 'Medium-High', 'High Risk'],
+        datasets: [{
+            data: [
+                {{ risk_distribution.low }},
+                {{ risk_distribution.medium_low }},
+                {{ risk_distribution.medium_high }},
+                {{ risk_distribution.high }}
+            ],
+            backgroundColor: [
+                '#28a745',
+                '#17a2b8',
+                '#ffc107',
+                '#dc3545'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Quality Distribution Bar Chart
+const qualityCtx = document.getElementById('qualityDistributionChart').getContext('2d');
+new Chart(qualityCtx, {
+    type: 'bar',
+    data: {
+        labels: ['4*', '3*', '2*', '1*', 'Unclassified'],
+        datasets: [{
+            label: 'Number of Outputs',
+            data: [
+                {{ quality_distribution.four_star }},
+                {{ quality_distribution.three_star }},
+                {{ quality_distribution.two_star }},
+                {{ quality_distribution.one_star }},
+                {{ quality_distribution.unclassified }}
+            ],
+            backgroundColor: [
+                '#28a745',
+                '#17a2b8',
+                '#ffc107',
+                '#fd7e14',
+                '#6c757d'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,205 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{tcolorbox}
+
+\geometry{margin=2.5cm}
+
+\definecolor{refblue}{RGB}{0,82,147}
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{warnbg}{RGB}{255,243,205}
+\definecolor{warnframe}{RGB}{255,193,7}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=refblue,
+    urlcolor=refblue,
+    pdftitle={REF-Manager Troubleshooting},
+}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{codebg},
+    frame=single,
+    breaklines=true,
+    columns=fullflexible
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textit{REF-Manager Troubleshooting}}
+\fancyhead[R]{\textit{Version 3.0}}
+\fancyfoot[C]{\thepage}
+
+\title{
+    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.5cm]
+    {\LARGE Troubleshooting Guide}\\[0.3cm]
+    {\large Common Issues and Solutions}
+}
+\author{University of York}
+\date{November 2024}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Installation Issues}
+
+\subsection{``No module named 'django'''}
+
+\begin{tcolorbox}[colback=warnbg, colframe=warnframe, title=Problem]
+Python can't find Django.
+\end{tcolorbox}
+
+\textbf{Solution:}
+\begin{lstlisting}
+# Activate virtual environment first
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
+
+# Then run your command
+python manage.py runserver
+\end{lstlisting}
+
+\subsection{``Port 8000 already in use''}
+
+\textbf{Solutions:}
+\begin{lstlisting}
+# Option 1: Use different port
+python manage.py runserver 8080
+
+# Option 2: Find and kill the process
+lsof -i :8000
+kill <PID>
+\end{lstlisting}
+
+\subsection{Migration Errors}
+
+\textbf{Solution:}
+\begin{lstlisting}
+python manage.py makemigrations
+python manage.py migrate
+
+# If that fails:
+python manage.py migrate --run-syncdb
+\end{lstlisting}
+
+\section{Role and Permission Issues}
+
+\subsection{``Role 'X' does not exist''}
+
+\textbf{Solution:}
+\begin{lstlisting}
+python manage.py setup_roles
+\end{lstlisting}
+
+\subsection{``User has no profile''}
+
+\textbf{Solution:}
+\begin{lstlisting}
+python manage.py setup_roles --create-profiles
+\end{lstlisting}
+
+\subsection{Wrong Permissions}
+
+\textbf{Solution:}
+\begin{lstlisting}
+# Check current roles
+python manage.py assign_roles username --show
+
+# Add correct role
+python manage.py assign_roles username --add ADMIN
+\end{lstlisting}
+
+\section{Database Issues}
+
+\subsection{SQLite ``database is locked''}
+
+\textbf{Solutions:}
+\begin{enumerate}
+    \item Wait and retry
+    \item Restart the server
+    \item Switch to PostgreSQL for production
+\end{enumerate}
+
+\subsection{PostgreSQL Connection Refused}
+
+\begin{lstlisting}
+# Check if PostgreSQL is running
+sudo systemctl status postgresql
+
+# Start if needed
+sudo systemctl start postgresql
+
+# Test connection
+psql -U refuser -h localhost refmanager
+\end{lstlisting}
+
+\section{Static Files Issues}
+
+\subsection{CSS/JS Not Loading}
+
+\begin{lstlisting}
+# Collect static files
+python manage.py collectstatic --clear
+\end{lstlisting}
+
+\section{Common Error Messages}
+
+\subsection{``CSRF verification failed''}
+
+\textbf{Solutions:}
+\begin{itemize}
+    \item Ensure csrf\_token is in forms
+    \item Check CSRF\_TRUSTED\_ORIGINS setting
+    \item Clear browser cookies
+\end{itemize}
+
+\subsection{``OperationalError: no such column''}
+
+\begin{lstlisting}
+python manage.py makemigrations
+python manage.py migrate
+\end{lstlisting}
+
+\subsection{``TemplateDoesNotExist''}
+
+\textbf{Check:}
+\begin{itemize}
+    \item Template file exists
+    \item Template directory in settings
+    \item No typos in template name
+\end{itemize}
+
+\section{Getting More Help}
+
+\subsection{Enable Debug Mode}
+
+\begin{lstlisting}
+# In settings.py
+DEBUG = True
+\end{lstlisting}
+
+\subsection{Django System Check}
+
+\begin{lstlisting}
+python manage.py check
+python manage.py check --deploy
+\end{lstlisting}
+
+\subsection{Contact}
+
+\begin{itemize}
+    \item \textbf{Email}: george.tsoulas@york.ac.uk
+    \item \textbf{GitHub}: https://github.com/gtsoulas/ref-manager
+\end{itemize}
+
+\end{document}

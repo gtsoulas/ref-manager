@@ -1,0 +1,169 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{tcolorbox}
+
+\geometry{margin=2.5cm}
+
+\definecolor{refblue}{RGB}{0,82,147}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=refblue,
+    urlcolor=refblue,
+    pdftitle={REF-Manager Overview},
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textit{REF-Manager}}
+\fancyhead[R]{\textit{Version 3.0}}
+\fancyfoot[C]{\thepage}
+
+\title{
+    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.5cm]
+    {\LARGE Research Excellence Framework}\\
+    {\LARGE Submission Management System}\\[0.5cm]
+    {\large Version 3.0.0}
+}
+\author{Department of Language and Linguistic Science\\University of York}
+\date{November 2024}
+
+\begin{document}
+
+\maketitle
+
+\begin{tcolorbox}[colback=refblue!10, colframe=refblue]
+\textbf{REF-Manager} is a comprehensive web-based application designed to help UK university departments manage their Research Excellence Framework (REF) submissions for REF 2029.
+\end{tcolorbox}
+
+\tableofcontents
+\newpage
+
+\section{Overview}
+
+REF-Manager provides tools for:
+\begin{itemize}
+    \item Tracking research outputs with comprehensive metadata
+    \item Coordinating quality assessments from multiple sources
+    \item Managing internal and external reviews
+    \item Assessing and mitigating submission risks
+    \item Optimising submission portfolios
+    \item Generating reports and exports
+\end{itemize}
+
+\section{Key Features}
+
+\subsection{Research Output Management}
+\begin{itemize}
+    \item Multiple publication types (articles, books, chapters, etc.)
+    \item Complete bibliographic metadata
+    \item BibTeX and CSV import
+    \item Status workflow tracking
+\end{itemize}
+
+\subsection{Multi-Dimensional Quality Assessment}
+\begin{itemize}
+    \item Internal Panel ratings
+    \item External Critical Friend ratings
+    \item Self-Assessment ratings
+    \item Automatic average calculation
+\end{itemize}
+
+\subsection{Risk Assessment Framework}
+\begin{itemize}
+    \item Content risk scoring
+    \item Timeline risk based on publication status
+    \item Open Access compliance tracking
+    \item Configurable risk weights
+\end{itemize}
+
+\subsection{Portfolio Optimisation}
+\begin{itemize}
+    \item Submission scenario modelling
+    \item Quality and risk metrics
+    \item Representativeness scoring
+    \item Equality and diversity metrics
+\end{itemize}
+
+\subsection{Role-Based Access Control}
+\begin{itemize}
+    \item Four user roles: Administrator, Observer, Internal Panel, Colleague
+    \item Multi-role support
+    \item Granular permissions
+\end{itemize}
+
+\section{System Requirements}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Component} & \textbf{Requirement} \\
+\midrule
+Python & 3.10 or higher \\
+Django & 4.2.x \\
+Database & SQLite (dev) or PostgreSQL 14+ (prod) \\
+Memory & 2 GB RAM minimum \\
+\bottomrule
+\end{tabular}
+\caption{Minimum system requirements}
+\end{table}
+
+\section{Quick Installation}
+
+\begin{enumerate}
+    \item Clone repository: \texttt{git clone https://github.com/gtsoulas/ref-manager.git}
+    \item Create virtual environment: \texttt{python -m venv venv}
+    \item Activate: \texttt{source venv/bin/activate}
+    \item Install dependencies: \texttt{pip install -r requirements.txt}
+    \item Configure: \texttt{cp env.example .env}
+    \item Migrate: \texttt{python manage.py migrate}
+    \item Create admin: \texttt{python manage.py createsuperuser}
+    \item Setup roles: \texttt{python manage.py setup\_roles --create-profiles --superusers-admin}
+    \item Run: \texttt{python manage.py runserver}
+\end{enumerate}
+
+\section{Documentation}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Document} & \textbf{Description} \\
+\midrule
+Quick Start Guide & Get running in 15 minutes \\
+User Guide & Complete user documentation \\
+Technical Documentation & Developer and admin reference \\
+Troubleshooting & Common issues and solutions \\
+Changelog & Version history \\
+\bottomrule
+\end{tabular}
+\caption{Available documentation}
+\end{table}
+
+\section{License}
+
+REF-Manager is released under the GNU General Public License v3.0.
+
+\section{Contact}
+
+\begin{itemize}
+    \item \textbf{Email}: george.tsoulas@york.ac.uk
+    \item \textbf{GitHub}: https://github.com/gtsoulas/ref-manager
+\end{itemize}
+
+\vfill
+\begin{center}
+\rule{0.5\textwidth}{0.4pt}\\[0.3cm]
+{\small REF-Manager v3.0.0}\\
+{\small Department of Language and Linguistic Science, University of York}
+\end{center}
+
+\end{document}

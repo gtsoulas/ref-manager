@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ panel_member.colleague.user.get_full_name }} - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">{{ panel_member.colleague.user.get_full_name }}</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'internal_panel_update' panel_member.pk %}" class="btn btn-sm btn-warning">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'internal_panel_list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Panel Member Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Name:</dt>
+                        <dd class="col-sm-8">{{ panel_member.colleague.user.get_full_name }}</dd>
+
+                        <dt class="col-sm-4">Staff ID:</dt>
+                        <dd class="col-sm-8">{{ panel_member.colleague.staff_id }}</dd>
+
+                        <dt class="col-sm-4">Email:</dt>
+                        <dd class="col-sm-8">{{ panel_member.colleague.user.email }}</dd>
+
+                        <dt class="col-sm-4">Role:</dt>
+                        <dd class="col-sm-8">{{ panel_member.get_role_display }}</dd>
+
+                        <dt class="col-sm-4">Expertise Area:</dt>
+                        <dd class="col-sm-8">{{ panel_member.expertise_area }}</dd>
+
+                        <dt class="col-sm-4">Appointed:</dt>
+                        <dd class="col-sm-8">{{ panel_member.appointed_date|date:"d M Y" }}</dd>
+
+                        <dt class="col-sm-4">Status:</dt>
+                        <dd class="col-sm-8">
+                            {% if panel_member.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </dd>
+
+                        {% if panel_member.notes %}
+                        <dt class="col-sm-4">Notes:</dt>
+                        <dd class="col-sm-8">{{ panel_member.notes }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Assigned Outputs</h5>
+                </div>
+                <div class="card-body">
+                    {% if assignments %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Output</th>
+                                    <th>Status</th>
+                                    <th>Assigned</th>
+                                    <th>Rating Rec.</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for assignment in assignments %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'output_detail' assignment.output.pk %}">
+                                            {{ assignment.output.title|truncatewords:10 }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ assignment.get_status_display }}</span>
+                                    </td>
+                                    <td>{{ assignment.assigned_date|date:"d M Y" }}</td>
+                                    <td>
+                                        {% if assignment.rating_recommendation %}
+                                            <span class="badge bg-success">{{ assignment.rating_recommendation }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'internal_panel_assignment_update' assignment.pk %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No outputs assigned yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

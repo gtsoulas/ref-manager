@@ -1,0 +1,171 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{tcolorbox}
+
+\geometry{margin=2.5cm}
+
+\definecolor{refblue}{RGB}{0,82,147}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=refblue,
+    urlcolor=refblue,
+    pdftitle={REF-Manager Documentation Index},
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textit{REF-Manager Documentation}}
+\fancyhead[R]{\textit{Index}}
+\fancyfoot[C]{\thepage}
+
+\title{
+    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.5cm]
+    {\LARGE Documentation Index}\\[0.3cm]
+    {\large Complete Guide for v3.0}
+}
+\author{University of York}
+\date{November 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Document Overview}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Document} & \textbf{Description} & \textbf{Audience} \\
+\midrule
+README & System overview & Everyone \\
+Quick Start Guide & Get running fast & New users \\
+User Guide & Complete user docs & All users \\
+Technical Documentation & Developer reference & Developers, Admins \\
+Troubleshooting & Problem solving & Everyone \\
+Changelog & Version history & Everyone \\
+\bottomrule
+\end{tabular}
+\caption{Available documentation}
+\end{table}
+
+\section{Reading Paths}
+
+\subsection{New Users}
+\begin{enumerate}
+    \item Quick Start Guide (15 min)
+    \item User Guide sections 1-4 (30 min)
+    \item User Guide remaining sections (as needed)
+\end{enumerate}
+
+\subsection{Department Coordinators}
+\begin{enumerate}
+    \item Quick Start Guide
+    \item User Guide (complete)
+    \item Troubleshooting (reference)
+\end{enumerate}
+
+\subsection{System Administrators}
+\begin{enumerate}
+    \item Technical Documentation
+    \item README
+    \item Troubleshooting
+\end{enumerate}
+
+\subsection{Developers}
+\begin{enumerate}
+    \item README
+    \item Technical Documentation
+    \item Changelog
+\end{enumerate}
+
+\section{Quick Reference}
+
+\subsection{Essential Commands}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Task} & \textbf{Command} \\
+\midrule
+Start server & \texttt{python manage.py runserver} \\
+Create admin & \texttt{python manage.py createsuperuser} \\
+Run migrations & \texttt{python manage.py migrate} \\
+Setup roles & \texttt{python manage.py setup\_roles} \\
+Assign role & \texttt{python manage.py assign\_roles user --add ADMIN} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Key URLs}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{URL} & \textbf{Description} \\
+\midrule
+/ & Dashboard \\
+/admin/ & Django Admin \\
+/colleagues/ & Colleague management \\
+/outputs/ & Output management \\
+/reports/ & Reports and exports \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{User Roles}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Role} & \textbf{Access Level} \\
+\midrule
+Administrator & Full access \\
+Observer & Read-only \\
+Internal Panel & Review assigned \\
+Colleague & Own outputs \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Available Formats}
+
+Documentation is available in three formats:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Format} & \textbf{Location} & \textbf{Use Case} \\
+\midrule
+Markdown & documentation/md/ & Reading, editing \\
+LaTeX & documentation/latex/ & Professional printing \\
+PDF & documentation/pdf/ & Distribution, offline \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Contact}
+
+\begin{itemize}
+    \item \textbf{Email}: george.tsoulas@york.ac.uk
+    \item \textbf{GitHub}: https://github.com/gtsoulas/ref-manager
+\end{itemize}
+
+\vfill
+\begin{center}
+\rule{0.5\textwidth}{0.4pt}\\[0.3cm]
+{\small REF-Manager v3.0.0 --- November 2024}
+\end{center}
+
+\end{document}

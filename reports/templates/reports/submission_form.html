@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if object %}Edit{% else %}Create{% endif %} Submission - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1>{% if object %}Edit{% else %}Create{% endif %} REF Submission</h1>
+    
+    <div class="card mt-4">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <h5>Please correct the following errors:</h5>
+                    {{ form.errors }}
+                </div>
+                {% endif %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.name.id_for_label }}">Submission Name</label>
+                            {{ form.name }}
+                            <small class="form-text text-muted">{{ form.name.help_text }}</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="{{ form.uoa.id_for_label }}">UOA</label>
+                            {{ form.uoa }}
+                            <small class="form-text text-muted">{{ form.uoa.help_text }}</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="{{ form.submission_year.id_for_label }}">Year</label>
+                            {{ form.submission_year }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">Description</label>
+                    {{ form.description }}
+                </div>
+                
+                <h5 class="mt-4">Optimization Weights</h5>
+                <p class="text-muted">Adjust how different factors are weighted in portfolio score calculation.</p>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Quality Weight</label>
+                            {{ form.weight_quality }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Risk Weight</label>
+                            {{ form.weight_risk }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Representativeness Weight</label>
+                            {{ form.weight_representativeness }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Equality Weight</label>
+                            {{ form.weight_equality }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Gender Balance Weight</label>
+                            {{ form.weight_gender_balance }}
+                        </div>
+                    </div>
+                </div>
+                
+                {% if object %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group form-check">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                Active Submission
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group form-check">
+                            {{ form.is_final }}
+                            <label class="form-check-label" for="{{ form.is_final.id_for_label }}">
+                                Final Submission
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.notes.id_for_label }}">Notes</label>
+                    {{ form.notes }}
+                </div>
+                {% endif %}
+                
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <a href="{% if object %}{% url 'submission-detail' object.pk %}{% else %}{% url 'submission-list' %}{% endif %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+
+.form-group textarea {
+    min-height: 100px;
+}
+
+input[type="number"] {
+    max-width: 150px;
+}
+</style>
+{% endblock %}
