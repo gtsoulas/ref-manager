@@ -85,6 +85,7 @@ yarn-error.log*
 *.bak
 *.backup
 *~
+backup/
 
 # OS generated files
 .DS_Store
