@@ -224,25 +224,25 @@ class ReviewResponseForm(forms.ModelForm):
     class Meta:
         model = CriticalFriendAssignment
         fields = [
-            'quality_assessment', 'originality_score', 'significance_score', 'rigour_score',
+            'quality_assessment', 'originality_rating', 'significance_rating', 'rigour_rating',
             'strengths', 'weaknesses', 'suggestions', 'overall_comments'
         ]
         widgets = {
             'quality_assessment': forms.Select(attrs={'class': 'form-control'}),
-            'originality_score': forms.NumberInput(attrs={
+            'originality_rating': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'min': '1',
-                'max': '5'
+                'min': '0',
+                'max': '4'
             }),
-            'significance_score': forms.NumberInput(attrs={
+            'significance_rating': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'min': '1',
-                'max': '5'
+                'min': '0',
+                'max': '4'
             }),
-            'rigour_score': forms.NumberInput(attrs={
+            'rigour_rating': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'min': '1',
-                'max': '5'
+                'min': '0',
+                'max': '4'
             }),
             'strengths': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
             'weaknesses': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
@@ -347,14 +347,23 @@ class InternalPanelAssignmentForm(forms.ModelForm):
             'reviewer_type',  # NEW: Specialist classification
             'assigned_date', 
             'status', 
-            'rating_recommendation', 
+            'rating_recommendation',
+            'originality_rating',
+            'significance_rating',
+            'rigour_rating',
+            'confidential_comments',            
             'comments'
         ]
         widgets = {
             'assigned_date': forms.DateInput(attrs={'type': 'date'}),
-            'comments': forms.Textarea(attrs={'rows': 4}),
+            'comments': forms.Textarea(attrs={'rows': 3}),
+            'confidential_comments': forms.Textarea(attrs={'rows': 3}),
+            'originality_rating': forms.NumberInput(attrs={'step': '0.01', 'min': '0', 'max': '4'}),
+            'significance_rating': forms.NumberInput(attrs={'step': '0.01', 'min': '0', 'max': '4'}),
+            'rigour_rating': forms.NumberInput(attrs={'step': '0.01', 'min': '0', 'max': '4'}),
         }
-    
+
+        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Filter to show only active panel members (who are current employees)

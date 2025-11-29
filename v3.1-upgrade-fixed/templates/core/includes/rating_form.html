@@ -1,0 +1,183 @@
+{% comment %}
+Template: templates/core/includes/rating_form.html
+
+Form for entering three-component ratings (Originality, Significance, Rigour).
+
+Usage:
+    {% include 'core/includes/rating_form.html' with form=rating_form %}
+{% endcomment %}
+
+<div class="rating-form">
+    <div class="card">
+        <div class="card-header">
+            <strong>Quality Assessment</strong>
+            <small class="text-muted ml-2">Rate from 0.00 (lowest) to 4.00 (highest)</small>
+        </div>
+        <div class="card-body">
+            {# Rating Scale Guide #}
+            <div class="alert alert-info mb-4">
+                <strong>Rating Scale:</strong>
+                <span class="ml-3">4.00 = World-leading</span>
+                <span class="ml-3">3.00 = Internationally excellent</span>
+                <span class="ml-3">2.00 = Internationally recognised</span>
+                <span class="ml-3">1.00 = Nationally recognised</span>
+                <span class="ml-3">0.00 = Below threshold</span>
+            </div>
+            
+            {# Three-component ratings in a row #}
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="{{ form.originality_rating.id_for_label }}">
+                            <strong>Originality</strong>
+                        </label>
+                        {{ form.originality_rating }}
+                        <small class="form-text text-muted">
+                            Novelty and innovation of the research
+                        </small>
+                        {% if form.originality_rating.errors %}
+                            <div class="text-danger">{{ form.originality_rating.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="{{ form.significance_rating.id_for_label }}">
+                            <strong>Significance</strong>
+                        </label>
+                        {{ form.significance_rating }}
+                        <small class="form-text text-muted">
+                            Impact and importance of the contribution
+                        </small>
+                        {% if form.significance_rating.errors %}
+                            <div class="text-danger">{{ form.significance_rating.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="{{ form.rigour_rating.id_for_label }}">
+                            <strong>Rigour</strong>
+                        </label>
+                        {{ form.rigour_rating }}
+                        <small class="form-text text-muted">
+                            Methodological soundness and robustness
+                        </small>
+                        {% if form.rigour_rating.errors %}
+                            <div class="text-danger">{{ form.rigour_rating.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            {# Average display (calculated automatically) #}
+            <div class="row mt-2 mb-4">
+                <div class="col-12">
+                    <div class="alert alert-secondary">
+                        <strong>Average Rating:</strong> 
+                        <span id="calculated-average" class="h5 ml-2">-</span>
+                        <small class="text-muted ml-2">(calculated automatically)</small>
+                    </div>
+                </div>
+            </div>
+            
+            {# Comments #}
+            {% if form.comments %}
+            <div class="form-group">
+                <label for="{{ form.comments.id_for_label }}">
+                    <strong>Comments</strong>
+                    <small class="text-muted">(visible to the author)</small>
+                </label>
+                {{ form.comments }}
+                {% if form.comments.errors %}
+                    <div class="text-danger">{{ form.comments.errors }}</div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            {# Overall comments for CF #}
+            {% if form.overall_comments %}
+            <div class="form-group">
+                <label for="{{ form.overall_comments.id_for_label }}">
+                    <strong>Overall Comments</strong>
+                </label>
+                {{ form.overall_comments }}
+            </div>
+            {% endif %}
+            
+            {# Strengths/Weaknesses/Suggestions for CF #}
+            {% if form.strengths %}
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label><strong>Strengths</strong></label>
+                        {{ form.strengths }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label><strong>Weaknesses</strong></label>
+                        {{ form.weaknesses }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label><strong>Suggestions</strong></label>
+                        {{ form.suggestions }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {# Confidential comments #}
+            <div class="form-group">
+                <label for="{{ form.confidential_comments.id_for_label }}">
+                    <strong><i class="fas fa-lock"></i> Confidential Comments</strong>
+                    <small class="text-muted">(NOT visible to the author)</small>
+                </label>
+                {{ form.confidential_comments }}
+                {% if form.confidential_comments.errors %}
+                    <div class="text-danger">{{ form.confidential_comments.errors }}</div>
+                {% endif %}
+            </div>
+            
+            {# Status #}
+            {% if form.status %}
+            <div class="form-group">
+                <label for="{{ form.status.id_for_label }}"><strong>Status</strong></label>
+                {{ form.status }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Calculate and display average rating in real-time
+document.addEventListener('DOMContentLoaded', function() {
+    const originality = document.getElementById('{{ form.originality_rating.id_for_label }}');
+    const significance = document.getElementById('{{ form.significance_rating.id_for_label }}');
+    const rigour = document.getElementById('{{ form.rigour_rating.id_for_label }}');
+    const averageDisplay = document.getElementById('calculated-average');
+    
+    function calculateAverage() {
+        const values = [originality, significance, rigour]
+            .map(el => parseFloat(el.value))
+            .filter(v => !isNaN(v));
+        
+        if (values.length > 0) {
+            const avg = values.reduce((a, b) => a + b, 0) / values.length;
+            averageDisplay.textContent = avg.toFixed(2);
+        } else {
+            averageDisplay.textContent = '-';
+        }
+    }
+    
+    [originality, significance, rigour].forEach(el => {
+        if (el) el.addEventListener('input', calculateAverage);
+    });
+    
+    // Initial calculation
+    calculateAverage();
+});
+</script>

@@ -279,7 +279,22 @@ def colleague_mark_as_former(request, pk):
 def output_list(request):
     outputs = Output.objects.select_related('colleague__user').all()
     
+    # Role-based filtering
+    user = request.user
+    if hasattr(user, 'ref_profile'):
+        profile = user.ref_profile
+        # Admins and Observers see all
+        if not (profile.is_admin or profile.is_observer):
+            # Panel members see all outputs (they may need to review any)
+            if not profile.is_panel_member:
+                # Regular colleagues only see their own outputs
+                if hasattr(user, 'colleague'):
+                    outputs = outputs.filter(colleague=user.colleague)
+                else:
+                    outputs = outputs.none()
+    
     filter_form = OutputFilterForm(request.GET)
+    
     if filter_form.is_valid():
         status = filter_form.cleaned_data.get('status')
         quality = filter_form.cleaned_data.get('quality_rating')
@@ -445,24 +460,36 @@ def critical_friend_update(request, pk):
 
 @login_required
 @user_passes_test(is_admin)
-def assign_critical_friend(request, output_id):  # ← Use output_id to match URL
+def assign_critical_friend(request, output_id):
     output = get_object_or_404(Output, pk=output_id)
     
-    # Check if any critical friends are available
+    # Get already assigned critical friend IDs for this output
+    already_assigned_ids = CriticalFriendAssignment.objects.filter(
+        output=output
+    ).values_list('critical_friend_id', flat=True)
+    
+    # Check if any critical friends are available (excluding already assigned)
     available_friends = CriticalFriend.objects.filter(
         availability__in=['available', 'limited']
-    )
+    ).exclude(id__in=already_assigned_ids)
     
     if not available_friends.exists():
-        messages.error(
+        messages.warning(
             request,
-            'No critical friends are currently available. Please add critical friends or update their availability status.'
+            'No additional critical friends available. All available reviewers are already assigned to this output.'
         )
         return redirect('output_detail', pk=output_id)
     
     if request.method == 'POST':
         form = AssignmentForm(request.POST)
         if form.is_valid():
+            critical_friend = form.cleaned_data['critical_friend']
+            
+            # Double-check not already assigned
+            if CriticalFriendAssignment.objects.filter(output=output, critical_friend=critical_friend).exists():
+                messages.error(request, f'{critical_friend.name} is already assigned to this output.')
+                return redirect('output_detail', pk=output_id)
+            
             assignment = form.save(commit=False)
             assignment.output = output
             assignment.assigned_by = request.user
@@ -476,14 +503,13 @@ def assign_critical_friend(request, output_id):  # ← Use output_id to match UR
     else:
         form = AssignmentForm()
     
+    # Filter form queryset to only show available, unassigned critical friends
+    form.fields['critical_friend'].queryset = available_friends
+    
     return render(request, 'core/assign_critical_friend.html', {
         'form': form,
         'output': output,
     })
-
-    return render(request, 'core/assign_critical_friend.html', context)
-
-
 
 
 @login_required
@@ -1751,7 +1777,19 @@ def colleague_list(request):
         output_count=Count('outputs')
     )
     
-    # Apply filters
+    # Role-based filtering
+    user = request.user
+    if hasattr(user, 'ref_profile'):
+        profile = user.ref_profile
+        # Admins and Observers see all
+        if not (profile.is_admin or profile.is_observer):
+            # Regular colleagues and panel members only see themselves
+            if hasattr(user, 'colleague'):
+                colleagues = colleagues.filter(pk=user.colleague.pk)
+            else:
+                colleagues = colleagues.none()
+    
+    # Apply category filters (only meaningful for admins/observers)
     if category_filter != 'all':
         colleagues = colleagues.filter(colleague_category=category_filter)
     

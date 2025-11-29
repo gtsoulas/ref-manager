@@ -1,0 +1,118 @@
+{% comment %}
+Template: templates/core/includes/rating_display.html
+
+Display three-component ratings with visibility controls based on user role.
+
+Usage:
+    {% include 'core/includes/rating_display.html' with assignment=assignment assignment_type='internal' %}
+    {% include 'core/includes/rating_display.html' with assignment=assignment assignment_type='critical_friend' %}
+
+Visibility rules:
+- Internal Panel ratings: 
+  - Numeric values visible to all
+  - Confidential comments visible to admins, observers, panel members
+- Critical Friend ratings:
+  - NOT visible to colleagues or panel members
+  - Only visible to admins and observers
+{% endcomment %}
+
+{% load ref_permissions %}
+
+{% if assignment_type == 'critical_friend' %}
+    {# Critical Friend ratings - only visible to admins and observers #}
+    {% if user.ref_profile.is_admin or user.ref_profile.is_observer %}
+        <div class="card mb-3">
+            <div class="card-header bg-info text-white">
+                <strong>Critical Friend Assessment</strong>
+                <span class="badge badge-light float-right">{{ assignment.reviewer_type|default:"Specialist" }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="text-muted">Originality</label>
+                        <div class="h4">{{ assignment.originality_rating|default:"-" }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-muted">Significance</label>
+                        <div class="h4">{{ assignment.significance_rating|default:"-" }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-muted">Rigour</label>
+                        <div class="h4">{{ assignment.rigour_rating|default:"-" }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-muted">Average</label>
+                        <div class="h4 text-primary"><strong>{{ assignment.component_average_rating|default:"-" }}</strong></div>
+                    </div>
+                </div>
+                
+                {% if assignment.overall_comments %}
+                <div class="mt-3">
+                    <label class="text-muted">Overall Comments</label>
+                    <p>{{ assignment.overall_comments }}</p>
+                </div>
+                {% endif %}
+                
+                {% if assignment.confidential_comments %}
+                <div class="mt-3 alert alert-secondary">
+                    <label class="text-muted"><i class="fas fa-lock"></i> Confidential Comments</label>
+                    <p class="mb-0">{{ assignment.confidential_comments }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        {# Non-admin/observer users see nothing for critical friend #}
+    {% endif %}
+
+{% elif assignment_type == 'internal' %}
+    {# Internal Panel ratings - numeric values visible to all, confidential comments restricted #}
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">
+            <strong>Internal Panel Assessment</strong>
+            {% if assignment.panel_member %}
+                <span class="text-white-50 ml-2">by {{ assignment.panel_member.colleague }}</span>
+            {% endif %}
+            <span class="badge badge-light float-right">{{ assignment.reviewer_type|default:"Specialist" }}</span>
+        </div>
+        <div class="card-body">
+            {# Numeric ratings - visible to everyone #}
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="text-muted">Originality</label>
+                    <div class="h4">{{ assignment.originality_rating|default:"-" }}</div>
+                </div>
+                <div class="col-md-3">
+                    <label class="text-muted">Significance</label>
+                    <div class="h4">{{ assignment.significance_rating|default:"-" }}</div>
+                </div>
+                <div class="col-md-3">
+                    <label class="text-muted">Rigour</label>
+                    <div class="h4">{{ assignment.rigour_rating|default:"-" }}</div>
+                </div>
+                <div class="col-md-3">
+                    <label class="text-muted">Average</label>
+                    <div class="h4 text-primary"><strong>{{ assignment.component_average_rating|default:"-" }}</strong></div>
+                </div>
+            </div>
+            
+            {# Public comments - visible to everyone #}
+            {% if assignment.comments %}
+            <div class="mt-3">
+                <label class="text-muted">Comments</label>
+                <p>{{ assignment.comments }}</p>
+            </div>
+            {% endif %}
+            
+            {# Confidential comments - only visible to admins, observers, panel members #}
+            {% if assignment.confidential_comments %}
+                {% if user.ref_profile.is_admin or user.ref_profile.is_observer or user.ref_profile.is_panel_member %}
+                <div class="mt-3 alert alert-warning">
+                    <label class="text-muted"><i class="fas fa-lock"></i> Confidential Comments</label>
+                    <p class="mb-0">{{ assignment.confidential_comments }}</p>
+                </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% endif %}

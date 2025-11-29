@@ -567,142 +567,6 @@ class Output(models.Model):
         else:
             return 'light text-dark'
 
-    # ========== THREE-COMPONENT DECIMAL RATING METHODS ==========
-    
-    def get_internal_panel_osr_average(self):
-        """
-        Calculate average O/S/R rating across all Internal Panel assignments.
-        Returns a Decimal or None if no ratings exist.
-        """
-        from decimal import Decimal, ROUND_HALF_UP
-        
-        assignments = self.internal_panel_assignments.all()
-        all_ratings = []
-        
-        for assignment in assignments:
-            if assignment.component_average_rating is not None:
-                all_ratings.append(assignment.component_average_rating)
-        
-        if all_ratings:
-            avg = sum(all_ratings) / len(all_ratings)
-            return Decimal(str(avg)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        return None
-    
-    def get_critical_friend_osr_average(self):
-        """
-        Calculate average O/S/R rating across all Critical Friend assignments.
-        Returns a Decimal or None if no ratings exist.
-        """
-        from decimal import Decimal, ROUND_HALF_UP
-        
-        assignments = self.critical_friend_reviews.all()
-        all_ratings = []
-        
-        for assignment in assignments:
-            if assignment.component_average_rating is not None:
-                all_ratings.append(assignment.component_average_rating)
-        
-        if all_ratings:
-            avg = sum(all_ratings) / len(all_ratings)
-            return Decimal(str(avg)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        return None
-    
-    def get_combined_osr_average(self, include_self=False):
-        """
-        Calculate combined O/S/R average across Internal Panel and Critical Friend.
-        
-        Args:
-            include_self: If True, includes self-assessment quality_rating_self 
-                          (converted to decimal scale 0-4)
-        
-        Returns a Decimal or None if no ratings exist.
-        """
-        from decimal import Decimal, ROUND_HALF_UP
-        
-        all_ratings = []
-        
-        # Get Internal Panel ratings
-        internal_avg = self.get_internal_panel_osr_average()
-        if internal_avg is not None:
-            all_ratings.append(internal_avg)
-        
-        # Get Critical Friend ratings
-        cf_avg = self.get_critical_friend_osr_average()
-        if cf_avg is not None:
-            all_ratings.append(cf_avg)
-        
-        # Include self-assessment if requested (convert star rating to decimal)
-        if include_self and self.quality_rating_self:
-            self_map = {'4*': Decimal('4.00'), '3*': Decimal('3.00'), 
-                        '2*': Decimal('2.00'), '1*': Decimal('1.00'), 'U': Decimal('0.00')}
-            self_rating = self_map.get(self.quality_rating_self)
-            if self_rating is not None:
-                all_ratings.append(self_rating)
-        
-        if all_ratings:
-            avg = sum(all_ratings) / len(all_ratings)
-            return Decimal(str(avg)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        return None
-    
-    def get_osr_breakdown(self):
-        """
-        Get detailed O/S/R breakdown across all reviewers.
-        Returns dict with average O, S, R values and overall average.
-        """
-        from decimal import Decimal, ROUND_HALF_UP
-        
-        o_ratings = []
-        s_ratings = []
-        r_ratings = []
-        
-        # Collect from Internal Panel
-        for assignment in self.internal_panel_assignments.all():
-            if assignment.originality_rating is not None:
-                o_ratings.append(assignment.originality_rating)
-            if assignment.significance_rating is not None:
-                s_ratings.append(assignment.significance_rating)
-            if assignment.rigour_rating is not None:
-                r_ratings.append(assignment.rigour_rating)
-        
-        # Collect from Critical Friends
-        for assignment in self.critical_friend_reviews.all():
-            if assignment.originality_rating is not None:
-                o_ratings.append(assignment.originality_rating)
-            if assignment.significance_rating is not None:
-                s_ratings.append(assignment.significance_rating)
-            if assignment.rigour_rating is not None:
-                r_ratings.append(assignment.rigour_rating)
-        
-        def calc_avg(ratings):
-            if ratings:
-                avg = sum(ratings) / len(ratings)
-                return Decimal(str(avg)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-            return None
-        
-        o_avg = calc_avg(o_ratings)
-        s_avg = calc_avg(s_ratings)
-        r_avg = calc_avg(r_ratings)
-        
-        # Overall average
-        component_avgs = [a for a in [o_avg, s_avg, r_avg] if a is not None]
-        overall = calc_avg(component_avgs) if component_avgs else None
-        
-        return {
-            'originality': o_avg,
-            'significance': s_avg,
-            'rigour': r_avg,
-            'overall': overall,
-            'o_count': len(o_ratings),
-            's_count': len(s_ratings),
-            'r_count': len(r_ratings),
-        }
-
-    def get_combined_osr_average_with_self(self):
-        """
-        Wrapper method for templates - gets combined O/S/R average including self-assessment.
-        """
-        return self.get_combined_osr_average(include_self=True)
-
 
 class CriticalFriend(models.Model):
     AVAILABILITY_CHOICES = [
@@ -834,37 +698,20 @@ class CriticalFriendAssignment(models.Model):
     suggestions = models.TextField(blank=True)
     overall_comments = models.TextField(blank=True)
     
-    # Three-component ratings (v3.1 - decimal scale 0.00-4.00)
-    originality_rating = models.DecimalField(
-        max_digits=3, decimal_places=2, null=True, blank=True,
-        verbose_name='Originality', help_text='Rate originality from 0.00 to 4.00'
+    originality_score = models.IntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
-    significance_rating = models.DecimalField(
-        max_digits=3, decimal_places=2, null=True, blank=True,
-        verbose_name='Significance', help_text='Rate significance from 0.00 to 4.00'
+    significance_score = models.IntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
-    rigour_rating = models.DecimalField(
-        max_digits=3, decimal_places=2, null=True, blank=True,
-        verbose_name='Rigour', help_text='Rate rigour from 0.00 to 4.00'
-    )
-    component_average_rating = models.DecimalField(
-        max_digits=3, decimal_places=2, null=True, blank=True,
-        verbose_name='Average Rating', help_text='Calculated average of O/S/R'
-    )
-    confidential_comments = models.TextField(
-        blank=True, verbose_name='Confidential Comments',
-        help_text='Visible only to administrators and observers'
+    rigour_score = models.IntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
     
     internal_notes = models.TextField(blank=True)
-
-    def calculate_component_average(self):
-        from decimal import Decimal, ROUND_HALF_UP
-        ratings = [r for r in [self.originality_rating, self.significance_rating, self.rigour_rating] if r is not None]
-        if ratings:
-            avg = sum(ratings) / len(ratings)
-            return Decimal(str(avg)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        return None
     
     class Meta:
         ordering = ['-assigned_date']
@@ -1013,40 +860,6 @@ class InternalPanelAssignment(models.Model):
     )
     comments = models.TextField(blank=True)
     notes = models.TextField(blank=True)
-        
-    # Three-component ratings (v3.1)
-    originality_rating = models.DecimalField(
-        max_digits=3, decimal_places=2, null=True, blank=True,
-        verbose_name='Originality', help_text='Rate originality from 0.00 to 4.00'
-    )
-    significance_rating = models.DecimalField(
-        max_digits=3, decimal_places=2, null=True, blank=True,
-        verbose_name='Significance', help_text='Rate significance from 0.00 to 4.00'
-    )
-    rigour_rating = models.DecimalField(
-        max_digits=3, decimal_places=2, null=True, blank=True,
-        verbose_name='Rigour', help_text='Rate rigour from 0.00 to 4.00'
-    )
-    component_average_rating = models.DecimalField(
-        max_digits=3, decimal_places=2, null=True, blank=True,
-        verbose_name='Average Rating', help_text='Calculated average of O/S/R'
-    )
-    confidential_comments = models.TextField(
-        blank=True, verbose_name='Confidential Comments',
-        help_text='Visible only to administrators, observers, and panel members'
-    )
-
-    def calculate_component_average(self):
-        from decimal import Decimal, ROUND_HALF_UP
-        ratings = [r for r in [self.originality_rating, self.significance_rating, self.rigour_rating] if r is not None]
-        if ratings:
-            avg = sum(ratings) / len(ratings)
-            return Decimal(str(avg)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        return None
-
-    def save(self, *args, **kwargs):
-        self.component_average_rating = self.calculate_component_average()
-        super().save(*args, **kwargs)
     
     class Meta:
         verbose_name = 'Internal Panel Assignment'
