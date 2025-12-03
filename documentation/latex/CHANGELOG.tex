@@ -11,30 +11,28 @@
 \geometry{margin=2.5cm}
 
 \definecolor{refblue}{RGB}{0,82,147}
-\definecolor{addedgreen}{RGB}{40,167,69}
-\definecolor{changedblue}{RGB}{0,123,255}
-\definecolor{fixedorange}{RGB}{253,126,20}
 
 \hypersetup{
     colorlinks=true,
     linkcolor=refblue,
     urlcolor=refblue,
     pdftitle={REF-Manager Changelog},
+    pdfauthor={George Tsoulas},
 }
 
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\textit{REF-Manager Changelog}}
-\fancyhead[R]{\textit{Version History}}
+\fancyhead[R]{\textit{Version 4.0}}
 \fancyfoot[C]{\thepage}
 
 \title{
-    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.5cm]
-    {\LARGE Changelog}\\[0.3cm]
+    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.3cm]
+    {\LARGE Changelog}\\[0.5cm]
     {\large Version History}
 }
-\author{University of York}
-\date{November 2024}
+\author{George Tsoulas\\University of York}
+\date{December 2025}
 
 \begin{document}
 
@@ -42,133 +40,116 @@
 \tableofcontents
 \newpage
 
-\section{Version 3.0.0 --- November 2024}
+\section{Version 4.0.0 -- December 2025}
 
-\textbf{Major Release --- Complete Feature Overhaul}
+\subsection*{``REF 2029 Ready'' Release}
 
-This release introduces comprehensive role-based access control, risk assessment framework, portfolio optimisation, and multi-dimensional quality ratings.
+\subsection{Added}
 
-\subsection{\textcolor{addedgreen}{Added}}
-
-\subsubsection{Role-Based Access Control}
+\subsubsection{O/S/R Rating System}
 \begin{itemize}
-    \item Four user roles: Administrator, Observer, Internal Panel, Colleague
-    \item Multi-role support with combined permissions
-    \item 13+ granular permissions per role
-    \item Rating finalisation system
-    \item Django admin integration
-    \item Template tags for permission-based rendering
-    \item Management commands: \texttt{setup\_roles}, \texttt{assign\_roles}
+    \item Three-component decimal ratings (0.00-4.00) for Originality, Significance, Rigour
+    \item Ratings from three sources: Self-Assessment, Internal Panel, Critical Friend
+    \item Nine new model fields for O/S/R ratings
+    \item Computed average properties
 \end{itemize}
 
-\subsubsection{Risk Assessment Framework}
+\subsubsection{DOI Auto-Fetch}
 \begin{itemize}
-    \item Content risk scoring (0-1 scale)
-    \item Timeline risk based on publication status
-    \item Open Access compliance tracking
-    \item Panel alignment assessment
-    \item Venue prestige scoring
-    \item Configurable risk weights
-    \item Risk dashboard with visualisations
+    \item OpenAlex API integration for automatic metadata population
+    \item Auto-populates: title, authors, venue, year, OA status, citations
+    \item Endpoint: \texttt{/outputs/fetch-doi/}
 \end{itemize}
 
-\subsubsection{Portfolio Optimisation}
+\subsubsection{Enhanced Bulk Import}
 \begin{itemize}
-    \item REFSubmission model for scenario planning
-    \item Portfolio quality score (GPA-style)
-    \item Portfolio risk score
-    \item Representativeness metrics
-    \item Equality and gender balance scores
-    \item ECR representation tracking
+    \item Three import modes: Hybrid, Smart, Manual
+    \item Duplicate detection by DOI and title
+    \item Auto-link to colleagues via staff\_id
 \end{itemize}
 
-\subsubsection{Multi-Dimensional Quality Ratings}
+\subsubsection{Open Access Compliance}
 \begin{itemize}
-    \item Separate Internal Panel rating field
-    \item Separate Critical Friend rating field
-    \item Self-Assessment rating for authors
-    \item Automatic average calculation
-    \item Specialist/Non-Specialist classification
+    \item New fields: acceptance\_date, deposit\_date, embargo\_end\_date
+    \item OA status tracking (Gold, Green, Hybrid, Bronze, Closed)
+    \item Automatic 3-month deposit rule compliance checking
 \end{itemize}
 
-\subsubsection{Task Management System}
+\subsubsection{REF Narrative Statements}
 \begin{itemize}
-    \item Task creation with workflow
-    \item Categories and priorities
-    \item Due date management
-    \item Overdue alerts
+    \item Double-weighting statement field (300 word limit)
+    \item Interdisciplinary statement field (500 word limit)
+    \item Real-time word counting
 \end{itemize}
 
-\subsection{\textcolor{changedblue}{Changed}}
-
+\subsection{Changed}
 \begin{itemize}
-    \item Dashboard updated for decimal average ratings
-    \item Colleague model: added employment status tracking
-    \item Output model: comprehensive risk fields added
-    \item Expanded output status options
-    \item Improved filtering throughout
+    \item Output edit form redesigned with card-based layout
+    \item Removed legacy star-rating dropdown fields
+    \item Updated admin configuration
 \end{itemize}
 
-\section{Version 2.1.0 --- November 2024}
-
-\subsection{\textcolor{addedgreen}{Added}}
+\subsection{Fixed}
 \begin{itemize}
-    \item Self-evaluation ratings for outputs
-    \item Specialist/Non-Specialist reviewer classification
-    \item Enhanced dashboard statistics
+    \item admin.py: Fixed field references
+    \item forms.py: Removed auto\_now\_add conflict
+    \item views.py: Fixed related\_name issues
+    \item views.py: Fixed OpenAlex API URL format
 \end{itemize}
 
-\subsection{\textcolor{fixedorange}{Fixed}}
+\section{Version 3.1.0 -- November 2025}
+
+\subsection{Added}
 \begin{itemize}
-    \item Colleague category filter issues
-    \item Template rendering bugs
+    \item Initial O/S/R fields on assignment models
+    \item Risk assessment dashboard
+    \item BibTeX import support
 \end{itemize}
 
-\section{Version 2.0.0 --- November 2024}
+\section{Version 3.0.0 -- October 2025}
 
-\subsection{\textcolor{addedgreen}{Added}}
+\subsection{Added}
 \begin{itemize}
-    \item Internal Panel management
-    \item Critical Friend assignment system
-    \item Employment status tracking
-    \item Colleague category system
-    \item BibTeX import
-    \item CSV import with duplicate detection
+    \item Multi-user role system
+    \item Internal panel workflow
+    \item Critical friend assignments
+    \item Role-based access control
 \end{itemize}
 
-\section{Version 1.0.0 --- October 2024}
+\section{Version 2.0.0 -- August 2025}
+
+\subsection{Added}
+\begin{itemize}
+    \item CSV bulk import
+    \item Output filtering and search
+    \item Task management system
+\end{itemize}
+
+\section{Version 1.0.0 -- June 2025}
 
 \subsection{Initial Release}
 \begin{itemize}
-    \item Colleague management
-    \item Research output tracking
-    \item Critical Friend management
-    \item Dashboard with statistics
-    \item Excel export
-    \item LaTeX report generation
-    \item User authentication
+    \item Basic output management
+    \item Colleague tracking
+    \item Simple quality ratings
 \end{itemize}
 
-\section{Upgrade Guide}
+\section{Upgrade Notes}
 
-\subsection{Upgrading to 3.0.0}
+\subsection{Upgrading to 4.0 from 3.x}
 
 \begin{enumerate}
     \item Backup your database
-    \item Update code from repository
-    \item Install new dependencies: \texttt{pip install -r requirements.txt}
+    \item Install requests: \texttt{pip install requests}
     \item Run migrations: \texttt{python manage.py migrate}
-    \item Set up roles: \texttt{python manage.py setup\_roles --create-profiles --superusers-admin}
-    \item Verify user roles and permissions
+    \item Replace updated files
+    \item Collect static: \texttt{python manage.py collectstatic}
+    \item Restart services
 \end{enumerate}
 
-\subsection{Breaking Changes in 3.0}
-
-\begin{itemize}
-    \item UserProfile model required for all users
-    \item Role system replaces simple is\_staff checks
-    \item New quality rating fields (internal, external, self)
-    \item Risk fields on Output model
-\end{itemize}
+\vfill
+\begin{center}
+{\small REF-Manager Changelog -- George Tsoulas, University of York}
+\end{center}
 
 \end{document}

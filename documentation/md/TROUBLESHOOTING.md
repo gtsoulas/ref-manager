@@ -1,363 +1,374 @@
 # REF-Manager Troubleshooting Guide
 
-## Common Issues and Solutions
+## Common Issues and Solutions v4.0
 
 ---
 
-## Installation Issues
+## Table of Contents
 
-### "No module named 'django'"
+1. [Installation Issues](#1-installation-issues)
+2. [Database Issues](#2-database-issues)
+3. [DOI Auto-Fetch Issues](#3-doi-auto-fetch-issues)
+4. [O/S/R Rating Issues](#4-osr-rating-issues)
+5. [Import Issues](#5-import-issues)
+6. [Server Deployment Issues](#6-server-deployment-issues)
+7. [Performance Issues](#7-performance-issues)
 
-**Problem:** Python can't find Django.
+---
+
+## 1. Installation Issues
+
+### "No module named 'requests'"
+
+The requests library is required for DOI auto-fetch.
 
 **Solution:**
 ```bash
-# Activate virtual environment first
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
-
-# Then run your command
-python manage.py runserver
+pip install requests
+# Or if using system Python:
+pip install requests --break-system-packages
 ```
 
-### "Port 8000 already in use"
+### "ModuleNotFoundError: No module named 'crispy_forms'"
 
-**Problem:** Another process is using port 8000.
-
-**Solutions:**
+**Solution:**
 ```bash
-# Option 1: Use different port
-python manage.py runserver 8080
+pip install django-crispy-forms crispy-bootstrap5
+```
 
-# Option 2: Find and kill the process
+### Virtual environment not activating
+
+**Solution:**
+```bash
 # Linux/Mac
-lsof -i :8000
-kill <PID>
+source venv/bin/activate
 
 # Windows
-netstat -ano | findstr :8000
-taskkill /PID <PID> /F
+venv\Scripts\activate
+
+# If permission denied
+chmod +x venv/bin/activate
 ```
 
-### "No such table" or migration errors
+---
 
-**Problem:** Database not properly migrated.
+## 2. Database Issues
+
+### "table already exists" during migration
+
+Your database tables exist but migrations are out of sync.
 
 **Solution:**
 ```bash
-python manage.py makemigrations
+# Option 1: Fake initial migration
+python manage.py migrate --fake-initial
+
+# Option 2: Fake all core migrations
+python manage.py migrate core --fake
+
+# Then apply new migrations
+python manage.py makemigrations core
 python manage.py migrate
 ```
 
-If that fails:
-```bash
-python manage.py migrate --run-syncdb
-```
+### "no such column" error
 
-### "Permission denied" on Linux
-
-**Problem:** File permission issues.
+Model fields don't match database schema.
 
 **Solution:**
 ```bash
-chmod -R 755 ref-manager/
-chmod 644 ref-manager/.env
+# Check migration status
+python manage.py showmigrations core
+
+# Create missing migration
+python manage.py makemigrations core
+
+# Apply it
+python manage.py migrate
 ```
-
----
-
-## Role and Permission Issues
-
-### "Role 'X' does not exist"
-
-**Problem:** Default roles not created.
-
-**Solution:**
-```bash
-python manage.py setup_roles
-```
-
-### "User has no profile"
-
-**Problem:** UserProfile not created for user.
-
-**Solution:**
-```bash
-python manage.py setup_roles --create-profiles
-```
-
-### User can't access expected features
-
-**Problem:** Wrong role assigned.
-
-**Solution:**
-```bash
-# Check current roles
-python manage.py assign_roles username --show
-
-# Add correct role
-python manage.py assign_roles username --add ADMIN
-```
-
----
-
-## Database Issues
-
-### SQLite "database is locked"
-
-**Problem:** SQLite can't handle concurrent access.
-
-**Solutions:**
-1. Wait and retry
-2. Restart the server
-3. For production, switch to PostgreSQL
 
 ### PostgreSQL connection refused
 
-**Problem:** Can't connect to PostgreSQL.
-
-**Check:**
+**Solution:**
 ```bash
-# Is PostgreSQL running?
+# Check PostgreSQL is running
 sudo systemctl status postgresql
 
-# Start if needed
+# Start if stopped
 sudo systemctl start postgresql
 
-# Check connection
-psql -U refuser -h localhost refmanager
-```
-
-### Migration conflicts
-
-**Problem:** Migration files conflict.
-
-**Solution:**
-```bash
-# Show migration status
-python manage.py showmigrations
-
-# Fake problematic migration
-python manage.py migrate core 0014 --fake
-
-# Then continue
-python manage.py migrate
+# Check connection settings in .env
+DATABASE_URL=postgres://user:password@localhost:5432/ref_manager
 ```
 
 ---
 
-## Static Files Issues
+## 3. DOI Auto-Fetch Issues
 
-### CSS/JS not loading
+### "DOI not found in OpenAlex database"
 
-**Problem:** Static files not collected or served.
+The DOI might be new or incorrectly formatted.
 
 **Solutions:**
-```bash
-# Collect static files
-python manage.py collectstatic --clear
 
-# Check STATIC_ROOT setting
-# Verify Nginx static location
+1. **Check DOI format** - Should start with `10.`
+   ```
+   ✓ 10.1038/nature12373
+   ✓ doi:10.1038/nature12373
+   ✓ https://doi.org/10.1038/nature12373
+   ✗ nature12373
+   ```
+
+2. **Test the API directly:**
+   ```bash
+   curl "https://api.openalex.org/works/doi:10.1038/nature12373"
+   ```
+
+3. **Very recent DOIs** may not be indexed yet - wait 1-2 weeks
+
+### "Connection timeout" or network errors
+
+**Solutions:**
+
+1. **Check internet connection**
+   ```bash
+   curl -I https://api.openalex.org
+   ```
+
+2. **Check firewall/proxy** - OpenAlex API must be accessible
+
+3. **University network** may block external APIs - try from different network
+
+### OA status not populating
+
+The JavaScript might not be finding the form field.
+
+**Solution:**
+1. Open browser DevTools (F12)
+2. Check Console for errors
+3. Verify field ID is `id_oa_status`
+
+---
+
+## 4. O/S/R Rating Issues
+
+### Ratings not saving
+
+**Solutions:**
+
+1. **Check field validation** - Values must be 0.00-4.00
+2. **Check form errors** - Look for red validation messages
+3. **Verify migration ran:**
+   ```bash
+   python manage.py showmigrations core | grep osr
+   ```
+
+### Average not calculating
+
+The average properties require all three components.
+
+**Check in Django shell:**
+```python
+python manage.py shell
+from core.models import Output
+o = Output.objects.get(pk=1)
+print(o.originality_internal, o.significance_internal, o.rigour_internal)
+print(o.osr_internal_average)
 ```
 
-### Images not displaying
+### Old star ratings showing
 
-**Problem:** Media files not served.
+Template may be cached or not updated.
+
+**Solution:**
+```bash
+# Clear template cache
+python manage.py clear_cache
+
+# Collect static files
+python manage.py collectstatic --clear --noinput
+
+# Restart server
+sudo systemctl restart gunicorn-ref-manager
+```
+
+---
+
+## 5. Import Issues
+
+### CSV encoding errors
+
+**Solution:**
+- Save CSV as UTF-8 (without BOM)
+- Or use UTF-8-BOM encoding
+- Avoid special characters in filenames
+
+### Bulk import skipping all rows
 
 **Check:**
-- MEDIA_ROOT configured
-- Upload directory exists and is writable
-- Nginx media location configured
+1. CSV column headers match expected names
+2. DOIs are valid format (for Smart mode)
+3. Staff IDs match existing colleagues
+
+**Expected columns:**
+```
+doi,title,publication_year,publication_venue,all_authors,publication_type,staff_id
+```
+
+### "Duplicate detected" for all rows
+
+Disable duplicate checking or clear existing data.
+
+**Solution:**
+- Uncheck "Skip duplicates" option
+- Or delete existing outputs first
 
 ---
 
-## Import/Export Issues
+## 6. Server Deployment Issues
 
-### CSV import fails
+### 502 Bad Gateway
 
-**Problem:** CSV format or encoding issues.
-
-**Solutions:**
-- Ensure UTF-8 encoding
-- Check column headers match expected names
-- Remove BOM if present
-- Verify date formats
-
-### BibTeX import fails
-
-**Problem:** Malformed BibTeX entries.
-
-**Solutions:**
-- Validate BibTeX syntax
-- Check for special characters
-- Ensure required fields present
-
-### Excel export error
-
-**Problem:** openpyxl issues.
+Gunicorn is not running or crashed.
 
 **Solution:**
 ```bash
-pip install --upgrade openpyxl
+# Check status
+sudo systemctl status gunicorn-ref-manager
+
+# View logs
+sudo journalctl -u gunicorn-ref-manager -n 50
+
+# Restart
+sudo systemctl restart gunicorn-ref-manager
+```
+
+### Static files not loading (404)
+
+**Solution:**
+```bash
+# Collect static files
+cd /var/www/ref-manager
+source venv/bin/activate
+python manage.py collectstatic --noinput
+
+# Check Nginx config
+sudo nginx -t
+
+# Verify static directory
+ls -la /var/www/ref-manager/static/
+
+# Restart Nginx
+sudo systemctl restart nginx
+```
+
+### CSRF verification failed
+
+**Solution:**
+Add your domain to settings:
+```python
+CSRF_TRUSTED_ORIGINS = [
+    'https://your-domain.ac.uk',
+    'https://www.your-domain.ac.uk',
+]
+```
+
+### Permission denied errors
+
+**Solution:**
+```bash
+# Fix ownership
+sudo chown -R www-data:www-data /var/www/ref-manager
+
+# Fix permissions
+sudo chmod -R 755 /var/www/ref-manager
+sudo chmod -R 775 /var/www/ref-manager/media
+sudo chmod -R 775 /var/www/ref-manager/logs
 ```
 
 ---
 
-## Performance Issues
+## 7. Performance Issues
 
 ### Slow page loads
 
-**Possible causes:**
-- Large dataset without pagination
-- Missing database indexes
-- Debug mode in production
-
 **Solutions:**
-```python
-# Disable debug
-DEBUG = False
 
-# Add database indexes
-class Output(models.Model):
-    class Meta:
-        indexes = [
-            models.Index(fields=['status']),
-            models.Index(fields=['colleague']),
-        ]
-```
+1. **Enable database indexes:**
+   ```python
+   # In models.py
+   class Meta:
+       indexes = [
+           models.Index(fields=['doi']),
+           models.Index(fields=['title']),
+       ]
+   ```
+
+2. **Use select_related:**
+   ```python
+   Output.objects.select_related('colleague').all()
+   ```
+
+3. **Enable caching:**
+   ```python
+   CACHES = {
+       'default': {
+           'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+       }
+   }
+   ```
 
 ### High memory usage
 
-**Solutions:**
-- Reduce Gunicorn workers
-- Add database connection pooling
-- Implement pagination
-
----
-
-## Docker Issues
-
-### Container won't start
-
-**Check logs:**
-```bash
-docker-compose logs web
-docker-compose logs db
-```
-
-### Database connection in Docker
-
-**Problem:** Web can't reach database.
-
-**Solution:** Use service name, not localhost:
-```python
-DB_HOST=db  # Not localhost
-```
-
-### Volume permissions
-
-**Problem:** Permission denied in volumes.
-
 **Solution:**
-```bash
-# Check ownership
-docker-compose exec web ls -la /app
-
-# Fix if needed
-docker-compose exec web chown -R 1000:1000 /app/media
-```
-
----
-
-## Common Error Messages
-
-### "CSRF verification failed"
-
-**Cause:** CSRF token missing or invalid.
-
-**Solutions:**
-- Ensure `{% csrf_token %}` in forms
-- Check CSRF_TRUSTED_ORIGINS setting
-- Clear browser cookies
-
-### "OperationalError: no such column"
-
-**Cause:** Model changed but not migrated.
-
-**Solution:**
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
-### "TemplateDoesNotExist"
-
-**Cause:** Template file missing or wrong path.
-
-**Check:**
-- Template file exists
-- Template directory in settings
-- No typos in template name
-
-### "ImproperlyConfigured"
-
-**Cause:** Settings misconfigured.
-
-**Check:**
-- All required settings present
-- Environment variables set
-- .env file loaded
-
----
-
-## Getting More Help
-
-### Enable Debug Mode
-
-Temporarily enable for detailed errors:
+Reduce Gunicorn workers:
 ```python
-DEBUG = True
+# gunicorn.conf.py
+workers = 2  # Instead of 4
 ```
 
-### Check Django Logs
+---
+
+## Log Files
+
+| Log | Location |
+|-----|----------|
+| Django | `/var/www/ref-manager/logs/django.log` |
+| Gunicorn | `/var/www/ref-manager/logs/gunicorn-*.log` |
+| Nginx access | `/var/log/nginx/ref-manager-access.log` |
+| Nginx error | `/var/log/nginx/ref-manager-error.log` |
+| System | `journalctl -u gunicorn-ref-manager` |
+
+---
+
+## Health Check Commands
 
 ```bash
-# Console output
-python manage.py runserver
+# Check all services
+sudo systemctl status gunicorn-ref-manager nginx postgresql
 
-# Log file
-tail -f /var/log/ref-manager/django.log
-```
-
-### Django System Check
-
-```bash
-python manage.py check
-python manage.py check --deploy  # Production checks
-```
-
-### Database Shell
-
-```bash
+# Test database
 python manage.py dbshell
-python manage.py shell
+
+# Check for issues
+python manage.py check --deploy
+
+# Verify migrations
+python manage.py showmigrations
 ```
-
-### Collect Debug Information
-
-When reporting issues, include:
-1. Python version: `python --version`
-2. Django version: `python -c "import django; print(django.VERSION)"`
-3. Error message (full traceback)
-4. Steps to reproduce
-5. Relevant configuration
 
 ---
 
-## Still Stuck?
+## Getting Help
 
-1. Search existing GitHub issues
-2. Check Django documentation
+If you can't resolve an issue:
+
+1. Check the logs for specific error messages
+2. Search GitHub Issues
 3. Contact: george.tsoulas@york.ac.uk
-4. Open new GitHub issue with details
+
+Include:
+- Error message (full traceback)
+- Steps to reproduce
+- Django/Python version
+- Operating system

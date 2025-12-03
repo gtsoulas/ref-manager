@@ -7,158 +7,144 @@
 \usepackage{xcolor}
 \usepackage{fancyhdr}
 \usepackage{listings}
-\usepackage{tcolorbox}
 
 \geometry{margin=2.5cm}
 
 \definecolor{refblue}{RGB}{0,82,147}
-\definecolor{codebg}{RGB}{248,248,248}
-\definecolor{codeframe}{RGB}{200,200,200}
+\definecolor{codebg}{RGB}{245,245,245}
+
+\lstset{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{gray},
+}
 
 \hypersetup{
     colorlinks=true,
     linkcolor=refblue,
     urlcolor=refblue,
     pdftitle={REF-Manager Quick Start Guide},
-}
-
-\lstset{
-    basicstyle=\ttfamily\small,
-    backgroundcolor=\color{codebg},
-    frame=single,
-    rulecolor=\color{codeframe},
-    breaklines=true,
-    columns=fullflexible
+    pdfauthor={George Tsoulas},
 }
 
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\textit{REF-Manager Quick Start Guide}}
-\fancyhead[R]{\textit{Version 3.0}}
+\fancyhead[L]{\textit{REF-Manager Quick Start}}
+\fancyhead[R]{\textit{Version 4.0}}
 \fancyfoot[C]{\thepage}
 
 \title{
-    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.5cm]
+    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.3cm]
     {\LARGE Quick Start Guide}\\[0.3cm]
-    {\large Get Running in 15 Minutes}
+    {\large Get Running in 15 Minutes}\\[0.5cm]
+    {\large Version 4.0.0}
 }
-\author{University of York}
-\date{November 2024}
+\author{George Tsoulas\\University of York}
+\date{December 2025}
 
 \begin{document}
 
 \maketitle
 
-\begin{tcolorbox}[colback=refblue!10, colframe=refblue, title=Overview]
-This guide will get you from zero to a working REF-Manager installation in about 15 minutes.
-\end{tcolorbox}
-
 \section{Prerequisites}
 
 Before starting, ensure you have:
 \begin{itemize}
-    \item Python 3.10 or higher
-    \item pip (Python package manager)
-    \item Git (optional)
-    \item Text editor
-    \item Terminal access
+    \item Python 3.10 or higher installed
+    \item Git installed
+    \item Terminal/command line access
 \end{itemize}
 
-Verify Python:
-\begin{lstlisting}
-python3 --version
-\end{lstlisting}
+\section{Step 1: Download and Setup (5 minutes)}
 
-\section{Step 1: Get the Code}
-
-Clone from GitHub:
 \begin{lstlisting}
+# Clone the repository
 git clone https://github.com/gtsoulas/ref-manager.git
 cd ref-manager
-\end{lstlisting}
 
-\section{Step 2: Set Up Environment}
-
-Create and activate virtual environment:
-\begin{lstlisting}
-# Linux/macOS
-python3 -m venv venv
-source venv/bin/activate
-
-# Windows
+# Create virtual environment
 python -m venv venv
-venv\Scripts\activate
-\end{lstlisting}
 
-Install dependencies:
-\begin{lstlisting}
+# Activate it
+source venv/bin/activate   # Linux/Mac
+
+# Install dependencies
 pip install -r requirements.txt
+pip install requests
 \end{lstlisting}
 
-\section{Step 3: Configure}
+\section{Step 2: Configure (2 minutes)}
 
-Copy example configuration:
 \begin{lstlisting}
+# Copy example configuration
 cp env.example .env
 \end{lstlisting}
 
-Generate secret key:
+For development, the defaults work fine.
+
+\section{Step 3: Initialise Database (3 minutes)}
+
 \begin{lstlisting}
-python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-\end{lstlisting}
-
-Edit \texttt{.env} and add your secret key.
-
-\section{Step 4: Initialise Database}
-
-Run migrations:
-\begin{lstlisting}
+# Create database tables
 python manage.py migrate
-\end{lstlisting}
 
-Create admin user:
-\begin{lstlisting}
+# Create admin account
 python manage.py createsuperuser
-\end{lstlisting}
 
-Set up roles:
-\begin{lstlisting}
+# Setup user roles
 python manage.py setup_roles --create-profiles --superusers-admin
 \end{lstlisting}
 
-\section{Step 5: Launch}
+\section{Step 4: Start the Server (1 minute)}
 
-Start the server:
 \begin{lstlisting}
 python manage.py runserver
 \end{lstlisting}
 
-Open \url{http://localhost:8000} in your browser.
+Visit: \textbf{http://localhost:8000}
 
-\section{First Steps}
+\section{Step 5: First Steps (4 minutes)}
 
-\subsection{Add a Colleague}
-\begin{enumerate}
-    \item Navigate to \textbf{Colleagues $\rightarrow$ Add Colleague}
-    \item Enter staff details
-    \item Save
-\end{enumerate}
+\subsection{Add an Output with DOI Auto-Fetch}
 
-\subsection{Add an Output}
 \begin{enumerate}
     \item Navigate to \textbf{Outputs $\rightarrow$ Add Output}
-    \item Select colleague and enter publication details
-    \item Save
+    \item Paste a DOI (e.g., \texttt{10.1038/nature12373})
+    \item Click \textbf{Auto-Fill}
+    \item Review populated fields
+    \item Select the Colleague
+    \item Add O/S/R ratings (0.00-4.00)
+    \item Click \textbf{Save}
 \end{enumerate}
 
-\subsection{Assign for Review}
-\begin{enumerate}
-    \item Open an output
-    \item Click \textbf{Assign Internal Panel} or \textbf{Assign Critical Friend}
-    \item Select reviewer and save
-\end{enumerate}
+\section{O/S/R Rating Scale}
 
-\section{Essential Commands}
+\begin{table}[h]
+\centering
+\begin{tabular}{ccl}
+\toprule
+\textbf{Score} & \textbf{Star} & \textbf{Description} \\
+\midrule
+3.50 - 4.00 & 4$\star$ & World-leading \\
+2.50 - 3.49 & 3$\star$ & Internationally excellent \\
+1.50 - 2.49 & 2$\star$ & Internationally recognised \\
+0.50 - 1.49 & 1$\star$ & Nationally recognised \\
+0.00 - 0.49 & U & Unclassified \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{What's Next?}
+
+\begin{itemize}
+    \item \textbf{User Guide}: Complete feature documentation
+    \item \textbf{Technical Documentation}: Server deployment
+    \item \textbf{Troubleshooting}: Common issues
+\end{itemize}
+
+\section{Quick Commands}
 
 \begin{table}[h]
 \centering
@@ -167,44 +153,23 @@ Open \url{http://localhost:8000} in your browser.
 \textbf{Task} & \textbf{Command} \\
 \midrule
 Start server & \texttt{python manage.py runserver} \\
-Create admin & \texttt{python manage.py createsuperuser} \\
-Run migrations & \texttt{python manage.py migrate} \\
-List users/roles & \texttt{python manage.py assign\_roles --list} \\
-Assign role & \texttt{python manage.py assign\_roles user --add ADMIN} \\
+Create migration & \texttt{python manage.py makemigrations} \\
+Apply migrations & \texttt{python manage.py migrate} \\
+Collect static & \texttt{python manage.py collectstatic} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\section{Quick Fixes}
-
-\textbf{Port in use:}
-\begin{lstlisting}
-python manage.py runserver 8080
-\end{lstlisting}
-
-\textbf{Module not found:}
-\begin{lstlisting}
-source venv/bin/activate
-\end{lstlisting}
-
-\textbf{Roles missing:}
-\begin{lstlisting}
-python manage.py setup_roles
-\end{lstlisting}
-
-\section{Next Steps}
+\section{Need Help?}
 
 \begin{itemize}
-    \item Read the \textbf{User Guide} for detailed features
-    \item Check \textbf{Troubleshooting} for common issues
-    \item See \textbf{Technical Documentation} for advanced configuration
+    \item Email: george.tsoulas@york.ac.uk
+    \item GitHub: https://github.com/gtsoulas/ref-manager
 \end{itemize}
 
 \vfill
 \begin{center}
-\rule{0.5\textwidth}{0.4pt}\\[0.3cm]
-{\small REF-Manager v3.0.0}\\
-{\small Contact: george.tsoulas@york.ac.uk}
+{\small REF-Manager v4.0.0 -- George Tsoulas, University of York}
 \end{center}
 
 \end{document}

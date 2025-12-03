@@ -1,0 +1,27 @@
+\contentsline {section}{\numberline {1}Getting Started}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Logging In}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}User Roles}{2}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Managing Outputs}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Adding an Output}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Publication Types}{2}{subsection.2.2}%
+\contentsline {section}{\numberline {3}DOI Auto-Fetch (New in v4.0)}{2}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Using DOI Auto-Fetch}{2}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Supported DOI Formats}{3}{subsection.3.2}%
+\contentsline {section}{\numberline {4}O/S/R Quality Ratings (New in v4.0)}{3}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Rating Components}{3}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Rating Scale}{3}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Rating Sources}{3}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Entering Ratings}{4}{subsection.4.4}%
+\contentsline {section}{\numberline {5}Open Access Compliance (New in v4.0)}{4}{section.5}%
+\contentsline {subsection}{\numberline {5.1}OA Status Types}{4}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Compliance Dates}{4}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}3-Month Deposit Rule}{4}{subsection.5.3}%
+\contentsline {section}{\numberline {6}REF Narrative Statements (New in v4.0)}{4}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Double-Weighting Statement}{4}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Interdisciplinary Statement}{4}{subsection.6.2}%
+\contentsline {section}{\numberline {7}Bulk Import (New in v4.0)}{5}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Import Modes}{5}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Running an Import}{5}{subsection.7.2}%
+\contentsline {section}{\numberline {8}Risk Assessment}{5}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Risk Levels}{5}{subsection.8.1}%
+\contentsline {section}{\numberline {9}Getting Help}{5}{section.9}%

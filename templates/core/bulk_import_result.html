@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h4><i class="fas fa-check-circle"></i> Import Complete</h4>
+        </div>
+        <div class="card-body">
+            <div class="row text-center mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h2>{{ success_count }}</h2>
+                            <p>Imported</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-warning">
+                        <div class="card-body">
+                            <h2>{{ skip_count }}</h2>
+                            <p>Skipped (Duplicates)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body">
+                            <h2>{{ fail_count }}</h2>
+                            <p>Failed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if report %}
+            <h5>Import Log</h5>
+            <div class="bg-light p-3" style="max-height: 300px; overflow-y: auto;">
+                {% for line in report %}
+                <p class="mb-1 {% if 'Error' in line or 'Failed' in line %}text-danger{% elif 'Skipped' in line %}text-warning{% else %}text-muted{% endif %}">
+                    {{ line }}
+                </p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="mt-4">
+                <a href="{% url 'output_list' %}" class="btn btn-primary">
+                    <i class="fas fa-list"></i> View All Outputs
+                </a>
+                <a href="{% url 'bulk_import' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-upload"></i> Import More
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

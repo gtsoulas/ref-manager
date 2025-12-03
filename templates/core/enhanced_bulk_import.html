@@ -1,0 +1,212 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Enhanced Bulk Import - REF Manager{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-cloud-upload me-2"></i>Enhanced Bulk Import
+                        <span class="badge bg-light text-primary ms-2">OpenAlex Integration</span>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="importForm">
+                        {% csrf_token %}
+                        
+                        <!-- File Upload -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-file-earmark-spreadsheet me-1"></i>CSV File
+                            </label>
+                            {{ form.csv_file }}
+                            <div class="form-text">
+                                Upload a CSV file with your research outputs. 
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#csvHelpModal">
+                                    View required columns <i class="bi bi-question-circle"></i>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Import Mode -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-gear me-1"></i>Import Mode
+                            </label>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    {% for radio in form.import_mode %}
+                                    <div class="form-check mb-2">
+                                        {{ radio.tag }}
+                                        <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                            {% if radio.choice_value == 'hybrid' %}
+                                                <strong>Hybrid</strong> <span class="badge bg-success">Recommended</span>
+                                                <br><small class="text-muted">Fetches DOI metadata when available, uses CSV data for items without DOI (book chapters, etc.)</small>
+                                            {% elif radio.choice_value == 'smart' %}
+                                                <strong>Smart Only</strong>
+                                                <br><small class="text-muted">Only imports rows with DOIs, all metadata fetched from OpenAlex. Rows without DOI are skipped.</small>
+                                            {% else %}
+                                                <strong>Manual Only</strong>
+                                                <br><small class="text-muted">Uses CSV data directly with no API calls. Fastest option, but requires complete CSV data.</small>
+                                            {% endif %}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Options -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-check mb-2">
+                                    {{ form.skip_duplicates }}
+                                    <label class="form-check-label" for="{{ form.skip_duplicates.id_for_label }}">
+                                        <strong>Skip Duplicates</strong>
+                                        <br><small class="text-muted">Skip rows where DOI or title already exists</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-2">
+                                    {{ form.auto_link_colleagues }}
+                                    <label class="form-check-label" for="{{ form.auto_link_colleagues.id_for_label }}">
+                                        <strong>Auto-link Colleagues</strong>
+                                        <br><small class="text-muted">Match staff_id column to existing colleagues</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Default OA Status -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" for="{{ form.default_oa_status.id_for_label }}">
+                                <i class="bi bi-unlock me-1"></i>Default OA Status (Optional)
+                            </label>
+                            {{ form.default_oa_status }}
+                            <div class="form-text">
+                                Override OA status for all imports. Leave blank to use API data or default to "Closed".
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'output_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                <i class="bi bi-cloud-upload me-2"></i>Start Import
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Help Panel -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Quick Tips</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <strong>Best for journal articles:</strong> Include DOI column - metadata auto-fetched
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <strong>Book chapters:</strong> Use Hybrid mode - provide full details in CSV
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-info-circle text-info me-2"></i>
+                            <strong>Large imports:</strong> API calls take ~1 second per DOI
+                        </li>
+                        <li>
+                            <i class="bi bi-shield-check text-primary me-2"></i>
+                            <strong>Duplicates:</strong> Checked by DOI and exact title match
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>CSV Columns</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Column</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for col, desc, example in csv_columns %}
+                            <tr>
+                                <td><code>{{ col }}</code></td>
+                                <td><small>{{ desc }}</small></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'download_csv_template' %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-download me-1"></i>Download Template
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSV Help Modal -->
+<div class="modal fade" id="csvHelpModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">CSV Format Guide</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Minimal CSV Example (with DOIs):</h6>
+                <pre class="bg-light p-3 rounded"><code>doi,staff_id
+10.1038/nature12373,ABC123
+10.1515/ling-2020-0123,DEF456</code></pre>
+                
+                <h6 class="mt-4">Full CSV Example (for book chapters without DOIs):</h6>
+                <pre class="bg-light p-3 rounded"><code>title,publication_year,publication_venue,all_authors,publication_type,staff_id
+"Language and Identity",2024,"Oxford Handbook of Linguistics","Smith, J., Jones, A.",C,ABC123</code></pre>
+                
+                <h6 class="mt-4">Publication Type Codes:</h6>
+                <ul>
+                    <li><code>A</code> = Journal Article</li>
+                    <li><code>B</code> = Book / Monograph</li>
+                    <li><code>C</code> = Book Chapter</li>
+                    <li><code>D</code> = Conference Paper</li>
+                    <li><code>H</code> = Other</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('importForm').addEventListener('submit', function(e) {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Importing... (this may take a while for large files)';
+});
+</script>
+{% endblock %}

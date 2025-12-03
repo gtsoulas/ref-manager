@@ -2,65 +2,46 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{geometry}
-\usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{booktabs}
-\usepackage{longtable}
 \usepackage{xcolor}
 \usepackage{fancyhdr}
-\usepackage{titlesec}
 \usepackage{enumitem}
-\usepackage{tcolorbox}
+\usepackage{longtable}
 
 \geometry{margin=2.5cm}
 
 \definecolor{refblue}{RGB}{0,82,147}
-\definecolor{refgreen}{RGB}{40,167,69}
-\definecolor{refred}{RGB}{220,53,69}
-\definecolor{refyellow}{RGB}{255,193,7}
 
 \hypersetup{
     colorlinks=true,
     linkcolor=refblue,
     urlcolor=refblue,
-    pdftitle={REF-Manager User Guide},
-    pdfauthor={University of York}
+    pdftitle={REF-Manager User Guide v4.0},
+    pdfauthor={George Tsoulas},
 }
 
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\textit{REF-Manager User Guide}}
-\fancyhead[R]{\textit{Version 3.0}}
+\fancyhead[R]{\textit{Version 4.0}}
 \fancyfoot[C]{\thepage}
 
-\titleformat{\section}{\Large\bfseries\color{refblue}}{\thesection}{1em}{}
-\titleformat{\subsection}{\large\bfseries\color{refblue}}{\thesubsection}{1em}{}
-
 \title{
-    \vspace{-2cm}
-    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.5cm]
-    {\LARGE User Guide}\\[0.3cm]
-    {\large Version 3.0.0}\\[0.3cm]
-    {\normalsize Research Excellence Framework Submission Management}
+    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.3cm]
+    {\LARGE User Guide}\\[0.5cm]
+    {\large Version 4.0.0}
 }
-\author{Department of Language and Linguistic Science\\University of York}
-\date{November 2024}
+\author{George Tsoulas\\University of York}
+\date{December 2025}
 
 \begin{document}
 
 \maketitle
-\thispagestyle{empty}
-
-\begin{abstract}
-This User Guide provides comprehensive documentation for REF-Manager, a web-based application designed to help UK university departments manage their Research Excellence Framework (REF) submissions. The guide covers all features including colleague and output management, quality assessments, risk assessment, portfolio optimisation, and reporting.
-\end{abstract}
-
 \tableofcontents
 \newpage
 
-% ==========================================
 \section{Getting Started}
-% ==========================================
 
 \subsection{Logging In}
 
@@ -70,9 +51,7 @@ This User Guide provides comprehensive documentation for REF-Manager, a web-base
     \item Click \textbf{Log In}
 \end{enumerate}
 
-\subsection{Understanding Your Role}
-
-REF-Manager uses role-based access control with four distinct roles:
+\subsection{User Roles}
 
 \begin{table}[h]
 \centering
@@ -80,127 +59,21 @@ REF-Manager uses role-based access control with four distinct roles:
 \toprule
 \textbf{Role} & \textbf{Description} & \textbf{Capabilities} \\
 \midrule
-Administrator & Full system access & All features \\
-Observer & Read-only access & View all, export \\
-Internal Panel & Departmental reviewer & Rate assigned outputs \\
+Administrator & Full access & All features, user management \\
+Observer & Read-only & View all data, export \\
+Internal Panel & Reviewer & Rate assigned outputs \\
 Colleague & Staff member & Manage own outputs \\
 \bottomrule
 \end{tabular}
-\caption{User roles and their capabilities}
 \end{table}
 
-Users may have multiple roles with combined permissions.
-
-\subsection{Navigation}
-
-The main menu provides access to:
-\begin{itemize}
-    \item \textbf{Dashboard}: Overview and statistics
-    \item \textbf{Colleagues}: Staff management
-    \item \textbf{Outputs}: Research output management
-    \item \textbf{Critical Friends}: External reviewer management
-    \item \textbf{Internal Panel}: Internal reviewer management
-    \item \textbf{Reports}: Analytics and export
-    \item \textbf{Tasks}: Task tracking
-    \item \textbf{Admin}: System administration (Administrators only)
-\end{itemize}
-
-% ==========================================
-\section{Dashboard}
-% ==========================================
-
-The dashboard provides an at-a-glance overview of your REF preparation status.
-
-\subsection{Statistics Cards}
-
-The dashboard displays key metrics:
-\begin{itemize}
-    \item \textbf{Total Colleagues}: Returnable staff count
-    \item \textbf{Total Outputs}: All tracked outputs
-    \item \textbf{Approved Outputs}: Ready for submission
-    \item \textbf{In Review}: Currently being assessed
-    \item \textbf{Pending Requests}: Outstanding items
-\end{itemize}
-
-\subsection{Quality Distribution}
-
-A visual chart shows the distribution of outputs by quality rating:
-\begin{itemize}
-    \item \textcolor{refgreen}{\textbf{4★}}: World-leading
-    \item \textcolor{refblue}{\textbf{3★}}: Internationally excellent
-    \item \textcolor{refyellow}{\textbf{2★}}: Recognised internationally
-    \item \textcolor{orange}{\textbf{1★}}: Recognised nationally
-    \item \textbf{U}: Unclassified
-\end{itemize}
-
-% ==========================================
-\section{Managing Colleagues}
-% ==========================================
-
-\subsection{Adding a Colleague}
-
-\begin{enumerate}
-    \item Navigate to \textbf{Colleagues}
-    \item Click \textbf{Add Colleague}
-    \item Complete the required fields:
-    \begin{itemize}
-        \item Staff ID (unique identifier)
-        \item First and Last name
-        \item FTE (0.1 to 1.0)
-        \item Contract type
-        \item Category
-        \item Unit of Assessment
-    \end{itemize}
-    \item Click \textbf{Save}
-\end{enumerate}
-
-\subsection{Colleague Categories}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{ll}
-\toprule
-\textbf{Category} & \textbf{Description} \\
-\midrule
-Independent & Leads own research programme \\
-Non-Independent & Contributes to others' research \\
-Post-Doctoral & Post-doctoral researchers \\
-Academic & Teaching-focused academic staff \\
-Research Assistant & Research support roles \\
-Support & Administrative/technical support \\
-\bottomrule
-\end{tabular}
-\caption{Colleague categories}
-\end{table}
-
-\subsection{Required Outputs}
-
-REF-Manager calculates required outputs based on FTE:
-\begin{itemize}
-    \item Formula: FTE $\times$ 2.5 (rounded down, maximum 5)
-    \item Example: 0.8 FTE = 2 outputs required
-\end{itemize}
-
-% ==========================================
 \section{Managing Outputs}
-% ==========================================
 
 \subsection{Adding an Output}
 
 \begin{enumerate}
-    \item Navigate to \textbf{Outputs}
     \item Click \textbf{Add Output}
-    \item Complete the form:
-    \begin{itemize}
-        \item Colleague (select author)
-        \item Title
-        \item Publication Type
-        \item Publication Year (2021-2028)
-        \item Publication Venue
-        \item Authors (all authors in citation format)
-        \item Author Position
-        \item Unit of Assessment
-    \end{itemize}
+    \item Complete the form fields
     \item Click \textbf{Save}
 \end{enumerate}
 
@@ -222,205 +95,205 @@ G & Performance/Exhibition \\
 H & Other \\
 \bottomrule
 \end{tabular}
-\caption{Publication types}
 \end{table}
 
-\subsection{Output Status Workflow}
+\section{DOI Auto-Fetch (New in v4.0)}
 
-Outputs progress through the following statuses:
+Automatically populate output metadata from a DOI.
 
-\begin{center}
-Draft $\rightarrow$ Submitted $\rightarrow$ Internal Review $\rightarrow$ External Review $\rightarrow$ Approved
-\end{center}
+\subsection{Using DOI Auto-Fetch}
 
-With alternative paths to Revision or Rejected as needed.
+\begin{enumerate}
+    \item Navigate to \textbf{Outputs $\rightarrow$ Add Output}
+    \item In the \textbf{Intelligent Output Entry} section:
+    \begin{itemize}
+        \item Paste the DOI (e.g., \texttt{10.1038/nature12373})
+        \item Click \textbf{Auto-Fill}
+    \end{itemize}
+    \item Review and adjust populated fields
+    \item Select the Colleague and add ratings
+    \item Click \textbf{Save}
+\end{enumerate}
 
-% ==========================================
-\section{Quality Assessments}
-% ==========================================
+\subsection{Supported DOI Formats}
 
-\subsection{Rating System}
+All these formats work:
+\begin{itemize}
+    \item \texttt{10.1038/nature12373}
+    \item \texttt{doi:10.1038/nature12373}
+    \item \texttt{https://doi.org/10.1038/nature12373}
+\end{itemize}
 
-REF-Manager uses the standard REF quality ratings:
+\section{O/S/R Quality Ratings (New in v4.0)}
+
+Three-component quality assessment aligned with REF 2029.
+
+\subsection{Rating Components}
 
 \begin{table}[h]
 \centering
-\begin{tabular}{lll}
+\begin{tabular}{lp{8cm}}
 \toprule
-\textbf{Rating} & \textbf{Description} & \textbf{GPA Value} \\
+\textbf{Component} & \textbf{What to Assess} \\
 \midrule
-4★ & World-leading quality & 4 \\
-3★ & Internationally excellent & 3 \\
-2★ & Recognised internationally & 2 \\
-1★ & Recognised nationally & 1 \\
-U & Unclassified & 0 \\
+Originality & Innovation, new ideas, novel approaches \\
+Significance & Importance, influence, reach, impact \\
+Rigour & Quality of execution, methodology, evidence \\
 \bottomrule
 \end{tabular}
-\caption{Quality ratings}
 \end{table}
 
-\subsection{Multi-Dimensional Ratings}
-
-Each output can receive three independent ratings:
-\begin{enumerate}
-    \item \textbf{Internal Panel Rating}: From departmental reviewers
-    \item \textbf{Critical Friend Rating}: From external reviewers
-    \item \textbf{Self-Assessment}: From the output author
-\end{enumerate}
-
-The average rating is automatically calculated from available assessments.
-
-% ==========================================
-\section{Risk Assessment}
-% ==========================================
-
-\subsection{Risk Score Components}
-
-Each output has a composite risk score (0-1 scale):
+\subsection{Rating Scale}
 
 \begin{table}[h]
 \centering
-\begin{tabular}{llll}
+\begin{tabular}{ccl}
 \toprule
-\textbf{Score} & \textbf{Level} & \textbf{Colour} & \textbf{Action} \\
+\textbf{Score} & \textbf{Star} & \textbf{Description} \\
 \midrule
-0.00--0.24 & Low & Green & Proceed \\
-0.25--0.49 & Medium-Low & Yellow & Monitor \\
-0.50--0.74 & Medium-High & Orange & Mitigate \\
-0.75--1.00 & High & Red & Urgent \\
+3.50 - 4.00 & 4$\star$ & World-leading \\
+2.50 - 3.49 & 3$\star$ & Internationally excellent \\
+1.50 - 2.49 & 2$\star$ & Internationally recognised \\
+0.50 - 1.49 & 1$\star$ & Nationally recognised \\
+0.00 - 0.49 & U & Unclassified \\
 \bottomrule
 \end{tabular}
-\caption{Risk levels}
 \end{table}
 
-\subsection{Risk Components}
+\subsection{Rating Sources}
 
-\textbf{Content Risk (60\% weight)}
-\begin{itemize}
-    \item Panel disagreement likelihood
-    \item Methodology concerns
-    \item Approach controversies
-\end{itemize}
+Each output can receive ratings from three sources:
+\begin{enumerate}
+    \item \textbf{Internal Panel} (blue card) -- Departmental reviewers
+    \item \textbf{Critical Friend} (yellow card) -- External reviewers
+    \item \textbf{Self-Assessment} (green card) -- Author's evaluation
+\end{enumerate}
 
-\textbf{Timeline Risk (40\% weight)}
-\begin{itemize}
-    \item Based on publication status
-    \item Published = 0.00, Planned = 1.00
-\end{itemize}
-
-\subsection{Open Access Compliance}
-
-Open Access compliance is critical for REF eligibility:
-\begin{itemize}
-    \item Non-compliant outputs flagged with minimum 0.85 risk
-    \item Check deposit dates and licences
-    \item Verify compliance before submission
-\end{itemize}
-
-% ==========================================
-\section{REF Submissions}
-% ==========================================
-
-\subsection{Creating a Submission Scenario}
+\subsection{Entering Ratings}
 
 \begin{enumerate}
-    \item Navigate to \textbf{Reports $\rightarrow$ Submissions}
-    \item Click \textbf{Create Submission}
-    \item Enter name, UOA, and year
+    \item Edit an output
+    \item Scroll to \textbf{Quality Ratings (O/S/R)} section
+    \item Enter decimal values (0.00-4.00) for each component
     \item Save
 \end{enumerate}
 
-\subsection{Submission Metrics}
+\section{Open Access Compliance (New in v4.0)}
 
-Each submission calculates:
-\begin{itemize}
-    \item \textbf{Quality Score}: GPA-style average
-    \item \textbf{Risk Score}: Portfolio risk level
-    \item \textbf{Representativeness}: Research area coverage
-    \item \textbf{Equality Score}: Staff inclusion percentage
-    \item \textbf{Gender Balance}: Representation metric
-\end{itemize}
+Track REF 2029 Open Access requirements.
 
-% ==========================================
-\section{Reports and Export}
-% ==========================================
-
-\subsection{Available Reports}
-
-\begin{itemize}
-    \item Submission Overview
-    \item Quality Profile
-    \item Staff Progress
-    \item Review Status
-    \item Risk Dashboard
-    \item Comprehensive Report
-\end{itemize}
-
-\subsection{Export Formats}
-
-\begin{itemize}
-    \item \textbf{Excel}: Full data with formatting
-    \item \textbf{CSV}: Simple tabular data
-    \item \textbf{LaTeX}: Professional reports
-    \item \textbf{JSON}: Risk analysis data
-\end{itemize}
-
-% ==========================================
-\section{Task Management}
-% ==========================================
-
-\subsection{Creating Tasks}
-
-\begin{enumerate}
-    \item Navigate to \textbf{Tasks}
-    \item Click \textbf{Create Task}
-    \item Enter title, description, category, priority
-    \item Assign to user and set due date
-    \item Save
-\end{enumerate}
-
-\subsection{Task Priorities}
+\subsection{OA Status Types}
 
 \begin{table}[h]
 \centering
 \begin{tabular}{ll}
 \toprule
-\textbf{Priority} & \textbf{Urgency} \\
+\textbf{Status} & \textbf{Description} \\
 \midrule
-Low & When possible \\
-Medium & This week \\
-High & This week, prioritise \\
-Urgent & Immediate \\
+Gold & Published in full OA journal \\
+Green & Available via repository (YORA) \\
+Hybrid & OA article in subscription journal \\
+Bronze & Free to read, no formal license \\
+Closed & Paywalled \\
 \bottomrule
 \end{tabular}
-\caption{Task priorities}
 \end{table}
 
-% ==========================================
-\section{Getting Help}
-% ==========================================
+\subsection{Compliance Dates}
 
-\subsection{Documentation}
-
-Additional documentation available:
 \begin{itemize}
-    \item Quick Start Guide
-    \item Technical Documentation
-    \item Troubleshooting Guide
+    \item \textbf{Acceptance Date}: When accepted by journal
+    \item \textbf{Deposit Date}: When uploaded to repository
+    \item \textbf{Embargo End Date}: When full-text becomes public
 \end{itemize}
 
-\subsection{Contact}
+\subsection{3-Month Deposit Rule}
+
+REF 2029 requires outputs to be deposited within 3 months (92 days) of acceptance.
 
 \begin{itemize}
-    \item \textbf{Email}: george.tsoulas@york.ac.uk
-    \item \textbf{GitHub}: https://github.com/gtsoulas/ref-manager
+    \item \checkmark~\textbf{Compliant}: deposit\_date $-$ acceptance\_date $\leq$ 92 days
+    \item $\times$~\textbf{Non-compliant}: deposit\_date $-$ acceptance\_date $>$ 92 days
+\end{itemize}
+
+\section{REF Narrative Statements (New in v4.0)}
+
+\subsection{Double-Weighting Statement}
+
+Required if output is marked as double-weighted.
+\begin{itemize}
+    \item Word Limit: 300 words
+    \item Purpose: Justify why output merits double weighting
+\end{itemize}
+
+\subsection{Interdisciplinary Statement}
+
+Optional for cross-panel outputs.
+\begin{itemize}
+    \item Word Limit: 500 words
+    \item Purpose: Explain cross-panel methodology and value
+\end{itemize}
+
+\section{Bulk Import (New in v4.0)}
+
+Enhanced bulk import with DOI lookup.
+
+\subsection{Import Modes}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lp{7cm}}
+\toprule
+\textbf{Mode} & \textbf{Description} \\
+\midrule
+Hybrid & Fetches DOI metadata where available, uses CSV otherwise \\
+Smart & Only imports rows with DOIs \\
+Manual & Uses CSV data directly, no API calls \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Running an Import}
+
+\begin{enumerate}
+    \item Navigate to \textbf{Outputs $\rightarrow$ Bulk Import}
+    \item Select import mode
+    \item Upload CSV file
+    \item Enable options (skip duplicates, auto-link)
+    \item Click \textbf{Start Import}
+\end{enumerate}
+
+\section{Risk Assessment}
+
+\subsection{Risk Levels}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ccll}
+\toprule
+\textbf{Score} & \textbf{Level} & \textbf{Colour} & \textbf{Action} \\
+\midrule
+0.00-0.24 & Low & Green & Proceed \\
+0.25-0.49 & Medium-Low & Yellow & Monitor \\
+0.50-0.74 & Medium-High & Orange & Mitigate \\
+0.75-1.00 & High & Red & Urgent \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Getting Help}
+
+\begin{itemize}
+    \item Check the Troubleshooting guide
+    \item Contact: george.tsoulas@york.ac.uk
+    \item GitHub: https://github.com/gtsoulas/ref-manager
 \end{itemize}
 
 \vfill
 \begin{center}
 \rule{0.5\textwidth}{0.4pt}\\[0.3cm]
-{\small REF-Manager v3.0.0 --- GNU General Public License v3.0}\\
-{\small Department of Language and Linguistic Science, University of York}
+{\small REF-Manager v4.0.0 User Guide}\\
+{\small George Tsoulas, University of York}
 \end{center}
 
 \end{document}

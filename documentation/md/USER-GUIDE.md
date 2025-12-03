@@ -1,6 +1,6 @@
 # REF-Manager User Guide
 
-## Complete Guide to Using REF-Manager v3.0
+## Complete Guide to Using REF-Manager v4.0
 
 ---
 
@@ -10,14 +10,18 @@
 2. [Dashboard](#2-dashboard)
 3. [Managing Colleagues](#3-managing-colleagues)
 4. [Managing Outputs](#4-managing-outputs)
-5. [Quality Assessments](#5-quality-assessments)
-6. [Risk Assessment](#6-risk-assessment)
-7. [Critical Friends](#7-critical-friends)
-8. [Internal Panel](#8-internal-panel)
-9. [REF Submissions](#9-ref-submissions)
-10. [Task Management](#10-task-management)
-11. [Reports & Export](#11-reports--export)
-12. [User Management](#12-user-management)
+5. [DOI Auto-Fetch](#5-doi-auto-fetch)
+6. [O/S/R Quality Ratings](#6-osr-quality-ratings)
+7. [Open Access Compliance](#7-open-access-compliance)
+8. [REF Narrative Statements](#8-ref-narrative-statements)
+9. [Risk Assessment](#9-risk-assessment)
+10. [Critical Friends](#10-critical-friends)
+11. [Internal Panel](#11-internal-panel)
+12. [Bulk Import](#12-bulk-import)
+13. [REF Submissions](#13-ref-submissions)
+14. [Task Management](#14-task-management)
+15. [Reports & Export](#15-reports--export)
+16. [User Management](#16-user-management)
 
 ---
 
@@ -75,33 +79,9 @@ Visual breakdown by quality rating:
 - 1★ (Recognised nationally): Orange
 - Unclassified: Grey
 
-### Colleague Categories
-
-Staff breakdown by category:
-- Independent Researchers
-- Non-Independent Researchers
-- Post-Doctoral Researchers
-- Academic Staff
-- Research Assistants
-- Support Staff
-
-### Recent Activity
-
-Shows recently updated outputs and reviews.
-
 ---
 
 ## 3. Managing Colleagues
-
-### Viewing Colleagues
-
-Navigate to **Colleagues** to see all staff members.
-
-**Filters:**
-- Employment Status (Current/Former)
-- Colleague Category
-- Returnable Status
-- Search by name
 
 ### Adding a Colleague
 
@@ -115,24 +95,6 @@ Navigate to **Colleagues** to see all staff members.
    - **Unit of Assessment**: UOA code
 3. Click **Save**
 
-### Colleague Categories
-
-| Category | Description |
-|----------|-------------|
-| Independent | Leads own research programme |
-| Non-Independent | Contributes to others' research |
-| Post-Doctoral | Post-doctoral researchers |
-| Academic | Teaching-focused academic staff |
-| Research Assistant | Research support roles |
-| Support | Administrative/technical support |
-
-### Marking Former Staff
-
-1. Go to colleague profile
-2. Click **Mark as Former**
-3. Enter employment end date
-4. Save
-
 ### Required Outputs Calculation
 
 REF-Manager calculates required outputs based on FTE:
@@ -142,17 +104,6 @@ REF-Manager calculates required outputs based on FTE:
 ---
 
 ## 4. Managing Outputs
-
-### Viewing Outputs
-
-Navigate to **Outputs** to see all research outputs.
-
-**Filters:**
-- Status
-- Quality Rating
-- Publication Year
-- Publication Type
-- Colleague
 
 ### Adding an Output
 
@@ -189,78 +140,169 @@ Draft → Submitted → Internal Review → External Review → Approved
                     Revision ←──────── Rejected
 ```
 
+---
+
+## 5. DOI Auto-Fetch
+
+**NEW in v4.0**: Automatically populate output metadata from a DOI.
+
+### Using DOI Auto-Fetch
+
+1. Navigate to **Outputs → Add Output**
+2. In the **Intelligent Output Entry** section at the top:
+   - Paste the DOI (e.g., `10.1038/nature12373`)
+   - Click **Auto-Fill**
+3. Wait for the metadata to load
+4. Review and adjust populated fields:
+   - Title, Authors, Publication Venue
+   - Year, Volume, Issue, Pages
+   - Open Access Status
+   - Citation Count
+5. Select the Colleague and add ratings
+6. Click **Save**
+
+### Supported DOI Formats
+
+All these formats work:
+- `10.1038/nature12373`
+- `doi:10.1038/nature12373`
+- `https://doi.org/10.1038/nature12373`
+
+### Data Source
+
+Metadata is fetched from **OpenAlex**, a free comprehensive academic database that aggregates data from Crossref, Microsoft Academic Graph, and Unpaywall.
+
+---
+
+## 6. O/S/R Quality Ratings
+
+**NEW in v4.0**: Three-component quality assessment system aligned with REF 2029.
+
+### Rating Components
+
+| Component | Description | What to Assess |
+|-----------|-------------|----------------|
+| **Originality** | Novel contribution | Innovation, new ideas, approaches |
+| **Significance** | Impact on field | Importance, influence, reach |
+| **Rigour** | Methodological soundness | Quality of execution, evidence |
+
+### Rating Scale
+
+| Score | Star | Description |
+|-------|------|-------------|
+| 3.50 - 4.00 | 4★ | World-leading |
+| 2.50 - 3.49 | 3★ | Internationally excellent |
+| 1.50 - 2.49 | 2★ | Internationally recognised |
+| 0.50 - 1.49 | 1★ | Nationally recognised |
+| 0.00 - 0.49 | U | Unclassified |
+
+### Rating Sources
+
+Each output can receive ratings from three sources:
+
+1. **Internal Panel** (blue card)
+   - Departmental reviewers
+   - Assigned by administrators
+
+2. **Critical Friend** (yellow card)
+   - External reviewers
+   - Independent assessment
+
+3. **Self-Assessment** (green card)
+   - Author's own evaluation
+   - Completed when submitting
+
+### Entering Ratings
+
+1. Edit an output
+2. Scroll to **Quality Ratings (O/S/R)** section
+3. Enter decimal values (0.00-4.00) for each component:
+   - Originality
+   - Significance
+   - Rigour
+4. Save
+
+### Average Calculations
+
+The system automatically calculates:
+- **Source Average**: Average of O, S, R for each source
+- **Combined Average (excl. self)**: Average of Internal + External
+- **Combined Average (all)**: Average of all three sources
+
+---
+
+## 7. Open Access Compliance
+
+**NEW in v4.0**: Track REF 2029 Open Access requirements.
+
+### OA Status Types
+
 | Status | Description |
 |--------|-------------|
-| Draft | Work in progress |
-| Submitted | Submitted for review |
-| Internal Review | Internal panel assessment |
-| External Review | Critical friend assessment |
-| Approved | Ready for REF |
-| Rejected | Not suitable |
-| Revision | Needs changes |
-| Reserve | Backup output |
+| Gold | Published in full OA journal (paid APC) |
+| Green | Available via repository (e.g., YORA) |
+| Hybrid | OA article in subscription journal |
+| Bronze | Free to read but no formal license |
+| Closed | Paywalled, not openly accessible |
 
-### Importing Outputs
+### Compliance Dates
 
-**CSV Import:**
-1. Go to **Outputs → Import**
-2. Upload CSV file
-3. Map columns
-4. Review and confirm
+Track these dates for each output:
 
-**BibTeX Import:**
-1. Go to **Outputs → Import**
-2. Select BibTeX format
-3. Upload .bib file
-4. Assign to colleagues
+| Field | Description |
+|-------|-------------|
+| **Acceptance Date** | When paper was accepted by journal |
+| **Deposit Date** | When uploaded to repository (YORA) |
+| **Embargo End Date** | When full-text becomes publicly available |
 
----
+### 3-Month Deposit Rule
 
-## 5. Quality Assessments
+REF 2029 requires outputs to be deposited within 3 months (92 days) of acceptance.
 
-### Rating System
+The system automatically checks:
+- ✅ **Compliant**: deposit_date - acceptance_date ≤ 92 days
+- ❌ **Non-compliant**: deposit_date - acceptance_date > 92 days
 
-REF quality ratings:
+### Recording Exceptions
 
-| Rating | Description | GPA Value |
-|--------|-------------|-----------|
-| 4★ | World-leading | 4 |
-| 3★ | Internationally excellent | 3 |
-| 2★ | Recognised internationally | 2 |
-| 1★ | Recognised nationally | 1 |
-| U | Unclassified | 0 |
-
-### Multi-Dimensional Ratings
-
-Each output can receive three independent ratings:
-
-1. **Internal Panel Rating**: Departmental reviewers
-2. **Critical Friend Rating**: External reviewers
-3. **Self-Assessment**: Author's own evaluation
-
-### Average Rating
-
-Automatically calculated from available ratings:
-- Includes Internal and External by default
-- Self-Assessment optional in calculation
-- Shows as decimal (e.g., 3.5) or star rating
-
-### Submitting Ratings
-
-**As Reviewer:**
-1. View assigned output
-2. Assess quality
-3. Enter rating
-4. Add feedback comments
-5. Click **Submit Rating**
-
-**Finalising:**
-- Click **Finalise** to lock rating
-- Only administrators can unfinalise
+If an output is non-compliant with a valid reason:
+1. Select **OA Exception** type
+2. Add explanation in **OA Compliance Notes**
 
 ---
 
-## 6. Risk Assessment
+## 8. REF Narrative Statements
+
+**NEW in v4.0**: Support for required REF 2029 statements.
+
+### Double-Weighting Statement
+
+Required if output is marked as double-weighted.
+
+- **Word Limit**: 300 words
+- **Purpose**: Justify why output merits double weighting
+- **Content**: Explain extended scope, scale, or significance
+
+To add:
+1. Check **Double Weighted** flag
+2. Complete the statement field
+3. Real-time word counter shows progress
+
+### Interdisciplinary Statement
+
+Optional for cross-panel outputs.
+
+- **Word Limit**: 500 words
+- **Purpose**: Explain cross-panel methodology and value
+- **Content**: Describe how output bridges disciplines
+
+To add:
+1. Check **Interdisciplinary** flag
+2. Complete the statement field
+
+---
+
+## 9. Risk Assessment
 
 ### Understanding Risk Scores
 
@@ -289,42 +331,16 @@ Based on publication status:
 | Under Review | 0.50 |
 | In Revision | 0.70 |
 | In Preparation | 0.90 |
-| Planned | 1.00 |
 
-### Open Access Compliance
+### Open Access Compliance Risk
 
-Critical for REF eligibility:
-- Flagged outputs receive minimum 0.85 risk
-- Check deposit dates and licences
-- Verify compliance before submission
-
-### Risk Dashboard
-
-Navigate to **Reports → Risk Dashboard**:
-- View risk distribution
-- Identify high-risk outputs
-- Check OA compliance
-- Review panel alignment
-
-### Updating Risk Assessment
-
-1. Edit output
-2. Scroll to Risk Assessment section
-3. Update scores and rationale
-4. Save
+Non-compliant outputs receive minimum 0.85 risk score.
 
 ---
 
-## 7. Critical Friends
+## 10. Critical Friends
 
 External reviewers providing independent assessments.
-
-### Managing Critical Friends
-
-Navigate to **Critical Friends**:
-- View all reviewers
-- Add new reviewers
-- Track assignments
 
 ### Adding a Critical Friend
 
@@ -333,7 +349,6 @@ Navigate to **Critical Friends**:
    - Name and email
    - Institution
    - Expertise area
-   - Internal/External status
 3. Save
 
 ### Assigning Outputs
@@ -344,25 +359,11 @@ Navigate to **Critical Friends**:
 4. Mark Specialist/Non-Specialist
 5. Save
 
-### Specialist Classification
-
-- **Specialist**: Expert in specific area
-- **Non-Specialist**: General academic reviewer
-
-Helps contextualise assessment feedback.
-
 ---
 
-## 8. Internal Panel
+## 11. Internal Panel
 
 Departmental colleagues reviewing outputs.
-
-### Managing Panel Members
-
-Navigate to **Internal Panel**:
-- View all members
-- Add new members
-- Track workload
 
 ### Assigning Outputs
 
@@ -376,13 +377,63 @@ Navigate to **Internal Panel**:
 
 1. Administrator assigns outputs
 2. Panel member reviews
-3. Rating submitted
+3. O/S/R ratings submitted
 4. Rating finalised
 5. Administrator reviews
 
 ---
 
-## 9. REF Submissions
+## 12. Bulk Import
+
+**NEW in v4.0**: Enhanced bulk import with DOI lookup.
+
+### Import Modes
+
+| Mode | Description | Best For |
+|------|-------------|----------|
+| **Hybrid** | Fetches DOI metadata where available, uses CSV otherwise | Mixed content |
+| **Smart** | Only imports rows with DOIs | Journal articles |
+| **Manual** | Uses CSV data directly, no API calls | Fast import |
+
+### CSV Format
+
+Minimal (with DOIs):
+```
+doi,staff_id
+10.1038/nature12373,ABC123
+10.1126/science.1234567,DEF456
+```
+
+Full (without DOIs):
+```
+title,publication_year,publication_venue,all_authors,publication_type,staff_id
+"My Paper Title",2024,"Journal Name","Smith, J., Jones, A.",A,ABC123
+```
+
+### Publication Type Codes
+
+| Code | Type |
+|------|------|
+| A | Journal Article |
+| B | Book |
+| C | Book Chapter |
+| D | Conference Paper |
+| H | Other |
+
+### Running an Import
+
+1. Navigate to **Outputs → Bulk Import**
+2. Select import mode
+3. Upload CSV file
+4. Enable options:
+   - Skip duplicates
+   - Auto-link colleagues
+5. Click **Start Import**
+6. Review results
+
+---
+
+## 13. REF Submissions
 
 Model different submission scenarios.
 
@@ -390,18 +441,9 @@ Model different submission scenarios.
 
 1. Go to **Reports → Submissions**
 2. Click **Create Submission**
-3. Enter:
-   - Name (e.g., "Main Strategy v1")
-   - Unit of Assessment
-   - Submission Year
-4. Create
-
-### Adding Outputs
-
-1. Open submission
-2. Browse available outputs
-3. Click **Add** to include
-4. Mark as Reserve if backup
+3. Enter name and details
+4. Add outputs
+5. Review metrics
 
 ### Submission Metrics
 
@@ -411,49 +453,21 @@ Model different submission scenarios.
 | Risk Score | Portfolio risk level |
 | Representativeness | Research area coverage |
 | Equality Score | Staff inclusion % |
-| Gender Balance | Representation metric |
-
-### Comparing Scenarios
-
-Create multiple scenarios:
-- Conservative (lower risk)
-- Ambitious (higher 4★ potential)
-- Balanced (mixed approach)
-
-Compare metrics to choose optimal strategy.
 
 ---
 
-## 10. Task Management
+## 14. Task Management
 
 Track REF preparation tasks.
-
-### Viewing Tasks
-
-Navigate to **Tasks**:
-- Your assigned tasks
-- All tasks (Administrators)
-- Task dashboard
 
 ### Creating a Task
 
 1. Click **Create Task**
-2. Enter:
-   - Title and description
-   - Category
-   - Priority
-   - Assigned to
-   - Due date
-3. Save
-
-### Task Categories
-
-- Administrative
-- Review
-- Submission
-- Communication
-- Data
-- Other
+2. Enter title, description
+3. Set category and priority
+4. Assign to user
+5. Set due date
+6. Save
 
 ### Task Priorities
 
@@ -461,19 +475,12 @@ Navigate to **Tasks**:
 |----------|---------|
 | Low | When possible |
 | Medium | This week |
-| High | This week, prioritise |
+| High | Prioritise |
 | Urgent | Immediate |
-
-### Completing Tasks
-
-1. Open task
-2. Update status to In Progress
-3. Add notes as needed
-4. Click **Mark Complete**
 
 ---
 
-## 11. Reports & Export
+## 15. Reports & Export
 
 ### Available Reports
 
@@ -484,58 +491,25 @@ Navigate to **Tasks**:
 | Staff Progress | Individual tracking |
 | Review Status | Assessment progress |
 | Risk Dashboard | Risk analysis |
-| Comprehensive | Full report |
 
-### Exporting Data
+### Export Formats
 
-**Excel Export:**
-- Outputs with all fields
-- Assignments and ratings
-- Submission portfolios
-
-**CSV Export:**
-- Simple tabular data
-- For import into other tools
-
-**LaTeX Export:**
-- Formal reports
-- Professional formatting
-
-### Generating Reports
-
-1. Go to Reports section
-2. Select report type
-3. Apply filters if needed
-4. Click **Export**
-5. Choose format
-6. Download
+- **Excel**: Full data with formatting
+- **CSV**: Simple tabular data
+- **LaTeX**: Professional reports
 
 ---
 
-## 12. User Management
+## 16. User Management
 
 *Administrator access required*
 
-### Viewing Users
-
-Navigate to **Manage → Users**:
-- List all users
-- View roles
-- Edit permissions
-
 ### Assigning Roles
 
-**Via Interface:**
-1. Click user
-2. Select/deselect roles
-3. Save
-
-**Via Command Line:**
-```bash
-python manage.py assign_roles username --add ADMIN
-python manage.py assign_roles username --set OBSERVER
-python manage.py assign_roles username --remove INTERNAL_PANEL
-```
+1. Navigate to **Manage → Users**
+2. Select user
+3. Assign/remove roles
+4. Save
 
 ### Role Permissions
 
@@ -543,33 +517,9 @@ python manage.py assign_roles username --remove INTERNAL_PANEL
 |------------|:-----:|:--------:|:-----:|:---------:|
 | View all outputs | ✓ | ✓ | - | - |
 | Edit any output | ✓ | - | - | - |
-| Rate assigned | ✓ | - | ✓ | - |
+| Enter O/S/R ratings | ✓ | - | ✓ | - |
 | Manage users | ✓ | - | - | - |
 | Export data | ✓ | ✓ | - | - |
-
----
-
-## Tips & Best Practices
-
-### Data Quality
-- Keep output information complete
-- Update publication statuses regularly
-- Verify DOIs and URLs
-
-### Risk Management
-- Address high-risk outputs early
-- Ensure OA compliance
-- Document risk rationale
-
-### Portfolio Strategy
-- Model multiple scenarios
-- Balance risk and quality
-- Ensure staff representation
-
-### Regular Reviews
-- Schedule periodic reviews
-- Track progress against milestones
-- Update assessments as needed
 
 ---
 
@@ -577,4 +527,4 @@ python manage.py assign_roles username --remove INTERNAL_PANEL
 
 - Check [Troubleshooting](TROUBLESHOOTING.md)
 - Contact: george.tsoulas@york.ac.uk
-- GitHub Issues: https://github.com/gtsoulas/ref-manager
+- GitHub: https://github.com/gtsoulas/ref-manager

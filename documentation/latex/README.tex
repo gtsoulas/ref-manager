@@ -6,8 +6,7 @@
 \usepackage{booktabs}
 \usepackage{xcolor}
 \usepackage{fancyhdr}
-\usepackage{graphicx}
-\usepackage{tcolorbox}
+\usepackage{enumitem}
 
 \geometry{margin=2.5cm}
 
@@ -17,31 +16,34 @@
     colorlinks=true,
     linkcolor=refblue,
     urlcolor=refblue,
-    pdftitle={REF-Manager Overview},
+    pdftitle={REF-Manager v4.0 Overview},
+    pdfauthor={George Tsoulas},
 }
 
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\textit{REF-Manager}}
-\fancyhead[R]{\textit{Version 3.0}}
+\fancyhead[R]{\textit{Version 4.0}}
 \fancyfoot[C]{\thepage}
 
 \title{
     {\Huge\bfseries\color{refblue} REF-Manager}\\[0.5cm]
     {\LARGE Research Excellence Framework}\\
     {\LARGE Submission Management System}\\[0.5cm]
-    {\large Version 3.0.0}
+    {\large Version 4.0.0 ``REF 2029 Ready''}
 }
-\author{Department of Language and Linguistic Science\\University of York}
-\date{November 2024}
+\author{George Tsoulas\\Department of Language and Linguistic Science\\University of York}
+\date{December 2025}
 
 \begin{document}
 
 \maketitle
 
-\begin{tcolorbox}[colback=refblue!10, colframe=refblue]
+\begin{center}
+\fbox{\parbox{0.9\textwidth}{
 \textbf{REF-Manager} is a comprehensive web-based application designed to help UK university departments manage their Research Excellence Framework (REF) submissions for REF 2029.
-\end{tcolorbox}
+}}
+\end{center}
 
 \tableofcontents
 \newpage
@@ -51,52 +53,42 @@
 REF-Manager provides tools for:
 \begin{itemize}
     \item Tracking research outputs with comprehensive metadata
-    \item Coordinating quality assessments from multiple sources
+    \item Three-component O/S/R quality assessments (Originality, Significance, Rigour)
+    \item DOI auto-fetch for automatic metadata population
     \item Managing internal and external reviews
-    \item Assessing and mitigating submission risks
-    \item Optimising submission portfolios
-    \item Generating reports and exports
-\end{itemize}
-
-\section{Key Features}
-
-\subsection{Research Output Management}
-\begin{itemize}
-    \item Multiple publication types (articles, books, chapters, etc.)
-    \item Complete bibliographic metadata
-    \item BibTeX and CSV import
-    \item Status workflow tracking
-\end{itemize}
-
-\subsection{Multi-Dimensional Quality Assessment}
-\begin{itemize}
-    \item Internal Panel ratings
-    \item External Critical Friend ratings
-    \item Self-Assessment ratings
-    \item Automatic average calculation
-\end{itemize}
-
-\subsection{Risk Assessment Framework}
-\begin{itemize}
-    \item Content risk scoring
-    \item Timeline risk based on publication status
     \item Open Access compliance tracking
-    \item Configurable risk weights
+    \item REF narrative statements support
+    \item Optimising submission portfolios
 \end{itemize}
 
-\subsection{Portfolio Optimisation}
+\section{What's New in Version 4.0}
+
+\subsection{O/S/R Rating System}
 \begin{itemize}
-    \item Submission scenario modelling
-    \item Quality and risk metrics
-    \item Representativeness scoring
-    \item Equality and diversity metrics
+    \item Three-component quality ratings on 0.00-4.00 scale
+    \item Ratings from Internal Panel, Critical Friend, and Self-Assessment
+    \item Automatic average calculations
 \end{itemize}
 
-\subsection{Role-Based Access Control}
+\subsection{DOI Auto-Fetch}
 \begin{itemize}
-    \item Four user roles: Administrator, Observer, Internal Panel, Colleague
-    \item Multi-role support
-    \item Granular permissions
+    \item Paste DOI to auto-populate metadata
+    \item Integration with OpenAlex database
+    \item Fetches title, authors, venue, OA status, citations
+\end{itemize}
+
+\subsection{Enhanced Bulk Import}
+\begin{itemize}
+    \item Three modes: Hybrid, Smart, Manual
+    \item Duplicate detection
+    \item Auto-link to colleagues
+\end{itemize}
+
+\subsection{Open Access Compliance}
+\begin{itemize}
+    \item Track acceptance, deposit, embargo dates
+    \item Automatic 3-month rule verification
+    \item Exception recording
 \end{itemize}
 
 \section{System Requirements}
@@ -109,7 +101,7 @@ REF-Manager provides tools for:
 \midrule
 Python & 3.10 or higher \\
 Django & 4.2.x \\
-Database & SQLite (dev) or PostgreSQL 14+ (prod) \\
+Database & SQLite (dev) or PostgreSQL 15 (prod) \\
 Memory & 2 GB RAM minimum \\
 \bottomrule
 \end{tabular}
@@ -123,12 +115,31 @@ Memory & 2 GB RAM minimum \\
     \item Create virtual environment: \texttt{python -m venv venv}
     \item Activate: \texttt{source venv/bin/activate}
     \item Install dependencies: \texttt{pip install -r requirements.txt}
+    \item Install requests: \texttt{pip install requests}
     \item Configure: \texttt{cp env.example .env}
     \item Migrate: \texttt{python manage.py migrate}
     \item Create admin: \texttt{python manage.py createsuperuser}
     \item Setup roles: \texttt{python manage.py setup\_roles --create-profiles --superusers-admin}
     \item Run: \texttt{python manage.py runserver}
 \end{enumerate}
+
+\section{O/S/R Rating Scale}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ccl}
+\toprule
+\textbf{Score} & \textbf{Star} & \textbf{Description} \\
+\midrule
+3.50 - 4.00 & 4$\star$ & World-leading \\
+2.50 - 3.49 & 3$\star$ & Internationally excellent \\
+1.50 - 2.49 & 2$\star$ & Internationally recognised \\
+0.50 - 1.49 & 1$\star$ & Nationally recognised \\
+0.00 - 0.49 & U & Unclassified \\
+\bottomrule
+\end{tabular}
+\caption{O/S/R rating scale}
+\end{table}
 
 \section{Documentation}
 
@@ -140,7 +151,7 @@ Memory & 2 GB RAM minimum \\
 \midrule
 Quick Start Guide & Get running in 15 minutes \\
 User Guide & Complete user documentation \\
-Technical Documentation & Developer and admin reference \\
+Technical Documentation & Server deployment reference \\
 Troubleshooting & Common issues and solutions \\
 Changelog & Version history \\
 \bottomrule
@@ -155,6 +166,7 @@ REF-Manager is released under the GNU General Public License v3.0.
 \section{Contact}
 
 \begin{itemize}
+    \item \textbf{Author}: George Tsoulas
     \item \textbf{Email}: george.tsoulas@york.ac.uk
     \item \textbf{GitHub}: https://github.com/gtsoulas/ref-manager
 \end{itemize}
@@ -162,7 +174,8 @@ REF-Manager is released under the GNU General Public License v3.0.
 \vfill
 \begin{center}
 \rule{0.5\textwidth}{0.4pt}\\[0.3cm]
-{\small REF-Manager v3.0.0}\\
+{\small REF-Manager v4.0.0}\\
+{\small George Tsoulas}\\
 {\small Department of Language and Linguistic Science, University of York}
 \end{center}
 

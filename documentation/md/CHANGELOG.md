@@ -1,237 +1,150 @@
-# REF-Manager Changelog
+# Changelog
 
-## Version History
+## REF-Manager Version History
+
+**Author**: George Tsoulas  
+**Institution**: University of York, Department of Language and Linguistic Science
 
 ---
 
-## [3.0.0] - November 2024
+## [4.0.0] - 2025-12-03
 
-### Major Release - Complete Feature Overhaul
+### "REF 2029 Ready" Release
 
-This release introduces comprehensive role-based access control, risk assessment framework, portfolio optimisation, and multi-dimensional quality ratings.
+#### Added
+
+**O/S/R Rating System**
+- Three-component decimal ratings (0.00-4.00) for Originality, Significance, Rigour
+- Ratings from three sources: Self-Assessment, Internal Panel, Critical Friend
+- New model fields: `originality_self`, `significance_self`, `rigour_self`, `originality_internal`, `significance_internal`, `rigour_internal`, `originality_external`, `significance_external`, `rigour_external`
+- Computed properties: `osr_self_average`, `osr_internal_average`, `osr_external_average`, `osr_combined_average`, `osr_combined_average_no_self`
+
+**DOI Auto-Fetch**
+- OpenAlex API integration for automatic metadata population
+- Endpoint: `/outputs/fetch-doi/`
+- Auto-populates: title, authors, venue, year, volume, issue, pages, OA status, citation count
+
+**Enhanced Bulk Import**
+- Three import modes: Hybrid, Smart, Manual
+- Duplicate detection by DOI and title
+- Auto-link to colleagues via staff_id
+- URL: `/outputs/bulk-import/`
+
+**Open Access Compliance**
+- New fields: `acceptance_date`, `deposit_date`, `embargo_end_date`
+- OA status tracking: Gold, Green, Hybrid, Bronze, Closed
+- Automatic 3-month deposit rule compliance checking
+- Exception recording for non-compliant outputs
+
+**REF Narrative Statements**
+- `double_weighting_statement` field (300 word limit)
+- `interdisciplinary_statement` field (500 word limit)
+- Real-time word counting with validation
+
+**UI Enhancements**
+- O/S/R rating cards (colour-coded by source)
+- DOI lookup card with Auto-Fill button
+- OA Compliance section with date pickers
+- Rating guide showing star equivalents
+
+#### Changed
+
+- Output edit form redesigned with card-based layout
+- Removed legacy star-rating dropdown fields from forms
+- Updated admin configuration for model consistency
+
+#### Fixed
+
+- admin.py: Fixed references to non-existent fields (`is_internal`, `reviewed_date`, `is_active`, `is_final`)
+- forms.py: Removed `assigned_date` from InternalPanelAssignmentForm (auto_now_add conflict)
+- views.py: Fixed `internalpanelassignment_set` to `panel_assignments` (correct related_name)
+- views.py: Fixed OpenAlex API URL format (`doi:` prefix instead of full URL)
+
+---
+
+## [3.1.0] - 2025-11-15
 
 ### Added
-
-#### Role-Based Access Control
-- Four user roles: Administrator, Observer, Internal Panel, Colleague
-- Multi-role support with combined permissions
-- 13+ granular permissions per role
-- Rating finalisation system
-- Django admin integration
-- Template tags for permission-based rendering
-- Management commands: `setup_roles`, `assign_roles`
-
-#### Risk Assessment Framework
-- Content risk scoring (0-1 scale)
-- Timeline risk based on publication status
-- Open Access compliance tracking
-- Panel alignment assessment
-- Venue prestige scoring
-- Configurable risk weights
-- Automatic composite risk calculation
-- Risk dashboard with visualisations
-
-#### Portfolio Optimisation
-- REFSubmission model for scenario planning
-- SubmissionOutput through model
-- Portfolio quality score (GPA-style)
-- Portfolio risk score
-- Representativeness metrics
-- Equality score (staff inclusion)
-- Gender balance tracking
-- ECR representation score
-- Interdisciplinary output scoring
-- Configurable optimisation weights
-
-#### Multi-Dimensional Quality Ratings
-- Separate Internal Panel rating field
-- Separate Critical Friend (External) rating field
-- Self-Assessment rating for authors
-- Automatic average calculation
-- Decimal average support
-- Specialist/Non-Specialist reviewer classification
-
-#### Task Management System
-- Task model with full workflow
-- Categories: Administrative, Review, Submission, Communication
-- Priority levels: Low, Medium, High, Urgent
-- Status tracking: Pending, In Progress, Completed, Cancelled
-- Due date management
-- Overdue alerts
-- Task dashboard
-
-#### Export Enhancements
-- Excel export for assignments
-- CSV export for assignments
-- Submission portfolio export
-- Risk analysis JSON export
-
-#### User Management Interface
-- Web-based user list
-- Role editing interface
-- Bulk role assignment
-- Quick role toggle
+- Initial O/S/R fields on assignment models
+- Risk assessment dashboard
+- BibTeX import support
+- Output comparison with fuzzy matching
 
 ### Changed
-- Dashboard updated for decimal average ratings
-- Colleague model: added employment status tracking
-- Colleague categories expanded (6 categories)
-- Output model: comprehensive risk fields added
-- Output status options expanded
-- Improved filtering throughout
-
-### Technical
-- 15 database migrations
-- New management commands
-- Expanded template tag library
-- Additional view mixins and decorators
+- Improved duplicate detection algorithm
 
 ---
 
-## [2.1.0] - November 2024
+## [3.0.0] - 2025-10-01
 
 ### Added
-- Self-evaluation ratings for outputs
-- Specialist/Non-Specialist reviewer classification
-- Enhanced dashboard statistics
-- Improved output comparison tools
+- Multi-user role system (Administrator, Observer, Internal Panel, Colleague)
+- Internal panel workflow
+- Critical friend assignments
+- Role-based access control
 
 ### Changed
-- Quality rating display improvements
-- Better filter functionality
-- Enhanced export options
-
-### Fixed
-- Colleague category filter issues
-- Template rendering bugs
-- Migration ordering
+- Database schema redesign for multi-user support
 
 ---
 
-## [2.0.0] - November 2024
+## [2.0.0] - 2025-08-01
 
 ### Added
-- Internal Panel member management
-- Internal Panel assignment system
-- Critical Friend assignment system
-- Employment status tracking (Current/Former)
-- Colleague category system
-- Output status workflow
-- BibTeX import functionality
-- CSV import with duplicate detection
-- Output comparison and merge tools
-
-### Changed
-- Expanded output status options
-- Improved dashboard
-- Enhanced colleague filtering
+- CSV bulk import
+- Output filtering and search
+- Task management system
+- Request tracking
 
 ---
 
-## [1.0.0] - October 2024
+## [1.0.0] - 2025-06-01
 
 ### Initial Release
-
-- Colleague management
-- Research output tracking
-- Critical Friend management
-- Request system
-- Internal review workflow
-- Dashboard with statistics
-- Excel export
-- LaTeX report generation
-- User authentication
-- Bootstrap 4 interface
+- Basic output management
+- Colleague tracking
+- Simple quality ratings
 
 ---
 
-## Upgrade Guide
+## Upgrade Notes
 
-### Upgrading to 3.0.0
+### Upgrading to 4.0 from 3.x
 
-**Prerequisites:**
-- Python 3.10+
-- Existing 2.x installation
+1. **Backup your database** before upgrading
 
-**Steps:**
-
-1. **Backup your database**
+2. **Install new dependency:**
    ```bash
-   # SQLite
-   cp db.sqlite3 db.sqlite3.backup
-   
-   # PostgreSQL
-   pg_dump -U refuser refmanager > backup.sql
+   pip install requests
    ```
 
-2. **Update code**
+3. **Run migrations:**
    ```bash
-   git pull origin main
-   # or download and replace files
-   ```
-
-3. **Update dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Run migrations**
-   ```bash
+   python manage.py makemigrations core --name upgrade_to_v4
    python manage.py migrate
    ```
 
-5. **Set up roles**
+4. **Replace updated files:**
+   - `models.py`, `forms.py`, `admin.py`, `views.py`, `urls.py`
+   - `templates/core/output_form.html`
+   - `templates/core/enhanced_bulk_import.html`
+
+5. **Collect static files:**
    ```bash
-   python manage.py setup_roles --create-profiles --superusers-admin
+   python manage.py collectstatic --noinput
    ```
 
-6. **Verify**
-   - Check all users have profiles
-   - Verify role assignments
-   - Test key functionality
+6. **Restart services:**
+   ```bash
+   sudo systemctl restart gunicorn
+   sudo systemctl restart nginx
+   ```
 
-### Breaking Changes in 3.0
+### Data Migration
 
-- UserProfile model required for all users
-- Role system replaces simple is_staff checks
-- New quality rating fields (internal, external, self)
-- Risk fields on Output model
-- REFSubmission replaces informal submission tracking
+Existing outputs will have NULL values for new O/S/R fields. These can be populated:
+- Manually through the edit form
+- Via bulk import with updated CSV
+- Through Django shell for batch updates
 
-### Data Migration Notes
-
-- Existing users get profiles automatically with `--create-profiles`
-- Superusers become Administrators with `--superusers-admin`
-- Existing quality ratings preserved in `quality_rating` field
-- New rating fields initially empty
-
----
-
-## Version Numbering
-
-REF-Manager follows Semantic Versioning:
-- **Major** (X.0.0): Breaking changes, major features
-- **Minor** (0.X.0): New features, backwards compatible
-- **Patch** (0.0.X): Bug fixes, minor improvements
-
----
-
-## Roadmap
-
-### Planned for 3.1
-- Enhanced reporting templates
-- Batch risk assessment updates
-- Improved portfolio comparison
-- Email notifications
-
-### Planned for 3.2
-- REF submission export formats
-- Integration with institutional systems
-- Advanced analytics dashboard
-- Audit logging
-
-### Under Consideration
-- API for external integrations
-- Mobile-responsive improvements
-- Multi-institution support
-- REF 2029 specific templates
+Legacy star ratings are preserved in the database but no longer displayed.

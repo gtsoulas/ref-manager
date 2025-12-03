@@ -1,8 +1,9 @@
-# REF-Manager v3.0
+# REF-Manager v4.0
 
 ## Research Excellence Framework Submission Management System
 
-**Version 3.0.0** | November 2024  
+**Version 4.0.0 "REF 2029 Ready"** | December 2025  
+**Author**: George Tsoulas  
 **Developed for**: University of York, Department of Language and Linguistic Science  
 **License**: GNU General Public License v3.0
 
@@ -12,10 +13,18 @@
 
 REF-Manager is a comprehensive web-based application designed to help UK university departments manage their Research Excellence Framework (REF) submissions. The system provides tools for tracking research outputs, coordinating quality assessments, managing internal and external reviews, and optimising submission portfolios for REF 2029.
 
+### What's New in v4.0
+
+- **O/S/R Rating System**: Three-component quality ratings (Originality, Significance, Rigour) on 0.00-4.00 scale
+- **DOI Auto-Fetch**: Automatic metadata population from OpenAlex API
+- **Enhanced Bulk Import**: Hybrid/Smart/Manual import modes with duplicate detection
+- **OA Compliance Tracking**: Automated 3-month deposit rule verification
+- **REF Narrative Statements**: Double-weighting and interdisciplinary statement support
+
 ### Key Capabilities
 
 - **Research Output Management**: Track publications, books, conference papers, and other research outputs with comprehensive metadata
-- **Multi-Dimensional Quality Assessment**: Support for internal panel, external critical friend, and self-assessment ratings
+- **Three-Component Quality Assessment**: O/S/R ratings from internal panel, external critical friends, and self-assessment
 - **Risk Assessment Framework**: Evaluate content risk, timeline risk, and Open Access compliance for each output
 - **Portfolio Optimisation**: Model different submission scenarios with quality, risk, and representativeness metrics
 - **Role-Based Access Control**: Four distinct user roles with granular permissions
@@ -39,7 +48,7 @@ REF-Manager is a comprehensive web-based application designed to help UK univers
 
 | Component | Recommendation |
 |-----------|----------------|
-| Python | 3.11 |
+| Python | 3.12 |
 | Database | PostgreSQL 15 |
 | Memory | 4 GB RAM |
 | Web Server | Nginx + Gunicorn |
@@ -57,35 +66,49 @@ REF-Manager is a comprehensive web-based application designed to help UK univers
 
 ### 2. Research Output Management
 - Multiple publication types support
+- DOI auto-fetch with OpenAlex integration
+- BibTeX and CSV import (including enhanced bulk import)
 - Complete bibliographic metadata
 - File attachment support
 - Status workflow tracking
 
-### 3. Multi-Dimensional Quality Assessment
-- Internal Panel ratings
-- External Critical Friend ratings
-- Self-Assessment ratings
-- Automatic average calculation
+### 3. O/S/R Quality Assessment (NEW in v4.0)
+- Three-component ratings: Originality, Significance, Rigour
+- Decimal scale 0.00-4.00 mapping to REF star ratings
+- Internal Panel, Critical Friend, and Self-Assessment sources
+- Automatic average calculation across sources
 
-### 4. Risk Assessment Framework
+### 4. Open Access Compliance (NEW in v4.0)
+- Acceptance date, deposit date, embargo tracking
+- Automatic 3-month deposit rule verification
+- OA status classification (Gold, Green, Hybrid, Bronze, Closed)
+- Exception recording for non-compliant outputs
+
+### 5. REF Narrative Statements (NEW in v4.0)
+- Double-weighting statement (300 words)
+- Interdisciplinary statement (500 words)
+- Real-time word counting with validation
+
+### 6. Risk Assessment Framework
 - Content risk scoring
 - Timeline risk scoring
 - Open Access compliance tracking
 - Configurable risk weights
 
-### 5. Portfolio Optimisation
+### 7. Portfolio Optimisation
 - Submission scenario modelling
 - Quality and risk metrics
 - Representativeness scoring
 - Equality and diversity metrics
 
-### 6. Role-Based Access Control
+### 8. Role-Based Access Control
 - Administrator, Observer, Internal Panel, Colleague roles
 - Multi-role support
 - Granular permissions
 
-### 7. Import & Export
+### 9. Import & Export
 - CSV and BibTeX import
+- Enhanced bulk import with DOI lookup
 - Excel and CSV export
 - LaTeX report generation
 
@@ -100,6 +123,9 @@ cd ref-manager
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+
+# Install requests for DOI auto-fetch
+pip install requests
 
 # Configure
 cp env.example .env
@@ -130,6 +156,7 @@ Visit http://localhost:8000 to access REF-Manager.
 
 ## Support
 
+- **Author**: George Tsoulas
 - **Email**: george.tsoulas@york.ac.uk
 - **GitHub**: https://github.com/gtsoulas/ref-manager
 

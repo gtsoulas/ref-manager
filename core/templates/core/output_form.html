@@ -1,0 +1,832 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ form.instance.pk|yesno:"Edit,Add" }} Output - REF Manager{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bibtex-section {
+        background-color: #f8f9fa;
+        border-left: 4px solid #007bff;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .bibtex-help {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    .quality-ratings-section {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    .rating-display {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        margin: 0.5rem;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+    .rating-internal {
+        background-color: #e7f3ff;
+        border: 2px solid #0066cc;
+    }
+    .rating-external {
+        background-color: #fff8e1;
+        border: 2px solid #ff9800;
+    }
+    .rating-average {
+        background-color: #e8f5e9;
+        border: 2px solid #4caf50;
+        font-size: 1.1rem;
+    }
+    /* NEW: DOI Lookup Styles */
+    .doi-lookup-section {
+        background-color: #e3f2fd;
+        border-left: 4px solid #2196f3;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: 0 8px 8px 0;
+    }
+    .doi-lookup-section .input-group {
+        max-width: 100%;
+    }
+    .doi-lookup-section .form-control-lg {
+        font-size: 1.1rem;
+    }
+    .field-highlight {
+        animation: highlightFade 2s ease-out;
+    }
+    @keyframes highlightFade {
+        0% { background-color: #d4edda; border-color: #28a745; }
+        100% { background-color: white; border-color: #ced4da; }
+    }
+    /* NEW: OA Compliance Section Styles */
+    .oa-compliance-section {
+        background-color: #e8f5e9;
+        border-left: 4px solid #4caf50;
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 0 8px 8px 0;
+    }
+    .ref-narrative-section {
+        background-color: #fff8e1;
+        border-left: 4px solid #ff9800;
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 0 8px 8px 0;
+    }
+    .word-count {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    .word-count.warning {
+        color: #dc3545;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">
+            <i class="fas fa-file-alt"></i>
+            {{ form.instance.pk|yesno:"Edit,Add" }} Output
+        </h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'output_list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    
+                    {# ========== NEW: DOI Auto-Fill Section ========== #}
+                    {% if not form.instance.pk %}
+                    <div class="doi-lookup-section">
+                        <h5 class="mb-3">
+                            <i class="fas fa-magic text-primary"></i>
+                            Intelligent Output Entry
+                        </h5>
+                        <p class="text-muted small mb-3">
+                            Enter a DOI to automatically fetch publication metadata from OpenAlex. 
+                            This reduces data entry errors and ensures accurate bibliographic information.
+                        </p>
+                        
+                        <div class="input-group mb-2">
+                            <span class="input-group-text bg-white">
+                                <i class="fas fa-fingerprint text-primary"></i>
+                            </span>
+                            <input type="text" 
+                                   id="doi-lookup-input" 
+                                   class="form-control form-control-lg" 
+                                   placeholder="Paste DOI here (e.g., 10.1038/s41586-020-2012-7)"
+                                   aria-label="DOI for metadata lookup">
+                            <button type="button" 
+                                    id="doi-fetch-btn" 
+                                    class="btn btn-primary btn-lg px-4"
+                                    onclick="fetchDOIMetadata()">
+                                <i class="fas fa-cloud-download-alt me-1"></i>
+                                Auto-Fill
+                            </button>
+                        </div>
+                        
+                        <div id="doi-loading" class="text-center mt-3 d-none">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 text-muted">
+                                <i class="fas fa-globe me-1"></i>
+                                Querying global research database...
+                            </p>
+                        </div>
+                        
+                        <div id="doi-error" class="alert alert-danger mt-3 d-none" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span id="doi-error-message"></span>
+                        </div>
+                        
+                        <div id="doi-success" class="alert alert-success mt-3 d-none" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span id="doi-success-message"></span>
+                        </div>
+                        
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Works with journal articles, book chapters, and conference papers.
+                            Book chapters may require manual entry if they share the book's DOI.
+                        </small>
+                    </div>
+                    {% endif %}
+                    {# ========== END DOI Auto-Fill Section ========== #}
+                    
+                    <form method="post" enctype="multipart/form-data" id="outputForm">
+                        {% csrf_token %}
+                        
+                        {% if 'bibtex_entry' in form.fields %}
+                        {# BibTeX Import Section - Only shown for new outputs #}
+                        <div class="bibtex-section">
+                            <h5>
+                                <i class="fas fa-file-import"></i>
+                                Quick Import from BibTeX
+                            </h5>
+                            <p class="bibtex-help">
+                                <i class="fas fa-info-circle"></i>
+                                Paste a BibTeX entry below to automatically populate the form fields. 
+                                You can then review and modify the imported data before saving.
+                            </p>
+                            {{ form.bibtex_entry }}
+                            {% if form.bibtex_entry.errors %}
+                            <div class="alert alert-danger mt-2">
+                                {{ form.bibtex_entry.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <hr>
+                        {% endif %}
+                        
+                        {# Basic Information #}
+                        <h5 class="mb-3">
+                            <i class="fas fa-info-circle"></i>
+                            Basic Information
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.colleague|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.publication_type|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        {{ form.title|as_crispy_field }}
+                        
+                        {# Publication Details #}
+                        <h5 class="mb-3 mt-4">
+                            <i class="fas fa-book"></i>
+                            Publication Details
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.publication_year|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.publication_venue|as_crispy_field }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                {{ form.volume|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.issue|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.pages|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        {# Identifiers #}
+                        <h5 class="mb-3 mt-4">
+                            <i class="fas fa-fingerprint"></i>
+                            Identifiers
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                {{ form.doi|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.isbn|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.url|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        {# Authors #}
+                        <h5 class="mb-3 mt-4">
+                            <i class="fas fa-users"></i>
+                            Authors
+                        </h5>
+                        {{ form.all_authors|as_crispy_field }}
+                        {{ form.author_position|as_crispy_field }}
+                        
+                        {# REF Information #}
+                        <h5 class="mb-3 mt-4">
+                            <i class="fas fa-star"></i>
+                            REF Information
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.uoa|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.status|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        {# ========== O/S/R RATINGS SECTION - REF 2029 ========== #}
+                        <div class="card border-dark mb-4">
+                          <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">
+                              <i class="fas fa-chart-bar me-2"></i>
+                              Quality Ratings (O/S/R)
+                              <span class="badge bg-warning text-dark ms-2">REF 2029</span>
+                            </h5>
+                          </div>
+                          <div class="card-body">
+                            <p class="text-muted mb-4">
+                              Enter ratings using the REF 2029 three-component system. Each component is scored on a <strong>0.00-4.00</strong> scale.
+                              You can enter ratings from internal panel, critical friends, and self-assessment.
+                            </p>
+                            
+                            {# Internal Panel Ratings #}
+                            <div class="card border-primary mb-3">
+                              <div class="card-header bg-primary bg-opacity-10">
+                                <h6 class="mb-0 text-primary">
+                                  <i class="fas fa-users me-2"></i>Internal Panel Ratings
+                                </h6>
+                              </div>
+                              <div class="card-body">
+                                <div class="row">
+                                  <div class="col-md-4">
+                                    <div class="form-group">
+                                      <label class="form-label fw-bold">
+                                        <i class="fas fa-lightbulb text-warning me-1"></i>Originality
+                                      </label>
+                                      {{ form.originality_internal }}
+                                    </div>
+                                  </div>
+                                  <div class="col-md-4">
+                                    <div class="form-group">
+                                      <label class="form-label fw-bold">
+                                        <i class="fas fa-bullseye text-success me-1"></i>Significance
+                                      </label>
+                                      {{ form.significance_internal }}
+                                    </div>
+                                  </div>
+                                  <div class="col-md-4">
+                                    <div class="form-group">
+                                      <label class="form-label fw-bold">
+                                        <i class="fas fa-microscope text-info me-1"></i>Rigour
+                                      </label>
+                                      {{ form.rigour_internal }}
+                                    </div>
+                                  </div>
+                                </div>
+                                {% if form.instance.pk and form.instance.osr_internal_average %}
+                                <div class="mt-2 text-end">
+                                  <span class="badge bg-primary">Avg: {{ form.instance.osr_internal_average|floatformat:2 }}</span>
+                                </div>
+                                {% endif %}
+                              </div>
+                            </div>
+                            
+                            {# Critical Friend Ratings #}
+                            <div class="card border-warning mb-3">
+                              <div class="card-header bg-warning bg-opacity-10">
+                                <h6 class="mb-0 text-warning">
+                                  <i class="fas fa-user-tie me-2"></i>Critical Friend Ratings
+                                </h6>
+                              </div>
+                              <div class="card-body">
+                                <div class="row">
+                                  <div class="col-md-4">
+                                    <div class="form-group">
+                                      <label class="form-label fw-bold">
+                                        <i class="fas fa-lightbulb text-warning me-1"></i>Originality
+                                      </label>
+                                      {{ form.originality_external }}
+                                    </div>
+                                  </div>
+                                  <div class="col-md-4">
+                                    <div class="form-group">
+                                      <label class="form-label fw-bold">
+                                        <i class="fas fa-bullseye text-success me-1"></i>Significance
+                                      </label>
+                                      {{ form.significance_external }}
+                                    </div>
+                                  </div>
+                                  <div class="col-md-4">
+                                    <div class="form-group">
+                                      <label class="form-label fw-bold">
+                                        <i class="fas fa-microscope text-info me-1"></i>Rigour
+                                      </label>
+                                      {{ form.rigour_external }}
+                                    </div>
+                                  </div>
+                                </div>
+                                {% if form.instance.pk and form.instance.osr_external_average %}
+                                <div class="mt-2 text-end">
+                                  <span class="badge bg-warning text-dark">Avg: {{ form.instance.osr_external_average|floatformat:2 }}</span>
+                                </div>
+                                {% endif %}
+                              </div>
+                            </div>
+                            
+                            {# Self-Assessment Ratings #}
+                            <div class="card border-success mb-3">
+                              <div class="card-header bg-success bg-opacity-10">
+                                <h6 class="mb-0 text-success">
+                                  <i class="fas fa-user me-2"></i>Self-Assessment Ratings
+                                </h6>
+                              </div>
+                              <div class="card-body">
+                                <div class="row">
+                                  <div class="col-md-4">
+                                    <div class="form-group">
+                                      <label class="form-label fw-bold">
+                                        <i class="fas fa-lightbulb text-warning me-1"></i>Originality
+                                      </label>
+                                      {{ form.originality_self }}
+                                    </div>
+                                  </div>
+                                  <div class="col-md-4">
+                                    <div class="form-group">
+                                      <label class="form-label fw-bold">
+                                        <i class="fas fa-bullseye text-success me-1"></i>Significance
+                                      </label>
+                                      {{ form.significance_self }}
+                                    </div>
+                                  </div>
+                                  <div class="col-md-4">
+                                    <div class="form-group">
+                                      <label class="form-label fw-bold">
+                                        <i class="fas fa-microscope text-info me-1"></i>Rigour
+                                      </label>
+                                      {{ form.rigour_self }}
+                                    </div>
+                                  </div>
+                                </div>
+                                {% if form.instance.pk and form.instance.osr_self_average %}
+                                <div class="mt-2 text-end">
+                                  <span class="badge bg-success">Avg: {{ form.instance.osr_self_average|floatformat:2 }}</span>
+                                </div>
+                                {% endif %}
+                              </div>
+                            </div>
+                            
+                            {# Combined Averages Summary #}
+                            {% if form.instance.pk %}
+                            <div class="row mt-3">
+                              <div class="col-md-6">
+                                <div class="p-3 bg-light rounded text-center">
+                                  <small class="text-muted d-block">Combined Average (excl. self)</small>
+                                  <span class="h4 {% if form.instance.osr_combined_average_no_self %}text-primary{% else %}text-muted{% endif %}">
+                                    {% if form.instance.osr_combined_average_no_self %}
+                                      {{ form.instance.osr_combined_average_no_self|floatformat:2 }}
+                                    {% else %}
+                                      —
+                                    {% endif %}
+                                  </span>
+                                </div>
+                              </div>
+                              <div class="col-md-6">
+                                <div class="p-3 bg-light rounded text-center">
+                                  <small class="text-muted d-block">Combined Average (all sources)</small>
+                                  <span class="h4 {% if form.instance.osr_combined_average %}text-success{% else %}text-muted{% endif %}">
+                                    {% if form.instance.osr_combined_average %}
+                                      {{ form.instance.osr_combined_average|floatformat:2 }}
+                                    {% else %}
+                                      —
+                                    {% endif %}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            {% endif %}
+                            
+                            {# Rating Guide #}
+                            <div class="mt-3 p-2 bg-light rounded">
+                              <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                <strong>Rating Guide:</strong> 
+                                4★ (3.50-4.00) World-leading |
+                                3★ (2.50-3.49) Internationally excellent |
+                                2★ (1.50-2.49) Internationally recognized |
+                                1★ (0.50-1.49) Nationally recognized |
+                                U (0.00-0.49) Unclassified
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {# Flags #}
+                        <h5 class="mb-3 mt-4">
+                            <i class="fas fa-flag"></i>
+                            Output Characteristics
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                {{ form.is_double_weighted|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.is_interdisciplinary|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.is_open_access|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        {# ========== NEW: OA Compliance Section ========== #}
+                        <div class="oa-compliance-section">
+                            <h6>
+                                <i class="fas fa-unlock-alt"></i>
+                                Open Access Compliance
+                                <span class="badge bg-info ms-2">REF 2029</span>
+                            </h6>
+                            <p class="small text-muted mb-3">
+                                Track Open Access compliance for REF submission. 
+                                The 3-month deposit rule requires outputs to be deposited within 3 months of acceptance.
+                            </p>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    {{ form.oa_status|as_crispy_field }}
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form.oa_exception|as_crispy_field }}
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form.citation_count|as_crispy_field }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    {{ form.acceptance_date|as_crispy_field }}
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form.deposit_date|as_crispy_field }}
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form.embargo_end_date|as_crispy_field }}
+                                </div>
+                            </div>
+                            
+                            {{ form.oa_compliance_notes|as_crispy_field }}
+                            
+                            {% if form.instance.pk and form.instance.acceptance_date and form.instance.deposit_date %}
+                            <div class="mt-3 p-2 bg-white rounded">
+                                <strong>Compliance Status:</strong>
+                                {{ form.instance.get_compliance_status_display }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {# ========== END OA Compliance Section ========== #}
+                        
+                        {# ========== NEW: REF Narrative Statements ========== #}
+                        <div class="ref-narrative-section">
+                            <h6>
+                                <i class="fas fa-file-alt"></i>
+                                REF Narrative Statements
+                                <span class="badge bg-warning text-dark ms-2">Required if applicable</span>
+                            </h6>
+                            <p class="small text-muted mb-3">
+                                These statements are required for double-weighted and interdisciplinary outputs.
+                            </p>
+                            
+                            <div class="mb-3">
+                                {{ form.double_weighting_statement|as_crispy_field }}
+                                <div class="word-count" id="double-weight-count">
+                                    <span id="double-weight-words">0</span>/300 words
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.interdisciplinary_statement|as_crispy_field }}
+                                <div class="word-count" id="interdisciplinary-count">
+                                    <span id="interdisciplinary-words">0</span>/500 words
+                                </div>
+                            </div>
+                        </div>
+                        {# ========== END REF Narrative Statements ========== #}
+                        
+                        {# Files #}
+                        <h5 class="mb-3 mt-4">
+                            <i class="fas fa-file-pdf"></i>
+                            Files
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.pdf_file|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.supplementary_file|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        {# Additional Information #}
+                        <h5 class="mb-3 mt-4">
+                            <i class="fas fa-align-left"></i>
+                            Additional Information
+                        </h5>
+                        {{ form.abstract|as_crispy_field }}
+                        {{ form.keywords|as_crispy_field }}
+                        {{ form.internal_notes|as_crispy_field }}
+                        
+                        <hr class="my-4">
+                        
+                        {# Submit Buttons #}
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                {{ form.instance.pk|yesno:"Update,Create" }} Output
+                            </button>
+                            <a href="{% url 'output_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ========== DOI Metadata Fetch Function ==========
+function fetchDOIMetadata() {
+    const doiInput = document.getElementById('doi-lookup-input');
+    const loadingEl = document.getElementById('doi-loading');
+    const errorEl = document.getElementById('doi-error');
+    const errorMsgEl = document.getElementById('doi-error-message');
+    const successEl = document.getElementById('doi-success');
+    const successMsgEl = document.getElementById('doi-success-message');
+    const fetchBtn = document.getElementById('doi-fetch-btn');
+    
+    const doi = doiInput.value.trim();
+    
+    // Reset UI state
+    errorEl.classList.add('d-none');
+    successEl.classList.add('d-none');
+    
+    // Validation
+    if (!doi) {
+        errorMsgEl.textContent = 'Please enter a DOI before clicking Auto-Fill.';
+        errorEl.classList.remove('d-none');
+        doiInput.focus();
+        return;
+    }
+    
+    // Basic DOI format check
+    const doiPattern = /^(https?:\/\/doi\.org\/)?10\.\d{4,}/;
+    if (!doiPattern.test(doi)) {
+        errorMsgEl.textContent = 'Invalid DOI format. DOIs typically start with "10." followed by numbers.';
+        errorEl.classList.remove('d-none');
+        doiInput.focus();
+        return;
+    }
+    
+    // Show loading state
+    loadingEl.classList.remove('d-none');
+    fetchBtn.disabled = true;
+    fetchBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Fetching...';
+    
+    // Make API request
+    fetch(`{% url 'fetch_doi_metadata' %}?doi=${encodeURIComponent(doi)}`)
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            const meta = data.data;
+            
+            // Field mapping
+            const fieldMappings = {
+                'id_title': meta.title,
+                'id_publication_year': meta.publication_year,
+                'id_publication_venue': meta.publication_venue,
+                'id_doi': doi.replace(/^https?:\/\/doi\.org\//i, ''),
+                'id_volume': meta.volume,
+                'id_issue': meta.issue,
+                'id_pages': meta.pages,
+                'id_all_authors': meta.all_authors,
+                'id_citation_count': meta.citation_count,
+                'id_url': meta.doi_url,
+                'id_abstract': meta.abstract,
+                'id_keywords': meta.keywords,
+            };
+            
+            let populatedCount = 0;
+            
+            // Populate text/number fields
+            for (const [fieldId, value] of Object.entries(fieldMappings)) {
+                const field = document.getElementById(fieldId);
+                if (field && value !== null && value !== undefined && value !== '') {
+                    field.value = value;
+                    populatedCount++;
+                    
+                    // Visual feedback
+                    field.classList.add('field-highlight');
+                    setTimeout(() => field.classList.remove('field-highlight'), 2000);
+                }
+            }
+            
+            // Handle OA status dropdown
+            const oaField = document.getElementById('id_oa_status');
+            console.log('OA Debug - Field:', oaField, 'API Status:', meta.oa_status);
+            if (oaField && meta.oa_status) {
+                // Try direct value assignment first
+                oaField.value = meta.oa_status;
+                
+                // Verify it worked
+                if (oaField.value === meta.oa_status) {
+                    populatedCount++;
+                    oaField.classList.add('field-highlight');
+                    setTimeout(() => oaField.classList.remove('field-highlight'), 2000);
+                    console.log('OA Debug - Set successfully to:', meta.oa_status);
+                } else {
+                    // Fallback: iterate through options
+                    console.log('OA Debug - Direct set failed, trying loop. Options:', Array.from(oaField.options).map(o => o.value));
+                    for (let option of oaField.options) {
+                        if (option.value.toLowerCase() === meta.oa_status.toLowerCase()) {
+                            oaField.value = option.value;
+                            populatedCount++;
+                            oaField.classList.add('field-highlight');
+                            setTimeout(() => oaField.classList.remove('field-highlight'), 2000);
+                            console.log('OA Debug - Set via loop to:', option.value);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Handle is_open_access checkbox (based on is_oa from API)
+            const oaCheckbox = document.getElementById('id_is_open_access');
+            if (oaCheckbox && meta.is_oa !== undefined) {
+                oaCheckbox.checked = meta.is_oa;
+                if (meta.is_oa) {
+                    populatedCount++;
+                    oaCheckbox.parentElement.classList.add('field-highlight');
+                    setTimeout(() => oaCheckbox.parentElement.classList.remove('field-highlight'), 2000);
+                }
+                console.log('OA Debug - Checkbox set to:', meta.is_oa);
+            }
+            
+            // Handle publication type dropdown
+            const typeField = document.getElementById('id_publication_type');
+            if (typeField && meta.publication_type) {
+                for (let option of typeField.options) {
+                    if (option.value === meta.publication_type) {
+                        typeField.value = meta.publication_type;
+                        populatedCount++;
+                        typeField.classList.add('field-highlight');
+                        setTimeout(() => typeField.classList.remove('field-highlight'), 2000);
+                        break;
+                    }
+                }
+            }
+            
+            // Show success message
+            const shortTitle = meta.title ? 
+                (meta.title.length > 60 ? meta.title.substring(0, 60) + '...' : meta.title) : 
+                'Unknown title';
+            
+            successMsgEl.innerHTML = `
+                <strong>Metadata imported!</strong><br>
+                <span class="small">
+                    "${shortTitle}"<br>
+                    ${populatedCount} fields populated | 
+                    ${meta.citation_count || 0} citations | 
+                    OA: ${meta.oa_status || 'unknown'}
+                </span>
+            `;
+            successEl.classList.remove('d-none');
+            
+        })
+        .catch(error => {
+            console.error('DOI fetch error:', error);
+            errorMsgEl.textContent = error.message || 'Failed to fetch metadata. Please try again or enter details manually.';
+            errorEl.classList.remove('d-none');
+        })
+        .finally(() => {
+            loadingEl.classList.add('d-none');
+            fetchBtn.disabled = false;
+            fetchBtn.innerHTML = '<i class="fas fa-cloud-download-alt me-1"></i>Auto-Fill';
+        });
+}
+
+// Allow Enter key to trigger fetch
+document.getElementById('doi-lookup-input')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        fetchDOIMetadata();
+    }
+});
+
+// ========== Word Count Functions ==========
+function updateWordCount(textareaId, counterId, maxWords) {
+    const textarea = document.getElementById(textareaId);
+    const counter = document.getElementById(counterId);
+    
+    if (textarea && counter) {
+        textarea.addEventListener('input', function() {
+            const words = this.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+            counter.textContent = words;
+            
+            const counterParent = counter.parentElement;
+            if (words > maxWords) {
+                counterParent.classList.add('warning');
+            } else {
+                counterParent.classList.remove('warning');
+            }
+        });
+        
+        // Initial count
+        const words = textarea.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+        counter.textContent = words;
+    }
+}
+
+// ========== BibTeX Preview ==========
+document.addEventListener('DOMContentLoaded', function() {
+    const bibtexField = document.querySelector('textarea[name="bibtex_entry"]');
+    
+    if (bibtexField) {
+        bibtexField.addEventListener('change', function() {
+            if (this.value.trim()) {
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-info mt-2';
+                alert.innerHTML = '<i class="fas fa-info-circle"></i> BibTeX entry detected. Form fields will be auto-populated when you save.';
+                
+                const existingAlert = this.parentElement.querySelector('.alert-info');
+                if (existingAlert) {
+                    existingAlert.remove();
+                }
+                
+                this.parentElement.appendChild(alert);
+            }
+        });
+    }
+    
+    // Initialize word counters
+    updateWordCount('id_double_weighting_statement', 'double-weight-words', 300);
+    updateWordCount('id_interdisciplinary_statement', 'interdisciplinary-words', 500);
+    
+    // Auto-focus DOI input for new outputs
+    const doiInput = document.getElementById('doi-lookup-input');
+    if (doiInput && !document.querySelector('input[name="doi"]')?.value) {
+        doiInput.focus();
+    }
+});
+</script>
+{% endblock %}

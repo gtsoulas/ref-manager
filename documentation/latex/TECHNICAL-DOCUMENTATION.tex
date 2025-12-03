@@ -4,52 +4,45 @@
 \usepackage{geometry}
 \usepackage{hyperref}
 \usepackage{booktabs}
-\usepackage{longtable}
 \usepackage{xcolor}
 \usepackage{fancyhdr}
 \usepackage{listings}
-\usepackage{tcolorbox}
 
 \geometry{margin=2.5cm}
 
 \definecolor{refblue}{RGB}{0,82,147}
-\definecolor{codebg}{RGB}{248,248,248}
-\definecolor{codeframe}{RGB}{200,200,200}
-\definecolor{pythonblue}{RGB}{0,0,255}
-\definecolor{pythongreen}{RGB}{0,128,0}
+\definecolor{codebg}{RGB}{245,245,245}
+
+\lstset{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{gray},
+}
 
 \hypersetup{
     colorlinks=true,
     linkcolor=refblue,
     urlcolor=refblue,
     pdftitle={REF-Manager Technical Documentation},
-}
-
-\lstset{
-    basicstyle=\ttfamily\footnotesize,
-    backgroundcolor=\color{codebg},
-    frame=single,
-    rulecolor=\color{codeframe},
-    breaklines=true,
-    columns=fullflexible,
-    keywordstyle=\color{pythonblue},
-    commentstyle=\color{pythongreen},
-    language=Python
+    pdfauthor={George Tsoulas},
 }
 
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\textit{REF-Manager Technical Documentation}}
-\fancyhead[R]{\textit{Version 3.0}}
+\fancyhead[R]{\textit{Version 4.0}}
 \fancyfoot[C]{\thepage}
 
 \title{
-    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.5cm]
+    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.3cm]
     {\LARGE Technical Documentation}\\[0.3cm]
-    {\large Developer and Administrator Reference}
+    {\large Developer and Administrator Reference}\\[0.5cm]
+    {\large Version 4.0.0}
 }
-\author{University of York}
-\date{November 2024}
+\author{George Tsoulas\\University of York}
+\date{December 2025}
 
 \begin{document}
 
@@ -65,285 +58,202 @@
 \centering
 \begin{tabular}{ll}
 \toprule
-\textbf{Layer} & \textbf{Technology} \\
+\textbf{Component} & \textbf{Technology} \\
 \midrule
-Backend & Django 4.2, Python 3.10+ \\
-Database & SQLite (dev), PostgreSQL (prod) \\
-Frontend & Bootstrap 4, Chart.js \\
-Forms & django-crispy-forms \\
-Export & openpyxl, custom LaTeX \\
-Server & Gunicorn, Nginx \\
-Container & Docker \\
+Framework & Django 4.2 LTS \\
+Language & Python 3.10+ \\
+Database & SQLite (dev) / PostgreSQL 15 (prod) \\
+Web Server & Nginx \\
+WSGI Server & Gunicorn \\
+Frontend & Bootstrap 5, Chart.js \\
 \bottomrule
 \end{tabular}
-\caption{Technology stack}
 \end{table}
 
-\subsection{Application Structure}
+\section{Server Deployment}
 
-The application follows Django's standard project structure with two main apps:
-
-\begin{itemize}
-    \item \textbf{core}: Main application with models, views, and templates
-    \item \textbf{reports}: Reporting, export, and portfolio optimisation
-\end{itemize}
-
-\section{Project Structure}
-
-\begin{lstlisting}[language=bash]
-ref-manager/
-|-- config/              # Django project settings
-|-- core/                # Main application
-|   |-- models.py        # Database models
-|   |-- views.py         # View controllers
-|   |-- forms.py         # Form definitions
-|   |-- templates/       # HTML templates
-|   |-- management/      # Management commands
-|   +-- migrations/      # Database migrations
-|-- reports/             # Reporting module
-|-- templates/           # Base templates
-|-- static/              # Static assets
-|-- documentation/       # Documentation
-|-- docker-compose.yml   # Docker configuration
-+-- requirements.txt     # Python dependencies
-\end{lstlisting}
-
-\section{Database Schema}
-
-\subsection{Core Models}
-
-\subsubsection{Colleague Model}
+\subsection{System Packages}
 
 \begin{lstlisting}
-class Colleague(models.Model):
-    user = models.OneToOneField(User)
-    staff_id = models.CharField(max_length=50, unique=True)
-    fte = models.DecimalField(max_digits=3, decimal_places=2)
-    contract_type = models.CharField(max_length=50)
-    employment_status = models.CharField(max_length=10)
-    colleague_category = models.CharField(max_length=50)
-    unit_of_assessment = models.CharField(max_length=100)
-    is_returnable = models.BooleanField(default=True)
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y \
+    python3.12 python3.12-venv \
+    postgresql postgresql-contrib \
+    nginx certbot python3-certbot-nginx git
 \end{lstlisting}
 
-\subsubsection{Output Model}
+\subsection{PostgreSQL Setup}
 
 \begin{lstlisting}
-class Output(models.Model):
-    colleague = models.ForeignKey(Colleague)
-    title = models.CharField(max_length=500)
-    publication_type = models.CharField(max_length=1)
-    publication_year = models.IntegerField()
-    status = models.CharField(max_length=20)
-    
-    # Quality ratings
-    quality_rating_internal = models.CharField(max_length=2)
-    quality_rating_external = models.CharField(max_length=2)
-    quality_rating_self = models.CharField(max_length=2)
-    
-    # Risk fields
-    content_risk_score = models.DecimalField()
-    timeline_risk_score = models.DecimalField()
-    overall_risk_score = models.DecimalField()
+sudo -u postgres psql
+
+CREATE DATABASE ref_manager;
+CREATE USER ref_user WITH PASSWORD 'secure_password';
+GRANT ALL PRIVILEGES ON DATABASE ref_manager TO ref_user;
+\q
 \end{lstlisting}
 
-\subsubsection{Access Control Models}
+\subsection{Application Setup}
 
 \begin{lstlisting}
-class Role(models.Model):
-    ROLE_CHOICES = [
-        ('ADMIN', 'Administrator'),
-        ('OBSERVER', 'Observer'),
-        ('INTERNAL_PANEL', 'Internal Panel'),
-        ('COLLEAGUE', 'Colleague'),
-    ]
-    code = models.CharField(max_length=20, unique=True)
-    permissions = models.JSONField()
+sudo mkdir -p /var/www/ref-manager
+cd /var/www/ref-manager
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User)
-    roles = models.ManyToManyField(Role)
+git clone https://github.com/gtsoulas/ref-manager.git .
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+pip install gunicorn psycopg2-binary requests
+
+mkdir -p static media logs
 \end{lstlisting}
 
-\section{Configuration}
+\subsection{Environment Configuration}
 
-\subsection{Environment Variables}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{lll}
-\toprule
-\textbf{Variable} & \textbf{Description} & \textbf{Default} \\
-\midrule
-DJANGO\_SECRET\_KEY & Secret key & Required \\
-DEBUG & Debug mode & True \\
-ALLOWED\_HOSTS & Allowed hosts & localhost \\
-DB\_ENGINE & Database engine & sqlite3 \\
-DB\_NAME & Database name & db.sqlite3 \\
-DB\_USER & Database user & -- \\
-DB\_PASSWORD & Database password & -- \\
-\bottomrule
-\end{tabular}
-\caption{Environment variables}
-\end{table}
-
-\subsection{Production Settings}
+Create \texttt{/var/www/ref-manager/.env}:
 
 \begin{lstlisting}
-# Security settings
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_HSTS_SECONDS = 31536000
+DEBUG=False
+SECRET_KEY=your-secure-secret-key
+ALLOWED_HOSTS=your-domain.ac.uk
+DATABASE_URL=postgres://ref_user:password@localhost:5432/ref_manager
+STATIC_ROOT=/var/www/ref-manager/static
+MEDIA_ROOT=/var/www/ref-manager/media
 \end{lstlisting}
 
-\section{Management Commands}
+\subsection{Gunicorn Service}
 
-\subsection{setup\_roles}
+Create \texttt{/etc/systemd/system/gunicorn-ref-manager.service}:
 
-Create default roles and user profiles.
+\begin{lstlisting}
+[Unit]
+Description=Gunicorn daemon for REF-Manager
+After=network.target
 
-\begin{lstlisting}[language=bash]
-# Create roles only
-python manage.py setup_roles
+[Service]
+User=www-data
+WorkingDirectory=/var/www/ref-manager
+ExecStart=/var/www/ref-manager/venv/bin/gunicorn \
+    --bind 127.0.0.1:8000 \
+    --workers 4 \
+    config.wsgi:application
+Restart=always
 
-# Create profiles for existing users
-python manage.py setup_roles --create-profiles
-
-# Make superusers administrators
-python manage.py setup_roles --superusers-admin
+[Install]
+WantedBy=multi-user.target
 \end{lstlisting}
 
-\subsection{assign\_roles}
+Enable and start:
 
-Manage user role assignments.
+\begin{lstlisting}
+sudo systemctl daemon-reload
+sudo systemctl enable gunicorn-ref-manager
+sudo systemctl start gunicorn-ref-manager
+\end{lstlisting}
 
-\begin{lstlisting}[language=bash]
-# List all users and roles
-python manage.py assign_roles --list
+\subsection{Nginx Configuration}
 
-# Add role
-python manage.py assign_roles username --add ADMIN
+Create \texttt{/etc/nginx/sites-available/ref-manager}:
 
-# Set exact roles
-python manage.py assign_roles username --set ADMIN
+\begin{lstlisting}
+server {
+    listen 443 ssl http2;
+    server_name your-domain.ac.uk;
 
-# Remove role
-python manage.py assign_roles username --remove OBSERVER
+    ssl_certificate /etc/letsencrypt/live/.../fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/.../privkey.pem;
+
+    location /static/ {
+        alias /var/www/ref-manager/static/;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $http_host;
+    }
+}
+\end{lstlisting}
+
+\section{Database Schema (v4.0)}
+
+\subsection{New O/S/R Fields}
+
+\begin{lstlisting}[language=Python]
+# Self-Assessment
+originality_self = DecimalField(max_digits=3, decimal_places=2)
+significance_self = DecimalField(max_digits=3, decimal_places=2)
+rigour_self = DecimalField(max_digits=3, decimal_places=2)
+
+# Internal Panel
+originality_internal = DecimalField(...)
+significance_internal = DecimalField(...)
+rigour_internal = DecimalField(...)
+
+# External (Critical Friend)
+originality_external = DecimalField(...)
+significance_external = DecimalField(...)
+rigour_external = DecimalField(...)
+\end{lstlisting}
+
+\subsection{OA Compliance Fields}
+
+\begin{lstlisting}[language=Python]
+acceptance_date = DateField(null=True)
+deposit_date = DateField(null=True)
+embargo_end_date = DateField(null=True)
+oa_status = CharField(choices=OA_STATUS_CHOICES)
+oa_exception = CharField(choices=OA_EXCEPTION_CHOICES)
 \end{lstlisting}
 
 \section{API Reference}
 
-\subsection{View Mixins}
-
-\begin{lstlisting}
-from core.mixins import (
-    AdminRequiredMixin,
-    OutputAccessMixin,
-    CanEditMixin,
-)
-
-class MyView(AdminRequiredMixin, ListView):
-    model = Output
-\end{lstlisting}
-
-\subsection{Decorators}
-
-\begin{lstlisting}
-from core.decorators import (
-    admin_required,
-    permission_required,
-)
-
-@admin_required
-def admin_view(request):
-    pass
-
-@permission_required('can_export_data')
-def export_view(request):
-    pass
-\end{lstlisting}
-
-\subsection{Template Tags}
-
-\begin{lstlisting}[language=html]
-{% load ref_permissions %}
-
-{% if output|can_edit:user.ref_profile %}
-    <a href="...">Edit</a>
-{% endif %}
-
-{% if user.ref_profile|has_permission:'can_export_data' %}
-    <a href="...">Export</a>
-{% endif %}
-\end{lstlisting}
-
-\section{Deployment}
-
-\subsection{Docker Deployment}
-
-\begin{lstlisting}[language=bash]
-# Build and start
-docker-compose up -d --build
-
-# Run migrations
-docker-compose exec web python manage.py migrate
-
-# Create superuser
-docker-compose exec web python manage.py createsuperuser
-\end{lstlisting}
-
-\subsection{Traditional Deployment}
-
-\begin{lstlisting}[language=bash]
-# Install dependencies
-pip install -r requirements.txt
-pip install gunicorn psycopg2-binary
-
-# Run with Gunicorn
-gunicorn config.wsgi:application \
-    --bind 0.0.0.0:8000 \
-    --workers 3
-\end{lstlisting}
-
-\section{Security}
-
-\subsection{Production Checklist}
+\subsection{DOI Metadata Endpoint}
 
 \begin{itemize}
-    \item DEBUG = False
-    \item Secure SECRET\_KEY
-    \item HTTPS enforced
-    \item Database password set
-    \item ALLOWED\_HOSTS configured
-    \item CSRF protection enabled
-    \item Session cookies secure
+    \item \textbf{URL}: \texttt{/outputs/fetch-doi/}
+    \item \textbf{Method}: GET
+    \item \textbf{Parameter}: \texttt{doi} -- DOI to look up
 \end{itemize}
 
-\section{Maintenance}
+Response:
+\begin{lstlisting}
+{
+  "success": true,
+  "data": {
+    "title": "Paper Title",
+    "publication_year": 2024,
+    "all_authors": "Smith, J., Jones, A.",
+    "oa_status": "gold"
+  }
+}
+\end{lstlisting}
+
+\section{Backup \& Recovery}
 
 \subsection{Database Backup}
 
-\begin{lstlisting}[language=bash]
-# PostgreSQL backup
-pg_dump -U refuser refmanager > backup.sql
-
-# Restore
-psql -U refuser refmanager < backup.sql
+\begin{lstlisting}
+pg_dump -U ref_user ref_manager > backup.sql
 \end{lstlisting}
 
-\subsection{Log Locations}
+\subsection{Restore}
+
+\begin{lstlisting}
+psql -U ref_user ref_manager < backup.sql
+\end{lstlisting}
+
+\section{Contact}
 
 \begin{itemize}
-    \item Application: \texttt{/var/log/ref-manager/gunicorn.log}
-    \item Nginx: \texttt{/var/log/nginx/}
-    \item PostgreSQL: \texttt{/var/log/postgresql/}
+    \item \textbf{Author}: George Tsoulas
+    \item \textbf{Email}: george.tsoulas@york.ac.uk
+    \item \textbf{GitHub}: https://github.com/gtsoulas/ref-manager
 \end{itemize}
 
 \vfill
 \begin{center}
-\rule{0.5\textwidth}{0.4pt}\\[0.3cm]
-{\small REF-Manager v3.0.0 --- GNU General Public License v3.0}
+{\small REF-Manager v4.0.0 Technical Documentation}\\
+{\small George Tsoulas, University of York}
 \end{center}
 
 \end{document}

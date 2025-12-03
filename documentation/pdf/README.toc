@@ -1,0 +1,12 @@
+\contentsline {section}{\numberline {1}Overview}{2}{section.1}%
+\contentsline {section}{\numberline {2}What's New in Version 4.0}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}O/S/R Rating System}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}DOI Auto-Fetch}{2}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Enhanced Bulk Import}{2}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Open Access Compliance}{2}{subsection.2.4}%
+\contentsline {section}{\numberline {3}System Requirements}{3}{section.3}%
+\contentsline {section}{\numberline {4}Quick Installation}{3}{section.4}%
+\contentsline {section}{\numberline {5}O/S/R Rating Scale}{3}{section.5}%
+\contentsline {section}{\numberline {6}Documentation}{3}{section.6}%
+\contentsline {section}{\numberline {7}License}{3}{section.7}%
+\contentsline {section}{\numberline {8}Contact}{4}{section.8}%

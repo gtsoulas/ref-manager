@@ -7,43 +7,40 @@
 \usepackage{xcolor}
 \usepackage{fancyhdr}
 \usepackage{listings}
-\usepackage{tcolorbox}
 
 \geometry{margin=2.5cm}
 
 \definecolor{refblue}{RGB}{0,82,147}
-\definecolor{codebg}{RGB}{248,248,248}
-\definecolor{warnbg}{RGB}{255,243,205}
-\definecolor{warnframe}{RGB}{255,193,7}
+\definecolor{codebg}{RGB}{245,245,245}
+
+\lstset{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+}
 
 \hypersetup{
     colorlinks=true,
     linkcolor=refblue,
     urlcolor=refblue,
     pdftitle={REF-Manager Troubleshooting},
-}
-
-\lstset{
-    basicstyle=\ttfamily\small,
-    backgroundcolor=\color{codebg},
-    frame=single,
-    breaklines=true,
-    columns=fullflexible
+    pdfauthor={George Tsoulas},
 }
 
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\textit{REF-Manager Troubleshooting}}
-\fancyhead[R]{\textit{Version 3.0}}
+\fancyhead[R]{\textit{Version 4.0}}
 \fancyfoot[C]{\thepage}
 
 \title{
-    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.5cm]
-    {\LARGE Troubleshooting Guide}\\[0.3cm]
-    {\large Common Issues and Solutions}
+    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.3cm]
+    {\LARGE Troubleshooting Guide}\\[0.5cm]
+    {\large Version 4.0.0}
 }
-\author{University of York}
-\date{November 2024}
+\author{George Tsoulas\\University of York}
+\date{December 2025}
 
 \begin{document}
 
@@ -53,153 +50,143 @@
 
 \section{Installation Issues}
 
-\subsection{``No module named 'django'''}
+\subsection{``No module named 'requests'''}
 
-\begin{tcolorbox}[colback=warnbg, colframe=warnframe, title=Problem]
-Python can't find Django.
-\end{tcolorbox}
-
-\textbf{Solution:}
 \begin{lstlisting}
-# Activate virtual environment first
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
-
-# Then run your command
-python manage.py runserver
+pip install requests
 \end{lstlisting}
 
-\subsection{``Port 8000 already in use''}
+\subsection{Virtual environment not activating}
 
-\textbf{Solutions:}
 \begin{lstlisting}
-# Option 1: Use different port
-python manage.py runserver 8080
+# Linux/Mac
+source venv/bin/activate
 
-# Option 2: Find and kill the process
-lsof -i :8000
-kill <PID>
-\end{lstlisting}
-
-\subsection{Migration Errors}
-
-\textbf{Solution:}
-\begin{lstlisting}
-python manage.py makemigrations
-python manage.py migrate
-
-# If that fails:
-python manage.py migrate --run-syncdb
-\end{lstlisting}
-
-\section{Role and Permission Issues}
-
-\subsection{``Role 'X' does not exist''}
-
-\textbf{Solution:}
-\begin{lstlisting}
-python manage.py setup_roles
-\end{lstlisting}
-
-\subsection{``User has no profile''}
-
-\textbf{Solution:}
-\begin{lstlisting}
-python manage.py setup_roles --create-profiles
-\end{lstlisting}
-
-\subsection{Wrong Permissions}
-
-\textbf{Solution:}
-\begin{lstlisting}
-# Check current roles
-python manage.py assign_roles username --show
-
-# Add correct role
-python manage.py assign_roles username --add ADMIN
+# Windows
+venv\Scripts\activate
 \end{lstlisting}
 
 \section{Database Issues}
 
-\subsection{SQLite ``database is locked''}
-
-\textbf{Solutions:}
-\begin{enumerate}
-    \item Wait and retry
-    \item Restart the server
-    \item Switch to PostgreSQL for production
-\end{enumerate}
-
-\subsection{PostgreSQL Connection Refused}
+\subsection{``table already exists'' during migration}
 
 \begin{lstlisting}
-# Check if PostgreSQL is running
-sudo systemctl status postgresql
+# Fake initial migration
+python manage.py migrate --fake-initial
 
-# Start if needed
-sudo systemctl start postgresql
+# Or fake all core migrations
+python manage.py migrate core --fake
 
-# Test connection
-psql -U refuser -h localhost refmanager
-\end{lstlisting}
-
-\section{Static Files Issues}
-
-\subsection{CSS/JS Not Loading}
-
-\begin{lstlisting}
-# Collect static files
-python manage.py collectstatic --clear
-\end{lstlisting}
-
-\section{Common Error Messages}
-
-\subsection{``CSRF verification failed''}
-
-\textbf{Solutions:}
-\begin{itemize}
-    \item Ensure csrf\_token is in forms
-    \item Check CSRF\_TRUSTED\_ORIGINS setting
-    \item Clear browser cookies
-\end{itemize}
-
-\subsection{``OperationalError: no such column''}
-
-\begin{lstlisting}
-python manage.py makemigrations
+# Then apply new migrations
+python manage.py makemigrations core
 python manage.py migrate
 \end{lstlisting}
 
-\subsection{``TemplateDoesNotExist''}
-
-\textbf{Check:}
-\begin{itemize}
-    \item Template file exists
-    \item Template directory in settings
-    \item No typos in template name
-\end{itemize}
-
-\section{Getting More Help}
-
-\subsection{Enable Debug Mode}
+\subsection{``no such column'' error}
 
 \begin{lstlisting}
-# In settings.py
-DEBUG = True
+python manage.py showmigrations core
+python manage.py makemigrations core
+python manage.py migrate
 \end{lstlisting}
 
-\subsection{Django System Check}
+\section{DOI Auto-Fetch Issues}
+
+\subsection{``DOI not found in OpenAlex database''}
+
+\begin{enumerate}
+    \item Check DOI format -- should start with \texttt{10.}
+    \item Test API directly:
+\begin{lstlisting}
+curl "https://api.openalex.org/works/doi:10.1038/nature12373"
+\end{lstlisting}
+    \item Very recent DOIs may not be indexed yet
+\end{enumerate}
+
+\subsection{Connection timeout}
+
+\begin{enumerate}
+    \item Check internet connection
+    \item Check firewall/proxy settings
+    \item OpenAlex API must be accessible
+\end{enumerate}
+
+\section{Server Deployment Issues}
+
+\subsection{502 Bad Gateway}
 
 \begin{lstlisting}
-python manage.py check
+# Check Gunicorn status
+sudo systemctl status gunicorn-ref-manager
+
+# View logs
+sudo journalctl -u gunicorn-ref-manager -n 50
+
+# Restart
+sudo systemctl restart gunicorn-ref-manager
+\end{lstlisting}
+
+\subsection{Static files not loading}
+
+\begin{lstlisting}
+python manage.py collectstatic --noinput
+sudo systemctl restart nginx
+\end{lstlisting}
+
+\subsection{CSRF verification failed}
+
+Add to settings:
+\begin{lstlisting}[language=Python]
+CSRF_TRUSTED_ORIGINS = [
+    'https://your-domain.ac.uk',
+]
+\end{lstlisting}
+
+\subsection{Permission denied}
+
+\begin{lstlisting}
+sudo chown -R www-data:www-data /var/www/ref-manager
+sudo chmod -R 755 /var/www/ref-manager
+\end{lstlisting}
+
+\section{Log Files}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Log} & \textbf{Location} \\
+\midrule
+Django & \texttt{/var/www/ref-manager/logs/django.log} \\
+Gunicorn & \texttt{/var/www/ref-manager/logs/gunicorn-*.log} \\
+Nginx & \texttt{/var/log/nginx/ref-manager-*.log} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Health Check Commands}
+
+\begin{lstlisting}
+# Check services
+sudo systemctl status gunicorn-ref-manager nginx postgresql
+
+# Test database
+python manage.py dbshell
+
+# Check for issues
 python manage.py check --deploy
 \end{lstlisting}
 
-\subsection{Contact}
+\section{Getting Help}
 
 \begin{itemize}
-    \item \textbf{Email}: george.tsoulas@york.ac.uk
-    \item \textbf{GitHub}: https://github.com/gtsoulas/ref-manager
+    \item Email: george.tsoulas@york.ac.uk
+    \item GitHub: https://github.com/gtsoulas/ref-manager
 \end{itemize}
+
+\vfill
+\begin{center}
+{\small REF-Manager v4.0.0 -- George Tsoulas, University of York}
+\end{center}
 
 \end{document}

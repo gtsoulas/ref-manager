@@ -1,63 +1,74 @@
-# REF-Manager Documentation
-# Version 3.0.0 - November 2024
+REF-Manager Documentation
+=========================
 
-## Directory Structure
+Version 4.0.0 "REF 2029 Ready"
+December 2025
 
-documentation/
-├── md/                    # Markdown format (for reading/editing)
-│   ├── README.md
-│   ├── QUICK-START-GUIDE.md
-│   ├── USER-GUIDE.md
-│   ├── TECHNICAL-DOCUMENTATION.md
-│   ├── TROUBLESHOOTING.md
-│   ├── CHANGELOG.md
-│   └── DOCUMENTATION-INDEX.md
-│
-├── latex/                 # LaTeX source files
-│   ├── README.tex
-│   ├── QUICK-START-GUIDE.tex
-│   ├── USER-GUIDE.tex
-│   ├── TECHNICAL-DOCUMENTATION.tex
-│   ├── TROUBLESHOOTING.tex
-│   ├── CHANGELOG.tex
-│   └── DOCUMENTATION-INDEX.tex
-│
-└── pdf/                   # PDF format (for distribution)
-    ├── README.pdf
-    ├── QUICK-START-GUIDE.pdf
-    ├── USER-GUIDE.pdf
-    ├── TECHNICAL-DOCUMENTATION.pdf
-    ├── TROUBLESHOOTING.pdf
-    ├── CHANGELOG.pdf
-    └── DOCUMENTATION-INDEX.pdf
+Author: George Tsoulas
+Institution: University of York, Department of Language and Linguistic Science
 
-## Document Descriptions
 
-1. README - System overview and quick installation
-2. QUICK-START-GUIDE - Get running in 15 minutes
-3. USER-GUIDE - Complete user documentation
-4. TECHNICAL-DOCUMENTATION - Developer and admin reference
-5. TROUBLESHOOTING - Common issues and solutions
-6. CHANGELOG - Version history
-7. DOCUMENTATION-INDEX - Guide to all documentation
+CONTENTS
+--------
 
-## Quick Start Reading Path
+This folder contains REF-Manager documentation in three formats:
 
-1. Read QUICK-START-GUIDE.pdf (15 minutes)
-2. Install and run the system
-3. Use USER-GUIDE.pdf as daily reference
-4. Check TROUBLESHOOTING.pdf if stuck
+  md/       - Markdown files (for GitHub, online viewing)
+  latex/    - LaTeX source files (for professional printing)
+  pdf/      - PDF files (for distribution, offline reading)
 
-## Regenerating PDFs
 
-To regenerate PDFs from LaTeX sources:
+DOCUMENTS
+---------
 
-    cd documentation/latex
-    pdflatex DOCUMENT-NAME.tex
-    pdflatex DOCUMENT-NAME.tex  # Run twice for TOC
-    mv DOCUMENT-NAME.pdf ../pdf/
+  README                  - Overview and quick installation
+  QUICK-START-GUIDE       - Get running in 15 minutes
+  USER-GUIDE              - Complete feature documentation
+  TECHNICAL-DOCUMENTATION - Server deployment and development
+  TROUBLESHOOTING         - Common issues and solutions
+  CHANGELOG               - Version history
+  DOCUMENTATION-INDEX     - This index
 
-## Contact
 
-george.tsoulas@york.ac.uk
-https://github.com/gtsoulas/ref-manager
+BUILDING PDFs
+-------------
+
+To rebuild PDF documentation from LaTeX sources:
+
+  cd documentation
+  ./build_docs.sh
+
+Or manually:
+
+  cd latex
+  pdflatex README.tex
+  pdflatex USER-GUIDE.tex
+  pdflatex QUICK-START-GUIDE.tex
+  pdflatex TECHNICAL-DOCUMENTATION.tex
+  pdflatex TROUBLESHOOTING.tex
+  pdflatex CHANGELOG.tex
+  pdflatex DOCUMENTATION-INDEX.tex
+
+
+NEW IN VERSION 4.0
+------------------
+
+- O/S/R Rating System (Originality, Significance, Rigour)
+- DOI Auto-Fetch via OpenAlex API
+- Enhanced Bulk Import with three modes
+- Open Access Compliance tracking
+- REF Narrative Statements support
+
+
+CONTACT
+-------
+
+Author: George Tsoulas
+Email:  george.tsoulas@york.ac.uk
+GitHub: https://github.com/gtsoulas/ref-manager
+
+
+LICENSE
+-------
+
+GNU General Public License v3.0

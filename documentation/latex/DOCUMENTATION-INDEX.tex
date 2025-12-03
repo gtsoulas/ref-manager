@@ -6,7 +6,6 @@
 \usepackage{booktabs}
 \usepackage{xcolor}
 \usepackage{fancyhdr}
-\usepackage{tcolorbox}
 
 \geometry{margin=2.5cm}
 
@@ -17,130 +16,48 @@
     linkcolor=refblue,
     urlcolor=refblue,
     pdftitle={REF-Manager Documentation Index},
+    pdfauthor={George Tsoulas},
 }
 
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\textit{REF-Manager Documentation}}
-\fancyhead[R]{\textit{Index}}
+\fancyhead[R]{\textit{Version 4.0}}
 \fancyfoot[C]{\thepage}
 
 \title{
-    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.5cm]
-    {\LARGE Documentation Index}\\[0.3cm]
-    {\large Complete Guide for v3.0}
+    {\Huge\bfseries\color{refblue} REF-Manager}\\[0.3cm]
+    {\LARGE Documentation Index}\\[0.5cm]
+    {\large Version 4.0.0 ``REF 2029 Ready''}
 }
-\author{University of York}
-\date{November 2024}
+\author{George Tsoulas\\University of York}
+\date{December 2025}
 
 \begin{document}
 
 \maketitle
 
-\section{Document Overview}
+\section{Available Documentation}
 
 \begin{table}[h]
 \centering
-\begin{tabular}{lll}
+\begin{tabular}{llp{5cm}}
 \toprule
-\textbf{Document} & \textbf{Description} & \textbf{Audience} \\
+\textbf{Document} & \textbf{Audience} & \textbf{Description} \\
 \midrule
-README & System overview & Everyone \\
-Quick Start Guide & Get running fast & New users \\
-User Guide & Complete user docs & All users \\
-Technical Documentation & Developer reference & Developers, Admins \\
-Troubleshooting & Problem solving & Everyone \\
-Changelog & Version history & Everyone \\
-\bottomrule
-\end{tabular}
-\caption{Available documentation}
-\end{table}
-
-\section{Reading Paths}
-
-\subsection{New Users}
-\begin{enumerate}
-    \item Quick Start Guide (15 min)
-    \item User Guide sections 1-4 (30 min)
-    \item User Guide remaining sections (as needed)
-\end{enumerate}
-
-\subsection{Department Coordinators}
-\begin{enumerate}
-    \item Quick Start Guide
-    \item User Guide (complete)
-    \item Troubleshooting (reference)
-\end{enumerate}
-
-\subsection{System Administrators}
-\begin{enumerate}
-    \item Technical Documentation
-    \item README
-    \item Troubleshooting
-\end{enumerate}
-
-\subsection{Developers}
-\begin{enumerate}
-    \item README
-    \item Technical Documentation
-    \item Changelog
-\end{enumerate}
-
-\section{Quick Reference}
-
-\subsection{Essential Commands}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{ll}
-\toprule
-\textbf{Task} & \textbf{Command} \\
-\midrule
-Start server & \texttt{python manage.py runserver} \\
-Create admin & \texttt{python manage.py createsuperuser} \\
-Run migrations & \texttt{python manage.py migrate} \\
-Setup roles & \texttt{python manage.py setup\_roles} \\
-Assign role & \texttt{python manage.py assign\_roles user --add ADMIN} \\
+README & Everyone & Overview and quick start \\
+Quick Start Guide & New users & 15-minute setup guide \\
+User Guide & All users & Complete feature documentation \\
+Technical Documentation & Admins, Devs & Deployment and development \\
+Troubleshooting & All users & Common issues and solutions \\
+Changelog & All users & Version history \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Key URLs}
+\section{Document Formats}
 
-\begin{table}[h]
-\centering
-\begin{tabular}{ll}
-\toprule
-\textbf{URL} & \textbf{Description} \\
-\midrule
-/ & Dashboard \\
-/admin/ & Django Admin \\
-/colleagues/ & Colleague management \\
-/outputs/ & Output management \\
-/reports/ & Reports and exports \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{User Roles}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{ll}
-\toprule
-\textbf{Role} & \textbf{Access Level} \\
-\midrule
-Administrator & Full access \\
-Observer & Read-only \\
-Internal Panel & Review assigned \\
-Colleague & Own outputs \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\section{Available Formats}
-
-Documentation is available in three formats:
+All documentation is available in three formats:
 
 \begin{table}[h]
 \centering
@@ -148,16 +65,67 @@ Documentation is available in three formats:
 \toprule
 \textbf{Format} & \textbf{Location} & \textbf{Use Case} \\
 \midrule
-Markdown & documentation/md/ & Reading, editing \\
-LaTeX & documentation/latex/ & Professional printing \\
-PDF & documentation/pdf/ & Distribution, offline \\
+Markdown (.md) & \texttt{documentation/md/} & Online viewing, GitHub \\
+LaTeX (.tex) & \texttt{documentation/latex/} & Professional printing \\
+PDF (.pdf) & \texttt{documentation/pdf/} & Distribution, offline \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+\section{Quick Links by Topic}
+
+\subsection{Getting Started}
+\begin{itemize}
+    \item Installation (README)
+    \item Quick Start Guide
+    \item First Steps
+\end{itemize}
+
+\subsection{New Features in v4.0}
+\begin{itemize}
+    \item O/S/R Ratings (User Guide, Section 6)
+    \item DOI Auto-Fetch (User Guide, Section 5)
+    \item Bulk Import (User Guide, Section 12)
+    \item OA Compliance (User Guide, Section 7)
+    \item Narrative Statements (User Guide, Section 8)
+\end{itemize}
+
+\subsection{Administration}
+\begin{itemize}
+    \item Server Deployment (Technical Documentation)
+    \item Database Configuration (Technical Documentation)
+    \item User Management (User Guide, Section 16)
+    \item Backup \& Recovery (Technical Documentation)
+\end{itemize}
+
+\section{Version Information}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Version} & \textbf{Release Date} & \textbf{Status} \\
+\midrule
+4.0.0 & December 2025 & Current \\
+3.1.0 & November 2025 & Legacy \\
+3.0.0 & October 2025 & Legacy \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Building Documentation}
+
+To rebuild PDF documentation from LaTeX sources:
+
+\begin{verbatim}
+cd documentation
+./build_docs.sh
+\end{verbatim}
+
 \section{Contact}
 
 \begin{itemize}
+    \item \textbf{Author}: George Tsoulas
     \item \textbf{Email}: george.tsoulas@york.ac.uk
     \item \textbf{GitHub}: https://github.com/gtsoulas/ref-manager
 \end{itemize}
@@ -165,7 +133,10 @@ PDF & documentation/pdf/ & Distribution, offline \\
 \vfill
 \begin{center}
 \rule{0.5\textwidth}{0.4pt}\\[0.3cm]
-{\small REF-Manager v3.0.0 --- November 2024}
+{\small REF-Manager v4.0.0}\\
+{\small George Tsoulas}\\
+{\small Department of Language and Linguistic Science, University of York}\\[0.3cm]
+{\small GNU General Public License v3.0}
 \end{center}
 
 \end{document}
