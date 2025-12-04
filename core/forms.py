@@ -5,7 +5,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import (
     Colleague, Output, CriticalFriend, CriticalFriendAssignment,
-    Request, InternalReview, InternalPanelMember, InternalPanelAssignment
+    Request, InternalReview, InternalPanelMember, InternalPanelAssignment,
+    OutputColleague
 )
 
 class ColleagueForm(forms.ModelForm):
@@ -90,6 +91,27 @@ class OutputForm(forms.ModelForm):
         }),
         label="Import from BibTeX",
         help_text="Optional: Paste a BibTeX entry to automatically populate the form fields"
+    )
+    
+    # NEW: Multiple colleague association fields
+    associated_colleagues = forms.ModelMultipleChoiceField(
+        queryset=Colleague.objects.none(),  # Set in __init__
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={
+            'class': 'form-check-input'
+        }),
+        label="Associated Colleagues",
+        help_text="Select all colleagues associated with this output (e.g., co-authors from the department)"
+    )
+    
+    main_colleague_id = forms.ChoiceField(
+        choices=[],  # Populated dynamically in __init__
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'form-control'
+        }),
+        label="Main Colleague (for REF)",
+        help_text="Select the primary colleague for REF submission purposes. Must be one of the associated colleagues."
     )
 
     class Meta:
@@ -280,11 +302,46 @@ class OutputForm(forms.ModelForm):
             except Colleague.DoesNotExist:
                 pass
         
+        # NEW: Set up associated_colleagues queryset
+        self.fields['associated_colleagues'].queryset = Colleague.objects.select_related(
+            'user'
+        ).filter(
+            employment_status='current'
+        ).order_by('user__last_name', 'user__first_name')
+        
+        # NEW: Build choices for main_colleague_id
+        colleague_choices = [('', '-- Select main colleague --')]
+        for c in self.fields['associated_colleagues'].queryset:
+            colleague_choices.append((str(c.pk), c.user.get_full_name()))
+        self.fields['main_colleague_id'].choices = colleague_choices
+        
+        # NEW: Pre-populate associated colleagues and main colleague when editing
+        if self.instance and self.instance.pk:
+            # Get current associations
+            current_associations = OutputColleague.objects.filter(
+                output=self.instance
+            ).select_related('colleague')
+            
+            # Set initial associated colleagues
+            associated_ids = [oc.colleague_id for oc in current_associations]
+            # Also include the legacy colleague FK if not already in associations
+            if self.instance.colleague_id and self.instance.colleague_id not in associated_ids:
+                associated_ids.append(self.instance.colleague_id)
+            self.fields['associated_colleagues'].initial = associated_ids
+            
+            # Set initial main colleague
+            main_association = current_associations.filter(is_main=True).first()
+            if main_association:
+                self.fields['main_colleague_id'].initial = str(main_association.colleague_id)
+            elif self.instance.colleague_id:
+                # Fall back to legacy colleague FK
+                self.fields['main_colleague_id'].initial = str(self.instance.colleague_id)
+        
         # Add CSS classes to all fields
         for field_name, field in self.fields.items():
             if not isinstance(field.widget, forms.HiddenInput):
                 existing_class = field.widget.attrs.get('class', '')
-                if 'form-control' not in existing_class:
+                if 'form-control' not in existing_class and not isinstance(field.widget, forms.CheckboxSelectMultiple):
                     field.widget.attrs['class'] = f'{existing_class} form-control'.strip()
         
         # Mark citation_count as visually distinct
@@ -356,7 +413,75 @@ class OutputForm(forms.ModelForm):
                     'Embargo end date should be after deposit date.'
                 )
         
+        # NEW: Validate main_colleague is in associated_colleagues
+        main_colleague_id = cleaned_data.get('main_colleague_id')
+        associated_colleagues = cleaned_data.get('associated_colleagues', [])
+        
+        if main_colleague_id:
+            associated_ids = [str(c.pk) for c in associated_colleagues]
+            if main_colleague_id not in associated_ids:
+                self.add_error(
+                    'main_colleague_id',
+                    'Main colleague must be one of the associated colleagues.'
+                )
+        
         return cleaned_data
+    
+    def save(self, commit=True):
+        """Override save to handle colleague associations."""
+        output = super().save(commit=False)
+        
+        if commit:
+            output.save()
+            self.save_m2m()  # Save standard M2M fields
+            
+            # Handle colleague associations
+            associated_colleagues = self.cleaned_data.get('associated_colleagues', [])
+            main_colleague_id = self.cleaned_data.get('main_colleague_id')
+            
+            if associated_colleagues:
+                # Get existing associations
+                existing_associations = {
+                    oc.colleague_id: oc 
+                    for oc in OutputColleague.objects.filter(output=output)
+                }
+                
+                # Track which colleagues should be associated
+                new_colleague_ids = set(c.pk for c in associated_colleagues)
+                
+                # Remove associations that are no longer needed
+                for colleague_id in list(existing_associations.keys()):
+                    if colleague_id not in new_colleague_ids:
+                        existing_associations[colleague_id].delete()
+                
+                # Add or update associations
+                for position, colleague in enumerate(associated_colleagues, start=1):
+                    is_main = main_colleague_id and str(colleague.pk) == main_colleague_id
+                    
+                    if colleague.pk in existing_associations:
+                        # Update existing
+                        oc = existing_associations[colleague.pk]
+                        oc.is_main = is_main
+                        oc.author_position = position
+                        oc.save()
+                    else:
+                        # Create new
+                        OutputColleague.objects.create(
+                            output=output,
+                            colleague=colleague,
+                            is_main=is_main,
+                            author_position=position
+                        )
+                
+                # Update the legacy colleague FK to the main colleague
+                if main_colleague_id:
+                    try:
+                        output.colleague_id = int(main_colleague_id)
+                        output.save(update_fields=['colleague_id'])
+                    except (ValueError, TypeError):
+                        pass
+        
+        return output
 
 
 class OutputFilterForm(forms.Form):

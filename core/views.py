@@ -1039,13 +1039,21 @@ def output_create(request):
     if request.method == 'POST':
         form = OutputForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
-            output = form.save(commit=False)
-            
+            # For non-admin users, ensure colleague is set before saving
             if not is_admin(request.user):
                 colleague = get_object_or_404(Colleague, user=request.user)
-                output.colleague = colleague
+                # Set the colleague in the form's instance before save
+                form.instance.colleague = colleague
+                # Also add this colleague to associated_colleagues if not already there
+                associated = list(form.cleaned_data.get('associated_colleagues', []))
+                if colleague not in associated:
+                    associated.append(colleague)
+                form.cleaned_data['associated_colleagues'] = associated
+                # Set as main colleague if none selected
+                if not form.cleaned_data.get('main_colleague_id'):
+                    form.cleaned_data['main_colleague_id'] = str(colleague.pk)
             
-            output.save()
+            output = form.save()
             messages.success(request, 'Output created successfully')
             return redirect('output_detail', pk=output.pk)
     else:
