@@ -85,7 +85,7 @@
         color: #dc3545;
         font-weight: bold;
     }
-    /* NEW: Colleague Association Styles */
+    /* Colleague Association Styles */
     .colleague-association-section {
         background-color: #e8f4fd;
         border-left: 4px solid #17a2b8;
@@ -94,7 +94,7 @@
         border-radius: 0 8px 8px 0;
     }
     .colleague-checkbox-list {
-        max-height: 250px;
+        max-height: 300px;
         overflow-y: auto;
         border: 1px solid #dee2e6;
         border-radius: 0.375rem;
@@ -238,9 +238,6 @@
                             <div class="col-md-6">
                                 {{ form.publication_type|as_crispy_field }}
                             </div>
-                            <div class="col-md-6">
-                                {# Placeholder for layout balance - could add another field here #}
-                            </div>
                         </div>
                         
                         {{ form.title|as_crispy_field }}
@@ -295,7 +292,7 @@
                         {{ form.all_authors|as_crispy_field }}
                         {{ form.author_position|as_crispy_field }}
                         
-                        {# ========== NEW: Colleague Associations Section ========== #}
+                        {# ========== Colleague Associations Section ========== #}
                         <div class="card border-info mb-4 mt-4">
                             <div class="card-header bg-info text-white">
                                 <h5 class="mb-0">
@@ -307,23 +304,22 @@
                             <div class="card-body colleague-association-section">
                                 <p class="text-muted small mb-3">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    Select all colleagues from the department who are associated with this output 
-                                    (e.g., co-authors). Then designate which colleague should be the <strong>main</strong> 
-                                    author for REF submission purposes.
+                                    Select all colleagues from the department associated with this output.
+                                    Then designate the <strong>main colleague</strong> for REF submission.
                                 </p>
                                 
-                                {# Hidden legacy colleague field - still required by the model #}
+                                {# Hidden legacy colleague field #}
                                 <div class="d-none">
                                     {{ form.colleague }}
                                 </div>
                                 
-                                {# Associated Colleagues (Multi-select checkboxes) #}
+                                {# Associated Colleagues Checkboxes #}
                                 <div class="mb-4">
                                     <label class="form-label fw-bold">
                                         <i class="fas fa-check-square text-info me-1"></i>
                                         Associated Colleagues
                                     </label>
-                                    <div class="colleague-checkbox-list" id="colleague-checkbox-container">
+                                    <div class="colleague-checkbox-list">
                                         {% for checkbox in form.associated_colleagues %}
                                             <div class="form-check">
                                                 {{ checkbox.tag }}
@@ -332,20 +328,18 @@
                                                 </label>
                                             </div>
                                         {% empty %}
-                                            <p class="text-muted mb-0 fst-italic">No colleagues available. Please add colleagues first.</p>
+                                            <p class="text-muted mb-0">No colleagues available.</p>
                                         {% endfor %}
                                     </div>
                                     {% if form.associated_colleagues.help_text %}
                                         <small class="text-muted">{{ form.associated_colleagues.help_text }}</small>
                                     {% endif %}
                                     {% if form.associated_colleagues.errors %}
-                                        <div class="alert alert-danger mt-2 py-2">
-                                            {{ form.associated_colleagues.errors }}
-                                        </div>
+                                        <div class="alert alert-danger mt-2 py-2">{{ form.associated_colleagues.errors }}</div>
                                     {% endif %}
                                 </div>
                                 
-                                {# Main Colleague Selection #}
+                                {# Main Colleague Dropdown #}
                                 <div class="mb-3">
                                     <label class="form-label fw-bold" for="id_main_colleague_id">
                                         <i class="fas fa-star text-warning me-1"></i>
@@ -355,18 +349,14 @@
                                     <div class="main-colleague-info mt-2">
                                         <small>
                                             <i class="fas fa-exclamation-triangle text-warning me-1"></i>
-                                            <strong>Important:</strong> The main colleague is the primary person under whom 
-                                            this output will be submitted for REF. They must be one of the associated colleagues selected above.
+                                            <strong>Important:</strong> The main colleague is the primary person for REF submission.
                                         </small>
                                     </div>
                                     {% if form.main_colleague_id.errors %}
-                                        <div class="alert alert-danger mt-2 py-2">
-                                            {{ form.main_colleague_id.errors }}
-                                        </div>
+                                        <div class="alert alert-danger mt-2 py-2">{{ form.main_colleague_id.errors }}</div>
                                     {% endif %}
                                 </div>
                                 
-                                {# Quick stats #}
                                 <div class="border-top pt-3 mt-3">
                                     <small class="text-muted">
                                         <span id="selected-colleagues-count">0</span> colleague(s) selected
@@ -920,85 +910,59 @@ document.addEventListener('DOMContentLoaded', function() {
         doiInput.focus();
     }
     
-    // ========== Colleague Association Handling ==========
+    // Initialize colleague associations
     initColleagueAssociations();
 });
 
 // ========== Colleague Association Functions ==========
 function initColleagueAssociations() {
-    const associatedCheckboxes = document.querySelectorAll('input[name="associated_colleagues"]');
-    const mainColleagueSelect = document.getElementById('id_main_colleague_id');
-    const selectedCountEl = document.getElementById('selected-colleagues-count');
-    const legacyColleagueField = document.getElementById('id_colleague');
+    const checkboxes = document.querySelectorAll('input[name="associated_colleagues"]');
+    const mainSelect = document.getElementById('id_main_colleague_id');
+    const countEl = document.getElementById('selected-colleagues-count');
+    const legacyField = document.getElementById('id_colleague');
     
-    if (!associatedCheckboxes.length || !mainColleagueSelect) {
-        return; // Exit if elements not found
-    }
+    if (!checkboxes.length || !mainSelect) return;
     
-    function updateMainColleagueOptions() {
-        // Get all checked colleague IDs and their labels
+    function updateMainOptions() {
         const checkedIds = new Set();
-        const checkedLabels = {};
-        
-        associatedCheckboxes.forEach(cb => {
-            if (cb.checked) {
-                checkedIds.add(cb.value);
-                // Get the label text
-                const label = document.querySelector(`label[for="${cb.id}"]`);
-                if (label) {
-                    checkedLabels[cb.value] = label.textContent.trim();
-                }
-            }
+        checkboxes.forEach(cb => {
+            if (cb.checked) checkedIds.add(cb.value);
         });
         
-        // Update selected count
-        if (selectedCountEl) {
-            selectedCountEl.textContent = checkedIds.size;
-        }
+        // Update count
+        if (countEl) countEl.textContent = checkedIds.size;
         
-        // Show/hide options in main colleague dropdown
-        const options = mainColleagueSelect.querySelectorAll('option');
-        options.forEach(opt => {
+        // Show/hide dropdown options
+        mainSelect.querySelectorAll('option').forEach(opt => {
             if (opt.value === '') {
-                // Always show the placeholder option
                 opt.style.display = '';
             } else {
-                // Show only if this colleague is checked
                 opt.style.display = checkedIds.has(opt.value) ? '' : 'none';
             }
         });
         
-        // If current selection is not in checked IDs, reset to placeholder
-        if (mainColleagueSelect.value && !checkedIds.has(mainColleagueSelect.value)) {
-            mainColleagueSelect.value = '';
+        // Reset if current selection not checked
+        if (mainSelect.value && !checkedIds.has(mainSelect.value)) {
+            mainSelect.value = '';
         }
         
-        // Auto-select main colleague if only one is checked
+        // Auto-select if only one checked
         if (checkedIds.size === 1) {
-            const singleId = Array.from(checkedIds)[0];
-            mainColleagueSelect.value = singleId;
+            mainSelect.value = Array.from(checkedIds)[0];
         }
         
-        // Update legacy colleague field to match main colleague
-        if (legacyColleagueField && mainColleagueSelect.value) {
-            legacyColleagueField.value = mainColleagueSelect.value;
+        // Sync legacy field
+        if (legacyField && mainSelect.value) {
+            legacyField.value = mainSelect.value;
         }
     }
     
-    // Attach event listeners to checkboxes
-    associatedCheckboxes.forEach(cb => {
-        cb.addEventListener('change', updateMainColleagueOptions);
+    checkboxes.forEach(cb => cb.addEventListener('change', updateMainOptions));
+    mainSelect.addEventListener('change', function() {
+        if (legacyField && this.value) legacyField.value = this.value;
     });
     
-    // Update legacy field when main colleague changes
-    mainColleagueSelect.addEventListener('change', function() {
-        if (legacyColleagueField && this.value) {
-            legacyColleagueField.value = this.value;
-        }
-    });
-    
-    // Initial update
-    updateMainColleagueOptions();
+    updateMainOptions();
 }
 </script>
 {% endblock %}

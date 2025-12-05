@@ -170,7 +170,6 @@ class Output(models.Model):
     colleague = models.ForeignKey(Colleague, on_delete=models.CASCADE, related_name='outputs')
     
     # Many-to-many relationship for multiple colleague associations
-    # Use 'OutputColleague' as string since it's defined later in this file
     colleagues = models.ManyToManyField(
         Colleague,
         through='OutputColleague',
@@ -178,6 +177,7 @@ class Output(models.Model):
         blank=True,
         help_text="All colleagues associated with this output"
     )
+    
     title = models.CharField(max_length=500)
     publication_type = models.CharField(max_length=1, choices=PUBLICATION_TYPES)
     publication_year = models.IntegerField(
@@ -912,12 +912,9 @@ class Output(models.Model):
         Combines both the legacy ForeignKey and the new ManyToMany relationship.
         """
         colleague_ids = set()
-        # Add from legacy ForeignKey
         if self.colleague_id:
             colleague_ids.add(self.colleague_id)
-        # Add from ManyToMany
         colleague_ids.update(self.colleagues.values_list('id', flat=True))
-        from .models import Colleague  # Avoid circular import
         return Colleague.objects.filter(id__in=colleague_ids)
     
     def get_colleague_associations(self):
@@ -941,7 +938,6 @@ class OutputColleague(models.Model):
     """
     Through model for Output-Colleague many-to-many relationship.
     Allows tracking which colleague is the 'main' author for REF submission purposes.
-    Each output can have multiple colleagues, but only one can be designated as 'main'.
     """
     output = models.ForeignKey(
         'Output',
@@ -981,33 +977,13 @@ class OutputColleague(models.Model):
         return f"{self.colleague} - {self.output.title[:30]}{main_str}"
     
     def save(self, *args, **kwargs):
-        """
-        Override save to ensure only one main colleague per output.
-        If this is being set as main, unset any other main for this output.
-        """
+        """Ensure only one main colleague per output."""
         if self.is_main:
-            # Unset is_main for all other colleagues on this output
             OutputColleague.objects.filter(
                 output=self.output, 
                 is_main=True
             ).exclude(pk=self.pk).update(is_main=False)
         super().save(*args, **kwargs)
-    
-    @classmethod
-    def set_main_colleague(cls, output, colleague):
-        """
-        Convenience method to set a colleague as the main colleague for an output.
-        Creates the association if it doesn't exist.
-        """
-        obj, created = cls.objects.get_or_create(
-            output=output,
-            colleague=colleague,
-            defaults={'is_main': True}
-        )
-        if not created and not obj.is_main:
-            obj.is_main = True
-            obj.save()
-        return obj
 
 
 class CriticalFriend(models.Model):

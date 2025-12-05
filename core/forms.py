@@ -93,7 +93,7 @@ class OutputForm(forms.ModelForm):
         help_text="Optional: Paste a BibTeX entry to automatically populate the form fields"
     )
     
-    # NEW: Multiple colleague association fields
+    # Multiple colleague association fields
     associated_colleagues = forms.ModelMultipleChoiceField(
         queryset=Colleague.objects.none(),  # Set in __init__
         required=False,
@@ -101,17 +101,17 @@ class OutputForm(forms.ModelForm):
             'class': 'form-check-input'
         }),
         label="Associated Colleagues",
-        help_text="Select all colleagues associated with this output (e.g., co-authors from the department)"
+        help_text="Select all colleagues associated with this output (co-authors from the department)"
     )
     
     main_colleague_id = forms.ChoiceField(
-        choices=[],  # Populated dynamically in __init__
+        choices=[],  # Populated in __init__
         required=False,
         widget=forms.Select(attrs={
             'class': 'form-control'
         }),
         label="Main Colleague (for REF)",
-        help_text="Select the primary colleague for REF submission purposes. Must be one of the associated colleagues."
+        help_text="Select the primary colleague for REF submission purposes"
     )
 
     class Meta:
@@ -302,29 +302,29 @@ class OutputForm(forms.ModelForm):
             except Colleague.DoesNotExist:
                 pass
         
-        # NEW: Set up associated_colleagues queryset
+        # Set up associated_colleagues queryset - include ALL colleagues
+        # (current, former, non-independent, coauthors)
         self.fields['associated_colleagues'].queryset = Colleague.objects.select_related(
             'user'
-        ).filter(
-            employment_status='current'
         ).order_by('user__last_name', 'user__first_name')
         
-        # NEW: Build choices for main_colleague_id
+        # Build choices for main_colleague_id dropdown
         colleague_choices = [('', '-- Select main colleague --')]
         for c in self.fields['associated_colleagues'].queryset:
-            colleague_choices.append((str(c.pk), c.user.get_full_name()))
+            # Show category in parentheses for clarity
+            category_display = c.get_colleague_category_display() if hasattr(c, 'get_colleague_category_display') else ''
+            label = f"{c.user.get_full_name()} ({category_display})" if category_display else c.user.get_full_name()
+            colleague_choices.append((str(c.pk), label))
         self.fields['main_colleague_id'].choices = colleague_choices
         
-        # NEW: Pre-populate associated colleagues and main colleague when editing
+        # Pre-populate when editing existing output
         if self.instance and self.instance.pk:
-            # Get current associations
             current_associations = OutputColleague.objects.filter(
                 output=self.instance
             ).select_related('colleague')
             
             # Set initial associated colleagues
             associated_ids = [oc.colleague_id for oc in current_associations]
-            # Also include the legacy colleague FK if not already in associations
             if self.instance.colleague_id and self.instance.colleague_id not in associated_ids:
                 associated_ids.append(self.instance.colleague_id)
             self.fields['associated_colleagues'].initial = associated_ids
@@ -334,7 +334,6 @@ class OutputForm(forms.ModelForm):
             if main_association:
                 self.fields['main_colleague_id'].initial = str(main_association.colleague_id)
             elif self.instance.colleague_id:
-                # Fall back to legacy colleague FK
                 self.fields['main_colleague_id'].initial = str(self.instance.colleague_id)
         
         # Add CSS classes to all fields
@@ -413,11 +412,11 @@ class OutputForm(forms.ModelForm):
                     'Embargo end date should be after deposit date.'
                 )
         
-        # NEW: Validate main_colleague is in associated_colleagues
+        # Validate main_colleague is in associated_colleagues
         main_colleague_id = cleaned_data.get('main_colleague_id')
         associated_colleagues = cleaned_data.get('associated_colleagues', [])
         
-        if main_colleague_id:
+        if main_colleague_id and associated_colleagues:
             associated_ids = [str(c.pk) for c in associated_colleagues]
             if main_colleague_id not in associated_ids:
                 self.add_error(
@@ -433,7 +432,7 @@ class OutputForm(forms.ModelForm):
         
         if commit:
             output.save()
-            self.save_m2m()  # Save standard M2M fields
+            self.save_m2m()
             
             # Handle colleague associations
             associated_colleagues = self.cleaned_data.get('associated_colleagues', [])
@@ -441,39 +440,36 @@ class OutputForm(forms.ModelForm):
             
             if associated_colleagues:
                 # Get existing associations
-                existing_associations = {
+                existing = {
                     oc.colleague_id: oc 
                     for oc in OutputColleague.objects.filter(output=output)
                 }
                 
-                # Track which colleagues should be associated
-                new_colleague_ids = set(c.pk for c in associated_colleagues)
+                new_ids = set(c.pk for c in associated_colleagues)
                 
-                # Remove associations that are no longer needed
-                for colleague_id in list(existing_associations.keys()):
-                    if colleague_id not in new_colleague_ids:
-                        existing_associations[colleague_id].delete()
+                # Remove old associations
+                for cid in list(existing.keys()):
+                    if cid not in new_ids:
+                        existing[cid].delete()
                 
                 # Add or update associations
-                for position, colleague in enumerate(associated_colleagues, start=1):
+                for pos, colleague in enumerate(associated_colleagues, start=1):
                     is_main = main_colleague_id and str(colleague.pk) == main_colleague_id
                     
-                    if colleague.pk in existing_associations:
-                        # Update existing
-                        oc = existing_associations[colleague.pk]
+                    if colleague.pk in existing:
+                        oc = existing[colleague.pk]
                         oc.is_main = is_main
-                        oc.author_position = position
+                        oc.author_position = pos
                         oc.save()
                     else:
-                        # Create new
                         OutputColleague.objects.create(
                             output=output,
                             colleague=colleague,
                             is_main=is_main,
-                            author_position=position
+                            author_position=pos
                         )
                 
-                # Update the legacy colleague FK to the main colleague
+                # Update legacy colleague FK
                 if main_colleague_id:
                     try:
                         output.colleague_id = int(main_colleague_id)
